@@ -28,7 +28,7 @@ class Play extends Phaser.Scene {
         // place tile sprite
         this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0);
 
-        this.hamsterShip = new HamsterShip(this, screen.center.x, screen.center.y, 'spaceship_fly');
+        this.hamsterShip = new HamsterShip(this, screen.center.x, screen.center.y, 'spaceship_fly', 'spaceship_roll');
 
         // toggle squares
         const enableGizmosButton = document.querySelector("#enable-gizmos");

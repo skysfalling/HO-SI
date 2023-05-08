@@ -21,7 +21,6 @@ let config = {
     type: Phaser.CANVAS,
     width: window.innerWidth * window.devicePixelRatio,
     height: window.innerHeight * window.devicePixelRatio,
-    resolution: 0.5, // set to 0.5 for half resolution
     parent: 'game-container',
     physics: {
       default: 'arcade',  
@@ -31,10 +30,12 @@ let config = {
       }
     },  
     scene: [ Menu, Play, Editor ],
-    pixelArt: true
+    pixelArt: true,
+    fps: 60
 }
 const game = new Phaser.Game(config);
 
+let scaleRatio = window.devicePixelRatio / 3;
 
 // reserve keyboard variables
 let keyD, keyF, keyLEFT, keyRIGHT, keyUP, keyDOWN;
@@ -133,7 +134,7 @@ let headerConfig = {
 // menu text configuration
 let defaultTextStyle = {
   fontFamily: 'Courier',
-  fontSize: '12px',
+  fontSize: screen.width / 50,
   color: color_pal.pink,
   align: 'right',
   padding: 5,
