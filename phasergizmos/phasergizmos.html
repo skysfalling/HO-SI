@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../styles.css">
+    <link rel="stylesheet" type="text/css" href="../phasercss/phaser.css">
+
+    <title>Design Objects</title>
+    <h1 id="title" onclick="window.location.href='../index.html'">Go Back</h1>
+
+</head>
+<body>
+    <div class="innerbody">
+        <div id="game-container">
+            <script src="../phaser/lib/phaser.js"></script>
+            <script src="../phasergizmos/gizmos.js"></script>
+            <script src="../phasergizmos/src/GizmoTesting.js"></script>
+            <script src="../phasergizmos/main.js"></script>
+        </div>
+        <div class="debug-window">
+            <h3>|| Debug Window ||</h3>
+
+            <div class = "debug-slider">
+                <p id = "speed-info" class = "debug-info">speed (s) : </p>
+                <input type="range" min="0" max="100" value="1" id = "speed-slider" class="debug-slider">
+            </div>
+
+            <button id ="enable-rect" class="toggle-gizmos"></button>
+            <button id ="enable-circle" class="toggle-gizmos"></button>
+            <button id ="enable-text" class="toggle-gizmos"></button>
+            <button id ="enable-line-range" class="toggle-gizmos"></button>
+
+        </div>
+    </div>
+</body>
