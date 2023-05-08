@@ -19,8 +19,8 @@ HAMSTER ORIGINS : SNAKE INVADERS
 
 let config = {
     type: Phaser.CANVAS,
-    width: 360,
-    height: 649,
+    width: window.innerWidth * window.devicePixelRatio,
+    height: window.innerHeight * window.devicePixelRatio,
     resolution: 0.5, // set to 0.5 for half resolution
     parent: 'game-container',
     physics: {
