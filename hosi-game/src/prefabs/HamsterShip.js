@@ -77,7 +77,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
               end: 5, 
               first: 0
           }),
-          frameRate: 8,
+          frameRate: 16,
           repeat: 0
       });
 
@@ -192,8 +192,6 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
   //#endregion
   }
   
-
-
   /* ========================================================================================
                       UPDATE
   ========================================================*/
@@ -211,7 +209,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
         const midpointY = (this.y + rocket.y) / 2;
 
         // Update the camera target position based on the player's position
-        this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.1);
+        this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
 
     }
 
@@ -220,10 +218,13 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
       
     // << GIZMOS >>
-    this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
-    this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
-    this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
-    this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
+    if (gizmosDebug)
+    {
+      this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
+      this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
+      this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
+      this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
+    }
 
     // check for dodge
     if (!this.dodgeKey.isDown && this.dodgeUsed) { this.dodgeUsed = false; }
@@ -242,13 +243,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
   
   primary_fire() {
 
-
     // check fire delay
     if (this.scene.time.now < this.lastFired + this.fireDelay) return;
     this.lastFired = this.scene.time.now;
 
     this.bullets.fire(this, this.x, this.y, this.ss_bullet);
-
 
   }
 

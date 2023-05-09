@@ -16,7 +16,6 @@ HAMSTER ORIGINS : SNAKE INVADERS
 
 */
 
-
 let config = {
     type: Phaser.CANVAS,
     width: 540,
@@ -34,13 +33,15 @@ let config = {
     fps: 60
 }
 const game = new Phaser.Game(config);
-
-let scaleRatio = window.devicePixelRatio / 3;
+let gizmosDebug = true;
 
 // reserve keyboard variables
 let keyD, keyF, keyLEFT, keyRIGHT, keyUP, keyDOWN;
 
-// -----  GAME FORMAT ----------------------------------------------------------
+// #region [[ FORMATTING ]] =================================================
+
+let scaleRatio = window.devicePixelRatio / 3;
+
 // screen points
 let screen = {
   center: { 
@@ -93,7 +94,9 @@ let format = {
 let borderUISize = 20;
 let borderPadding = 10;
 
-// >> Color Palette
+//#endregion
+
+//#region [[ CUSTOM COLORS ]] =============================================================
 let color_pal = {
   pink: "#F6518A",
   orange: "#d45404",
@@ -114,7 +117,9 @@ let neon_color_pal = {
   pink: "#EF45F5",
   purple: "#7C3CD6"
 }
+//#endregion
 
+//#region [[ TEXT STYLES ]] =============================================================
 // header config
 let headerConfig = {
   fontFamily: 'Courier New',
@@ -140,3 +145,4 @@ let defaultTextStyle = {
   padding: 5,
   fixedWidth: 0,
 }
+//#endregion

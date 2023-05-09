@@ -11,6 +11,7 @@ class Menu extends Phaser.Scene {
 
         game.config.centerX = game.config.width / 2;
         game.config.centerY = game.config.height / 2;
+
     }
 
     create() {
@@ -27,6 +28,14 @@ class Menu extends Phaser.Scene {
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+
+        // toggle gizmos
+        const enableGizmosButton = document.querySelector("#enable-gizmos");
+        enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+        enableGizmosButton.addEventListener("click", () => { 
+            gizmosDebug = !gizmosDebug;
+            enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+        }); 
     }
 
     update() {

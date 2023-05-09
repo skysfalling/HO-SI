@@ -1,38 +1,33 @@
-#game-container {
+#game-window {
     display: flex;
+    flex-direction: columnm;
     justify-content: center;
     align-items: center;
     margin: 20px auto;
-    max-width: 80%;
-  }
-  
-  #game-container canvas {
+    max-width: 50%;
+}
+
+#game-container canvas {
     border: 5px solid black;
     outline: none;
     display: block;
-    margin: auto;
+    margin: 20px;
     padding: 10px;
-  }
+}
 
-.debug-window {
+#debug-window {
     background-color: rgba(0, 0, 0, 0.5);
     font-family: monospace;
-    font-size: 16px;
-
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
-
-    padding: 10px;
-    width: 200px;
+    width: 20%;
 }
 
-.debug-window h3 {
+#debug-window h3 {
     background-color: rgba(0, 0, 0, 1);
-    font-size: 16px;
-    padding: 20px;
-    width: 100%;
+    font-size: 24px;
 }
 
 

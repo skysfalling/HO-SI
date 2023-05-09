@@ -16,26 +16,29 @@
 
 </head>
 <body>
-    <div id="game-container">
-        <script src="../phaser/lib/phaser.js"></script>
-        <script src="../phasergizmos/gizmos.js"></script>
-        <script src="./src/prefabs/Asteroid.js"></script>
-        <script src="./src/prefabs/Bullet.js"></script>
-        <script src="./src/prefabs/HamsterShip.js"></script>
-        <script src="./src/prefabs/Spaceship.js"></script>
-        <script src="./src/prefabs/Rocket.js"></script>
-        <script src="./src/scenes/Menu.js"></script>
-        <script src="./src/scenes/Play.js"></script>
-        <script src="./src/scenes/Editor.js"></script>
-        <script src="./src/main.js"></script>
+
+    <div id="game-window">
+        <div id="game-container">
+            <script src="../phaser/lib/phaser.js"></script>
+            <script src="../phasergizmos/gizmos.js"></script>
+            <script src="./src/prefabs/Asteroid.js"></script>
+            <script src="./src/prefabs/Bullet.js"></script>
+            <script src="./src/prefabs/HamsterShip.js"></script>
+            <script src="./src/prefabs/Spaceship.js"></script>
+            <script src="./src/prefabs/Rocket.js"></script>
+            <script src="./src/scenes/Menu.js"></script>
+            <script src="./src/scenes/Play.js"></script>
+            <script src="./src/scenes/Editor.js"></script>
+            <script src="./src/main.js"></script>
+        </div>
+    
+    
+        <div id="debug-window">
+            <h3>Debug Window</h3>
+            <button id ="enable-gizmos" class="toggle-gizmos"></button>
+        </div>
     </div>
 
-
-    <div id="debug-window">
-        Debug Window
-        <button id ="enable-gizmos" class="toggle-gizmos"></button>
-
-    </div>
 
 
 </body>

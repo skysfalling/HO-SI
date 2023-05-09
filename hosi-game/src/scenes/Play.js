@@ -90,8 +90,7 @@ class Play extends Phaser.Scene {
         // << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
 
-        // center point
-        this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
+
 
         //#region << PLAYER SHIP >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
@@ -130,15 +129,16 @@ class Play extends Phaser.Scene {
             });
         //#endregion
 
-        
-
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
-        enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
+        enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
         enableGizmosButton.addEventListener("click", () => { 
-            game.config.debug = !game.config.debug;
-            enableGizmosButton.innerHTML = "Gizmos: " + game.config.debug;
+            gizmosDebug = !gizmosDebug;
+            enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
         }); 
+
+        // center point
+        this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
     }
         
     update() {
@@ -152,15 +152,15 @@ class Play extends Phaser.Scene {
 
         this.physics.world.wrap(this.asteroids);
 
-        // << DRAW WORLD BOUNDS >>
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
+        if (gizmosDebug)
+        {
+            // << DRAW WORLD BOUNDS >>
+            this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
+        }
 
 
-
+        // << UPDATE CAMERA >>
         this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
-
-
-
 
         // constrain the main camera within the world bounds
         this.mainCamera.setScroll(
