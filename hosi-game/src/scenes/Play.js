@@ -18,14 +18,19 @@ class Play extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
 
-
         // << HAMSTER SPACESHIP >>
         this.load.spritesheet('spaceship_fly', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 2});
         this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
 
+        // << BULLETS >>
+        this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
+
         // << ASTEROIDS >>
         this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
         this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
+
+        // 
+
         //#endregion
 
     //#region [[ SCENE SETUP]]
@@ -84,10 +89,10 @@ class Play extends Phaser.Scene {
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
 
         // center point
-        this.gizmos.createText(this.world.center.x, this.world.center.y, "CENTER POINT");
+        this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
 
         // << PLAYER SHIP >>
-        this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll');
+        this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         //#region << ASTEROIDS >>
         // create asteroids
@@ -99,13 +104,14 @@ class Play extends Phaser.Scene {
         });
         // spawn asteroids
         Phaser.Actions.RandomRectangle(this.asteroids.getChildren(), this.physics.world.bounds);
-        // add collide listener
+        // auto primary fire
         this.physics.add.overlap(
             this.asteroids,
             this.hamsterShip.primaryFireTrigger,
             (asteroid, hamsterShip) =>
             {
                 console.log("asteroid overlap");
+                this.hamsterShip.primary_fire();
             });
         //#endregion
 
@@ -133,7 +139,7 @@ class Play extends Phaser.Scene {
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width - format.margin, this.world.height - format.margin, 0);
 
         // follow the player with the main camera
-        this.mainCamera.startFollow(this.hamsterShip, true, 0.1, 0.1);
+        this.mainCamera.startFollow(this.hamsterShip, true, 0.1, 0.1, 0, screen.height/3);
 
         // constrain the main camera within the world bounds
         this.mainCamera.setScroll(

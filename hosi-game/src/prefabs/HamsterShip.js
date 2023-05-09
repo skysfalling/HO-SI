@@ -1,6 +1,6 @@
 class HamsterShip extends Phaser.GameObjects.Sprite {
-  constructor(scene, x, y, ss_fly, ss_dodge) {
-    super(scene, x, y, ss_fly);
+  constructor(scene, x, y, ss_fly, ss_dodge, ss_bullet) {
+    super(scene, x, y, ss_fly, ss_dodge, ss_bullet);
 
     // Set up physics and initial properties
     scene.add.existing(this);
@@ -13,6 +13,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.setDepth(1);
     this.setScale(2);
 
+    this.ss_bullet = ss_bullet;
 
     // [[ INPUTS ]] ====================================================================
     // Define the arrow key movement controls
@@ -46,6 +47,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
   // [[ ANIMATIONS ]] ===================================================================
 
+    //#region << SPACESHIP ANIMATIONS >>
     // spaceship fly animation config
     this.anims.create({
         key: 'fly',
@@ -71,7 +73,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
       });
 
     this.anims.play('fly');   
+    //#endregion
 
+
+  
   
 
   // [[ STATES ]] ===================================================================
@@ -113,10 +118,6 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           if (this.rocketKey.isDown && this.currentState== this.states.MOVE && !this.rocketUsed) {
             this.states.ROCKET.enter();
           }
-
-          // << PRIMARY FIRE >>
-
-
 
         },
       },
@@ -163,11 +164,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.currentState = this.states.MOVE;
 
   // [[ FIRE MODES ]] ===============================================================
-    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width, this.fireCheckLength).setStrokeStyle(2, 0xffff00).setOrigin(0.5,1);
+    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.fireCheckLength).setOrigin(0.5,1);
     this.physics.add.existing(this.primaryFireTrigger);
-
-    this.asteroidInFireRange = false;
-
+    
   }
   
   update() {
@@ -182,11 +181,34 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     this.currentState.update();
   }
+  
+  primary_fire() {
+    // check fire delay
+    if (this.scene.time.now < this.lastFired + this.fireDelay) return;
+    this.lastFired = this.scene.time.now;
 
-  overlap_asteroid(){
-    console.log("overlap asteroid");
-    this.asteroidInFireRange = true;
+    // fire bullet
+    const bullet = new Bullet(this.scene, this.x, this.y, this.ss_bullet);
+
+    bullet.anims.create({
+      key: 'primary_fire',
+      frames: this.anims.generateFrameNumbers(this.ss_bullet, { 
+          start: 0, 
+          end: 3, 
+          first: 0
+      }),
+      frameRate: 8,
+      repeat: -1
+    });
+    bullet.anims.play('primary_fire');
+
+    // handle overlap 
+    this.scene.physics.add.overlap(bullet, this.scene.asteroids, (bullet, asteroid) => {
+      bullet.destroy();
+      asteroid.destroy();
+    });
   }
+
 }
          
   
