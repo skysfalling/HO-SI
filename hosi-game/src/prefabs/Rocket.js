@@ -7,10 +7,9 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
         this.ship = ship;
         scene.add.existing(this);   // add to existing, displayList, updateList
         this.ship.physics.add.existing(this) // add to physics
-        this.body.setCollideWorldBounds(true);
+        this.body.setCollideWorldBounds(false);
 
-
-        this.gizmos = new Gizmos(this.scene);
+        this.gizmos = new Gizmos(scene);
 
         this.setDepth(2);
         this.setScale(1);
@@ -18,6 +17,8 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
         this.aimMoveSpeed = 2;         // pixels per frame
         this.rocketForce = 400;         // pixels per frame
         this.rocketRotationForce = 20;
+        this.explode_delay = 2000;
+        this.reset_delay = 1000;
 
         this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
         
@@ -32,7 +33,6 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
             frameRate: 8,
             repeat: -1
         });
-        this.anims.play('fire');            
         
         // explode animation
         this.anims.create({
@@ -43,20 +43,20 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
                 first: 0
             }),
             frameRate: 8,
+            repeat: -1
         });
-
-        // << TEXT GIZMO >>
-        this.stateText = this.gizmos.createText(0, 0, 'state');
-        this.posText = this.gizmos.createText(0, 0, 'pos');
 
         // Initialize state machine
         this.states = {
             FIRE: {
                 name: "fire",
                 enter: () => {
+                    this.body.setVelocityY(-100);
                     this.sfxRocket.play({volume: 0.1});
                     this.currentState = this.states.FIRE;
-                    this.play('fire');
+                    this.anims.play('fire');
+
+                    this.timed_explosion();
                 },
                 update: (leftDown, rightDown) => {
                     // Move the rocket
@@ -78,7 +78,7 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
                 name: "idle",
                 enter: () => {
                     this.currentState = this.states.IDLE;
-                    this.play('fire');
+                    this.anims.play('fire');
                 },
                 update: () =>{
                     this.setPosition(this.ship.x , this.ship.y + this.ship.height);
@@ -88,10 +88,16 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
                 name: "explode",
                 enter: () => {
                     this.currentState = this.states.EXPLODE;
-                    this.play('explode');
+                    this.anims.play('explode');
                     this.body.stop();
                     this.setRotation(0);
-                    this.reset();
+                    this.scene.time.addEvent({
+                        delay: this.reset_delay,
+                        callback: () => {
+                            this.reset();
+                        },
+                        loop: false
+                    });
 
                     console.log('rocket-explode');
                 },
@@ -100,28 +106,29 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
         };
 
         // Set initial state
-        this.currentState = this.states.IDLE;
-
-        this.scene.events.on('update', () => {
-            if(!this.scene.physics.world.bounds.contains(this.x + format.margin, this.y + format.margin)) {
-                this.states.EXPLODE.enter();
-            }
-        })
-
+        this.states.IDLE.enter();
     }
 
     update() {
-        this.currentState.update();
 
-        this.gizmos.updateText(this.stateText, this.x, this.y + this.height, this.currentState.name)
-        this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
+        this.currentState.update();
+    }
+
+    timed_explosion(){
+        this.scene.time.addEvent({
+            delay: this.explode_delay,
+            callback: () => {
+                this.states.EXPLODE.enter();
+            },
+            loop: false
+        });
     }
 
     reset() {
         this.setActive(false);
         this.setVisible(false);
         this.scene.time.addEvent({
-            delay: 500,
+            delay: this.reset_delay,
             callback: () => {
                 this.scene.children.add(this);
                 this.setActive(true);

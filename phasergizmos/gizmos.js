@@ -199,10 +199,11 @@ class Gizmos {
 
     //#region [[ TEXT ]]
     // create or update a text object
-    createText(x, y, text = "gizmos", fontSize = 20, angle = 0) {
+    createText(x, y, text = "gizmos", color = "#ffffff", fontSize = 20, angle = 0) {
         var textObject = this.scene.add.text(x, y, text);
         textObject.setOrigin(0.5, 0.5);
         textObject.setVisible(true);
+        textObject.setColor(color);
         textObject.setFont(fontSize);
         textObject.setAngle(angle);
         this.scene.add.existing(textObject);
@@ -210,10 +211,11 @@ class Gizmos {
     }
 
     // create or update a text object
-    updateText(textObject, x, y, text = "gizmos", fontSize = 20, angle = 0) {
+    updateText(textObject, x, y, text = "gizmos", color = "#ffffff", fontSize = 20, angle = 0) {
         textObject.x = x;
         textObject.y = y;
         textObject.text = text;
+        textObject.setColor(color);
         textObject.setAngle(angle);
         textObject.setFont(fontSize);
     }

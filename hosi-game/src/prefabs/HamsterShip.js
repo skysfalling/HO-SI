@@ -13,6 +13,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.setDepth(1);
     this.setScale(2);
 
+    // Create the camera target variable
+    this.mainCamera = scene.cameras.main;
+    this.cameraTarget = new Phaser.Math.Vector2(this.x, this.y);
+
     this.bullets;
     this.ss_bullet = ss_bullet;
 
@@ -36,6 +40,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     // << TEXT GIZMO >>
     this.stateText = this.gizmos.createText(0, 0, 'state');
     this.posText = this.gizmos.createText(0, 0, 'pos');
+    this.rocketText = this.gizmos.createText(0, 0,'rocket');
+    this.camTargetText = this.gizmos.createText(0, 0,'cam');
+
     //#endregion
 
     //#region [[ SHIP VALUES ]] ===================================================================
@@ -114,7 +121,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           }
 
           // fire rocket
-          if (this.rocketKey.isDown && this.currentState== this.states.MOVE && !this.rocketUsed) {
+          if (this.rocketKey.isDown && this.currentState === this.states.MOVE && this.rocket.currentState.name === "idle") {
             this.states.ROCKET_FIRE.enter();
           }
 
@@ -182,8 +189,6 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.rocket = new Rocket(this.scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
     this.physics.add.existing(this.rocket);
 
-    this.rocketAvailable = true;
-
   //#endregion
   }
   
@@ -193,9 +198,32 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
                       UPDATE
   ========================================================*/
 
-  update() {
+  update(time) {
+
+    // << CAMERA >>
+    // Update the camera target position based on the player's position
+    this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
+
+    // follow the midpoint between the rocket and ship with the main camera
+    if (this.currentState.name == "rocket_fire") {
+        const rocket = this.rocket;
+        const midpointX = (this.x + rocket.x) / 2;
+        const midpointY = (this.y + rocket.y) / 2;
+
+        // Update the camera target position based on the player's position
+        this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.1);
+
+    }
+
+    // In the update loop, move the camera towards the camera target
+    this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.cameraTarget.x - this.mainCamera.width/2, 0.1);
+    this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
+      
+    // << GIZMOS >>
     this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
     this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
+    this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
+    this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
 
     // check for dodge
     if (!this.dodgeKey.isDown && this.dodgeUsed) { this.dodgeUsed = false; }
@@ -206,9 +234,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     // check for explosion
     if (this.rocket.currentState.name == 'explode' && this.currentState == this.states.ROCKET_FIRE) {
       this.states.MOVE.enter();
-      this.rocketAvailable = false;
     }
-  
 
     this.rocket.currentState.update(this.moveLeft.isDown, this.moveRight.isDown);
     this.currentState.update();

@@ -97,7 +97,6 @@ class Play extends Phaser.Scene {
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         // bullets
-
         this.hamsterShip.bullets = this.physics.add.group({
             key: 'bullets',
             quantity: 50,
@@ -126,14 +125,14 @@ class Play extends Phaser.Scene {
             this.hamsterShip.primaryFireTrigger,
             (asteroid, hamsterShip) =>
             {
-                console.log("asteroid overlap");
+                //console.log("asteroid overlap");
                 this.hamsterShip.primary_fire();
             });
         //#endregion
 
         
 
-        // toggle squares
+        // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
         enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
         enableGizmosButton.addEventListener("click", () => { 
@@ -154,16 +153,13 @@ class Play extends Phaser.Scene {
         this.physics.world.wrap(this.asteroids);
 
         // << DRAW WORLD BOUNDS >>
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width - format.margin, this.world.height - format.margin, 0);
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
 
-        // follow the player with the main camera
-        if (this.hamsterShip.currentState.name == "rocket_fire")
-        {
-            this.mainCamera.startFollow(this.hamsterShip.rocket, true, 0.1, 0.1, 0, screen.height/3);
-        }
-        else {
-            this.mainCamera.startFollow(this.hamsterShip, true, 0.1, 0.1, 0, screen.height/3);
-        }
+
+
+        this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
+
+
 
 
         // constrain the main camera within the world bounds
