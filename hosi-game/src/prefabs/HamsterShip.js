@@ -6,6 +6,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     scene.add.existing(this);
     scene.physics.world.enable(this);
 
+    this.scene = scene;
+    this.physics = scene.physics;
+
     this.body.setCollideWorldBounds(true);
     this.setDepth(1);
     this.setScale(2);
@@ -33,9 +36,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     // [[ SHIP VALUES ]] ===================================================================
     this.moveSpeed = 300;
-    this.dodgeForce = 1000;
-    this.dodgeDuration = 200;
+    this.dodgeForce = 600;
+    this.dodgeDuration = 500;
     this.rocketForce = 400;
+
+    this.fireCheckLength = screen.height * 0.8;
     this.fireDelay = 200;
     this.lastFired = 0;
 
@@ -58,10 +63,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           key: 'dodge',
           frames: this.anims.generateFrameNumbers(ss_dodge, { 
               start: 0, 
-              end: 9, 
+              end: 5, 
               first: 0
           }),
-          frameRate: 16,
+          frameRate: 8,
           repeat: 0
       });
 
@@ -104,9 +109,14 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
             this.dodgeUsed = true;
           }
 
+          // fire rocket
           if (this.rocketKey.isDown && this.currentState== this.states.MOVE && !this.rocketUsed) {
             this.states.ROCKET.enter();
           }
+
+          // << PRIMARY FIRE >>
+
+
 
         },
       },
@@ -131,9 +141,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           this.anims.play('dodge');
 
           scene.time.addEvent({
-            delay: 200,
+            delay: this.dodgeDuration,
             callback: () => {
-              this.currentState = this.states.MOVE;
+              this.states.MOVE.enter();
             },
             loop: false
           });
@@ -152,20 +162,30 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     // set initial state
     this.currentState = this.states.MOVE;
 
+  // [[ FIRE MODES ]] ===============================================================
+    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width, this.fireCheckLength).setStrokeStyle(2, 0xffff00).setOrigin(0.5,1);
+
+    this.asteroidInFireRange = false;
+
   }
   
   update() {
-    this.gizmos.updateText(this.stateText, this.x, this.y + this.height, this.currentState.name)
+    this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
     this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
 
     if (!this.dodgeKey.isDown && this.dodgeUsed) { this.dodgeUsed = false; }
 
     //if (!this.rocketKey.isDown && this.rocketUsed) { this.rocketUsed = false; }
 
+    this.primaryFireTrigger.setPosition(this.x, this.y);
+
     this.currentState.update();
   }
 
-  
+  overlap_asteroid(){
+    console.log("overlap asteroid");
+    this.asteroidInFireRange = true;
+  }
 }
          
   

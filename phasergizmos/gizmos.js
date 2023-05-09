@@ -69,7 +69,6 @@ class Gizmos {
         const bottomRight = this.rotatePoint(rectX + width, rectY + height, x, y, rotation);
         const bottomLeft = this.rotatePoint(rectX, rectY + height, x, y, rotation);
 
-
         // console.log("rect center:", rectX, rectY, "\ncorners: ", topLeft, topRight, bottomRight, bottomLeft);
 
         // draw rect

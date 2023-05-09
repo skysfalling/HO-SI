@@ -55,9 +55,6 @@ class GizmoTesting extends Phaser.Scene {
         this.Gizmos.showLineRangeGizmos = !this.Gizmos.showLineRangeGizmos;
         enableLineRangeButton.innerHTML = "line range: " + this.Gizmos.showLineRangeGizmos;
         });
-
-        
-
     }
   
     update() {
@@ -83,8 +80,6 @@ class GizmoTesting extends Phaser.Scene {
         // Set slider text
         let debugSpeed = document.getElementById('speed-info');
         debugSpeed.innerHTML = "speed " + this.speed;
-
-        
 
         // ---------------------------------------------------------------------------------------------------
 
