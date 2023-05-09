@@ -4,9 +4,9 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
+        this.physics.add.existing(this);
         this.gizmos = new Gizmos(this);
         this.showGizmos = true;
-
         this.level = 1;
 
     //#region [[ SPRITES ]]
@@ -15,7 +15,6 @@ class Play extends Phaser.Scene {
         this.load.image('starfield', './assets/starfield.png');
 
         // load spritesheet
-        this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
 
         // << HAMSTER SPACESHIP >>
@@ -24,6 +23,10 @@ class Play extends Phaser.Scene {
 
         // << BULLETS >>
         this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
+
+        // << ROCKET >>
+        this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
+        this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
         // << ASTEROIDS >>
         this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
@@ -84,15 +87,28 @@ class Play extends Phaser.Scene {
 
     create() {
 
-        // #region [[ CREATE OBJECTS ]]
         // << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
 
         // center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
 
-        // << PLAYER SHIP >>
+        //#region << PLAYER SHIP >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
+
+        // bullets
+
+        this.hamsterShip.bullets = this.physics.add.group({
+            key: 'bullets',
+            quantity: 50,
+            collideWorldBounds: false,
+            velocityX: -600
+        });
+        this.hamsterShip.bullets = this.add.existing(
+            new Bullets(this)
+          );
+
+        //#endregion
 
         //#region << ASTEROIDS >>
         // create asteroids
@@ -114,6 +130,8 @@ class Play extends Phaser.Scene {
                 this.hamsterShip.primary_fire();
             });
         //#endregion
+
+        
 
         // toggle squares
         const enableGizmosButton = document.querySelector("#enable-gizmos");
@@ -139,7 +157,14 @@ class Play extends Phaser.Scene {
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width - format.margin, this.world.height - format.margin, 0);
 
         // follow the player with the main camera
-        this.mainCamera.startFollow(this.hamsterShip, true, 0.1, 0.1, 0, screen.height/3);
+        if (this.hamsterShip.currentState.name == "rocket_fire")
+        {
+            this.mainCamera.startFollow(this.hamsterShip.rocket, true, 0.1, 0.1, 0, screen.height/3);
+        }
+        else {
+            this.mainCamera.startFollow(this.hamsterShip, true, 0.1, 0.1, 0, screen.height/3);
+        }
+
 
         // constrain the main camera within the world bounds
         this.mainCamera.setScroll(

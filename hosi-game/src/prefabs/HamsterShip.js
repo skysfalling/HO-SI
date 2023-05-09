@@ -13,9 +13,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.setDepth(1);
     this.setScale(2);
 
+    this.bullets;
     this.ss_bullet = ss_bullet;
 
-    // [[ INPUTS ]] ====================================================================
+    //#region [[ INPUTS ]] ====================================================================
     // Define the arrow key movement controls
     this.moveUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     this.moveDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
@@ -27,15 +28,17 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     // Define the F rocket fire key control
     this.rocketKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-
-    // [[ GIZMOS]] =====================================================
+    //#endregion
+    
+    //#region [[ GIZMOS]] =====================================================
     this.gizmos = new Gizmos(this.scene);
 
     // << TEXT GIZMO >>
     this.stateText = this.gizmos.createText(0, 0, 'state');
     this.posText = this.gizmos.createText(0, 0, 'pos');
+    //#endregion
 
-    // [[ SHIP VALUES ]] ===================================================================
+    //#region [[ SHIP VALUES ]] ===================================================================
     this.moveSpeed = 300;
     this.dodgeForce = 600;
     this.dodgeDuration = 500;
@@ -44,10 +47,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.fireCheckLength = screen.height * 0.8;
     this.fireDelay = 200;
     this.lastFired = 0;
+    //#endregion
 
-  // [[ ANIMATIONS ]] ===================================================================
-
-    //#region << SPACESHIP ANIMATIONS >>
+  //#region [[ ANIMATIONS ]] ===================================================================
     // spaceship fly animation config
     this.anims.create({
         key: 'fly',
@@ -73,11 +75,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
       });
 
     this.anims.play('fly');   
-    //#endregion
-
-
-  
-  
+  //#endregion
 
   // [[ STATES ]] ===================================================================
 
@@ -87,9 +85,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
         enter: ()=> {
           this.currentState = this.states.MOVE;
           this.anims.play('fly');
+          this.setAlpha(1);
         },
         update: () => {
-          
+
           // horizontal movement
           if (this.moveLeft.isDown) {
             this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, -this.moveSpeed, 0.1));
@@ -116,7 +115,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
           // fire rocket
           if (this.rocketKey.isDown && this.currentState== this.states.MOVE && !this.rocketUsed) {
-            this.states.ROCKET.enter();
+            this.states.ROCKET_FIRE.enter();
           }
 
         },
@@ -125,7 +124,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
         name: "dodge",
         enter: ()=> {
           this.currentState = this.states.DODGE;
+          this.setAlpha(1);
 
+          this.dodgeDirection = new Phaser.Math.Vector2(0, 0);
           if (this.moveLeft.isDown) {
             this.dodgeDirection = new Phaser.Math.Vector2(-1, 0);
           } else if (this.moveRight.isDown) {
@@ -141,6 +142,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
           this.anims.play('dodge');
 
+          // dodge duration
           scene.time.addEvent({
             delay: this.dodgeDuration,
             callback: () => {
@@ -148,14 +150,21 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
             },
             loop: false
           });
+
+
+          
         },
         update: () => {}
       },
-      ROCKET: {
-        name: "rocket",
-        enter: ()=> {},
+      ROCKET_FIRE: {
+        name: "rocket_fire",
+        enter: ()=> {
+          this.currentState = this.states.ROCKET_FIRE;
+          this.body.setVelocity(0, 0);
+          this.rocket.states.FIRE.enter();
+          this.setAlpha(0.5);
+        },
         update: () => {
-
         }
       }
     }
@@ -163,50 +172,58 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     // set initial state
     this.currentState = this.states.MOVE;
 
-  // [[ FIRE MODES ]] ===============================================================
+  //#region [[ FIRE MODES ]] ===============================================================
+
+    // << PRIMARY FIRE TRIGGER >>
     this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.fireCheckLength).setOrigin(0.5,1);
     this.physics.add.existing(this.primaryFireTrigger);
-    
+
+    // << ROCKET FIRE >>
+    this.rocket = new Rocket(this.scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
+    this.physics.add.existing(this.rocket);
+
+    this.rocketAvailable = true;
+
+  //#endregion
   }
   
+
+
+  /* ========================================================================================
+                      UPDATE
+  ========================================================*/
+
   update() {
     this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
     this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
 
+    // check for dodge
     if (!this.dodgeKey.isDown && this.dodgeUsed) { this.dodgeUsed = false; }
 
-    //if (!this.rocketKey.isDown && this.rocketUsed) { this.rocketUsed = false; }
-
+    // set fire trigger position
     this.primaryFireTrigger.setPosition(this.x, this.y);
 
+    // check for explosion
+    if (this.rocket.currentState.name == 'explode' && this.currentState == this.states.ROCKET_FIRE) {
+      this.states.MOVE.enter();
+      this.rocketAvailable = false;
+    }
+  
+
+    this.rocket.currentState.update(this.moveLeft.isDown, this.moveRight.isDown);
     this.currentState.update();
   }
   
   primary_fire() {
+
+
     // check fire delay
     if (this.scene.time.now < this.lastFired + this.fireDelay) return;
     this.lastFired = this.scene.time.now;
 
-    // fire bullet
-    const bullet = new Bullet(this.scene, this.x, this.y, this.ss_bullet);
+    this.bullets.fire(this, this.x, this.y, this.ss_bullet);
 
-    bullet.anims.create({
-      key: 'primary_fire',
-      frames: this.anims.generateFrameNumbers(this.ss_bullet, { 
-          start: 0, 
-          end: 3, 
-          first: 0
-      }),
-      frameRate: 8,
-      repeat: -1
-    });
-    bullet.anims.play('primary_fire');
 
-    // handle overlap 
-    this.scene.physics.add.overlap(bullet, this.scene.asteroids, (bullet, asteroid) => {
-      bullet.destroy();
-      asteroid.destroy();
-    });
   }
 
 }
