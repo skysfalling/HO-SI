@@ -164,6 +164,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
   // [[ FIRE MODES ]] ===============================================================
     this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width, this.fireCheckLength).setStrokeStyle(2, 0xffff00).setOrigin(0.5,1);
+    this.physics.add.existing(this.primaryFireTrigger);
 
     this.asteroidInFireRange = false;
 

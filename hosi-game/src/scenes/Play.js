@@ -81,7 +81,7 @@ class Play extends Phaser.Scene {
 
         // #region [[ CREATE OBJECTS ]]
         // << BACKGROUND PARALLAX >>
-        this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width, 480, 'starfield').setOrigin(0.5, 0.5);
+        this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
 
         // center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "CENTER POINT");
@@ -113,8 +113,8 @@ class Play extends Phaser.Scene {
         const enableGizmosButton = document.querySelector("#enable-gizmos");
         enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
         enableGizmosButton.addEventListener("click", () => { 
-            this.showGizmos =!this.showGizmos;
-            enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
+            game.config.debug = !game.config.debug;
+            enableGizmosButton.innerHTML = "Gizmos: " + game.config.debug;
         }); 
     }
         
