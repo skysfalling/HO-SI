@@ -22,10 +22,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     //#region [[ INPUTS ]] ====================================================================
     // Define the arrow key movement controls
-    this.moveUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-    this.moveDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-    this.moveLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-    this.moveRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+    this.moveUp = keyUP;
+    this.moveDown = keyDOWN;
+    this.moveLeft = keyLEFT;
+    this.moveRight = keyRIGHT;
 
     // Define the D dodge key control
     this.dodgeKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -198,26 +198,30 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
   update(time) {
 
-    // << CAMERA >>
-    // Update the camera target position based on the player's position
-    this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
+    //#region << UPDATE CAMERA >>
+    if (this.scene.currLevelState.name == "play")
+    {
+      // Update the camera target position based on the player's position
+      this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
 
-    // follow the midpoint between the rocket and ship with the main camera
-    if (this.currentState.name == "rocket_fire") {
-        const rocket = this.rocket;
-        const midpointX = (this.x + rocket.x) / 2;
-        const midpointY = (this.y + rocket.y) / 2;
+      // follow the midpoint between the rocket and ship with the main camera
+      if (this.currentState.name == "rocket_fire") {
+          const rocket = this.rocket;
+          const midpointX = (this.x + rocket.x) / 2;
+          const midpointY = (this.y + rocket.y) / 2;
 
-        // Update the camera target position based on the player's position
-        this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
+          // Update the camera target position based on the player's position
+          this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
+      }
 
+      // In the update loop, move the camera towards the camera target
+      this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.cameraTarget.x - this.mainCamera.width/2, 0.1);
+      this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
     }
 
-    // In the update loop, move the camera towards the camera target
-    this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.cameraTarget.x - this.mainCamera.width/2, 0.1);
-    this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
-      
-    // << GIZMOS >>
+    //#endregion
+    
+    //#region << GIZMOS >>
     if (gizmosDebug)
     {
       this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)

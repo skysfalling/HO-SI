@@ -15,7 +15,6 @@ HAMSTER ORIGINS : SNAKE INVADERS
 ================================================================
 
 */
-
 let config = {
     type: Phaser.CANVAS,
     width: 540,
@@ -36,7 +35,8 @@ const game = new Phaser.Game(config);
 let gizmosDebug = true;
 
 // reserve keyboard variables
-let keyD, keyF, keyLEFT, keyRIGHT, keyUP, keyDOWN;
+let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN;
+
 
 // #region [[ FORMATTING ]] =================================================
 
