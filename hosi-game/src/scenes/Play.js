@@ -41,7 +41,7 @@ class Play extends Phaser.Scene {
 
         // 
 
-        //#endregion
+    //#endregion
 
     //#region [[ SCENE SETUP]]
 
