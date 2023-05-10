@@ -5,7 +5,6 @@ class SkyChart {
         this.graphics.setDepth(2);
         this.gizmos = new Gizmos(scene, this.graphics);
 
-
         this.showPoints = true;
         this.showLines = true;
         this.showPointIndex = true;
@@ -14,20 +13,23 @@ class SkyChart {
         this.rect = new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height);
         this.spawnGridPoints = this.createRectPoints(this.rect, gridSize);
 
-        this.drawRectGridPoints(this.spawnGridPoints);
+        if (gizmosActive)
+        {
+            this.drawRectGridPoints(this.spawnGridPoints);
 
-        this.createPointIndexText(this.spawnGridPoints.top, 0, -20);
-        this.createPointIndexText(this.spawnGridPoints.bottom, 0, 20);
-        this.createPointIndexText(this.spawnGridPoints.right, 20, 0);
-        this.createPointIndexText(this.spawnGridPoints.left, -20, 0);
-
+            this.createPointIndexText(this.spawnGridPoints.top, 0, -20);
+            this.createPointIndexText(this.spawnGridPoints.bottom, 0, 20);
+            this.createPointIndexText(this.spawnGridPoints.right, 20, 0);
+            this.createPointIndexText(this.spawnGridPoints.left, -20, 0);
+        }
     }
 
     createRectPoints(rect, gridSize = 64) 
     {
-        const points = Phaser.Geom.Rectangle.GetPoints(rect, gridSize);
-        const pointArrays = {
-            allPoints: points,
+        //const points = Phaser.Geom.Rectangle.GetPoints(rect, gridSize);
+        
+        const rectPoints = {
+            allPoints: [],
             top: [],
             bottom: [],
             left: [],
@@ -35,39 +37,55 @@ class SkyChart {
             corners: []
         };
 
+
+        for (let y = rect.y; y <= rect.y + rect.height; y += gridSize) {
+            rectPoints.allPoints.push(new Phaser.Geom.Point(rect.x, y));
+            rectPoints.allPoints.push(new Phaser.Geom.Point(rect.x + rect.width, y));
+        }
+
+        for (let x = rect.x; x <= rect.x + rect.width; x += gridSize) {
+            rectPoints.allPoints.push(new Phaser.Geom.Point(x, rect.y));
+            rectPoints.allPoints.push(new Phaser.Geom.Point(x, rect.y + rect.height));
+
+        }
+        
         // check position of point , and store accordingly
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
+        for (let i = 0; i < rectPoints.allPoints.length; i++) {
+            const point = rectPoints.allPoints[i];
         
-            if (point.y === rect.top) {
-                pointArrays.top.push(point);
-            } 
-            else if (point.y === rect.bottom) {
-                pointArrays.bottom.push(point);
-            }
-        
-            if (point.x === rect.left) {
-                pointArrays.left.push(point);
-            } 
-            else if (point.x === rect.right) {
-                pointArrays.right.push(point);
-            }
-        
+            // store corners
             if ((point.x === rect.left && point.y === rect.top) ||
                 (point.x === rect.right && point.y === rect.top) ||
                 (point.x === rect.left && point.y === rect.bottom) ||
-                (point.x === rect.right && point.y === rect.bottom)) {
-                pointArrays.corners.push(point);
+                (point.x === rect.right && point.y === rect.bottom)) 
+            {
+                rectPoints.corners.push(point);
+            }
+            // store points
+            else {
+                if (point.y === rect.top) {
+                    rectPoints.top.push(point);
+                } 
+                else if (point.y === rect.bottom) {
+                    rectPoints.bottom.push(point);
+                }
+            
+                if (point.x === rect.left) {
+                    rectPoints.left.push(point);
+                } 
+                else if (point.x === rect.right) {
+                    rectPoints.right.push(point);
+                }  
             }
         }
 
         // sort the sides
-        pointArrays.top.sort((a, b) => a.x - b.x);
-        pointArrays.bottom.sort((a, b) => b.x - a.x);
-        pointArrays.left.sort((a, b) => b.y - a.y);
-        pointArrays.right.sort((a, b) => a.y - b.y);
+        rectPoints.top.sort((a, b) => a.x - b.x);
+        rectPoints.bottom.sort((a, b) => a.x - b.x);
+        rectPoints.left.sort((a, b) => a.y - b.y);
+        rectPoints.right.sort((a, b) => a.y - b.y);
 
-        return pointArrays;
+        return rectPoints;
     }
 
     drawRectGridPoints(rectPointArrays, pointSize = 10) {
@@ -88,38 +106,7 @@ class SkyChart {
         }
     }
 
-    
-
-    drawRectGridLines(x, y, width, height, color = 0xffffff, lineWidth = 2, opacity = 1, gridSize = 64) {
-        const rect = new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height);
-    
-        if (gridSize > 0) {
-
-            // get points
-            const points = Phaser.Geom.Rectangle.GetPoints(rect, gridSize);
-            const midX = x - width / 2 + width / 2;
-            const midY = y - height / 2 + height / 2;
-    
-            // Draw horizontal lines
-            for (let i = 0; i < points.length; i++) {
-                const start = points[i];
-                const end = new Phaser.Geom.Point(start.x + width, start.y);
-    
-                if (start.y == midY) {
-                    this.drawLine(start, end, color, lineWidth, opacity);
-                }
-            }
-    
-            // Draw vertical lines
-            for (let i = 0; i < points.length; i++) {
-                const start = points[i];
-                const end = new Phaser.Geom.Point(start.x, start.y + height);
-    
-                if (start.x == midX) {
-                    this.drawLine(start, end, color, lineWidth, opacity);
-                }
-            }
-        }
+    drawLineBetweenPoints(startPoint, endPoint, color = 0xffffff, lineWidth = 2, opacity = 1) {
+        this.gizmos.drawLine(start, end, color, lineWidth, opacity);
     }
-    
 }

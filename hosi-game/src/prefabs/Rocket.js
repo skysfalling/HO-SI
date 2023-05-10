@@ -114,6 +114,10 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
+        // avoid 'half' pixels
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+
         this.currentState.update();
     }
 

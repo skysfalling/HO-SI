@@ -105,9 +105,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
           // horizontal movement
           if (this.moveLeft.isDown) {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, -this.moveSpeed, 0.1));
+            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, -this.moveSpeed, 0.5));
           } else if (this.moveRight.isDown) {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.1));
+            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.5));
           } else {
             this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 0.1));
           }
@@ -212,6 +212,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     //#region << UPDATE CAMERA >>
     if (this.scene.currLevelState.name == "play")
     {
+
+      // avoid 'half' pixels
+      this.x = Math.floor(this.x);
+      this.y = Math.floor(this.y);
+
       // Update the camera target position based on the player's position
       this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
 

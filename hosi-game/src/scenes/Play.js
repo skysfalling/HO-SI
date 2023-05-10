@@ -65,12 +65,12 @@ class Play extends Phaser.Scene {
         //#endregion
 
         //#region << FORMAT VALUES >>
-        this.gridFormat = {
-            gridSize: 64, // 64 pixels
+        this.grid = {
+            cellSize: 64, // 64 pixels
         };
 
         this.uiFormat = {
-            camMargin : 64 * 4
+            camMargin : this.grid.cellSize * 2
         }
         
         //#endregion
@@ -81,9 +81,9 @@ class Play extends Phaser.Scene {
 
         //#region << WORLD BOUNDS >>
         this.world = {
-            offset: 350,
-            width: 900,
-            height: 1600,
+            offset: 3 * this.grid.cellSize,
+            width: 9 * this.grid.cellSize,
+            height: 9 * this.grid.cellSize,
             center: {
             x: null,
             y: null,
@@ -127,8 +127,7 @@ class Play extends Phaser.Scene {
         //#endregion
     
         //#region << SKYCHART >>
-
-        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width * 1.5, this.world.height * 1.5);
+        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width, this.world.height + (this.grid.cellSize * 2));
 
         //#endregion
     
@@ -309,8 +308,6 @@ class Play extends Phaser.Scene {
             primaryFireToggle.innerHTML = "Primary Fire: " + this.hamsterShip.primaryActive;
         }); 
         //#endregion
-
-
     }
 
     gizmosCreate(){
@@ -328,6 +325,8 @@ class Play extends Phaser.Scene {
         // << DRAW CAMERA BOUNDS >> ( blue )
         //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
+
+        this.gizmos.drawLine(this.skychart.spawnGridPoints.top[2], this.skychart.spawnGridPoints.bottom[2]);
 
     }
         
