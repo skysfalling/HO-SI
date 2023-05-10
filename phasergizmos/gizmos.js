@@ -5,6 +5,7 @@ class Gizmos {
         // setup graphics
         if (graphics === undefined) {
             this.graphics = scene.add.graphics();
+            this.graphics.setDepth(1);
         }
         else {
             this.graphics = graphics;
@@ -14,6 +15,8 @@ class Gizmos {
         this.showCircleGizmos = true;
         this.showTextGizmos = true;
         this.showLineRangeGizmos = true;
+
+        
     }
   
     // [[ LINE ]]
@@ -56,8 +59,10 @@ class Gizmos {
     //#endregion
 
     //#region  [[ RECT ]]
-    drawRect(x, y, width, height, rotation = 0, color = 0xffffff, lineWidth = 2) {
+    drawRect(x, y, width, height, rotation = 0, color = 0xffffff, lineWidth = 2, opacity = 1) {
         this.graphics.lineStyle(lineWidth, color, 1);
+        this.graphics.setAlpha(opacity);
+        this.graphics.depth = 1;
 
         // [[ SET ORIGIN ( 0.5 , 0.5 ) ]]
         const rectX = x - width / 2;
@@ -79,7 +84,6 @@ class Gizmos {
         this.graphics.lineTo(bottomLeft.x, bottomLeft.y);
         this.graphics.closePath();
         this.graphics.stroke();
-        this.graphics.depth = 1;
     }
 
     drawRectFill(x, y, width, height, rotation = 0, color = 0xffffff, lineWidth = 2) {
@@ -106,6 +110,7 @@ class Gizmos {
         this.graphics.fill();
         this.graphics.stroke();
     }
+
     //#endregion
 
     //#region  [[ LINE RANGE ]] : line from start - end ,  colored lines show height
@@ -206,6 +211,7 @@ class Gizmos {
         textObject.setColor(color);
         textObject.setFont(fontSize);
         textObject.setAngle(angle);
+        textObject.setDepth(this.graphics.depth);
         this.scene.add.existing(textObject);
         return textObject;
     }

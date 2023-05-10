@@ -5,7 +5,9 @@ class Play extends Phaser.Scene {
 
     preload() {
         this.physics.add.existing(this);
-        this.gizmos = new Gizmos(this);
+        this.scene_graphics = this.add.graphics();
+
+        this.gizmos = new Gizmos(this, this.add.graphics());
         
         this.level = 1;
 
@@ -63,7 +65,7 @@ class Play extends Phaser.Scene {
         };
 
         this.uiFormat = {
-            margin : 128
+            camMargin : 64 * 4
         }
         
         //#endregion
@@ -74,18 +76,18 @@ class Play extends Phaser.Scene {
 
         //#region << WORLD BOUNDS >>
         this.world = {
-            offset: 200,
-            width: 1000,
-            height: 1000,
+            offset: 350,
+            width: 900,
+            height: 1600,
             center: {
             x: null,
             y: null,
             },
             bounds: {
-            left: null,
-            right: null,
-            top: null,
-            bottom: null,
+                left: null,
+                right: null,
+                top: null,
+                bottom: null,
             },
             cam_bounds: {
                 left: null,
@@ -95,7 +97,6 @@ class Play extends Phaser.Scene {
                 width: null,
                 height: null
             },
-
         };
         this.world.center.x = (this.world.width / 2) + this.world.offset;
         this.world.center.y = (this.world.height / 2) + this.world.offset;
@@ -107,10 +108,10 @@ class Play extends Phaser.Scene {
         this.world.bounds.bottom = this.world.offset + this.world.height;
 
         // set cam bounds
-        this.world.cam_bounds.left = this.world.offset + this.uiFormat.margin;
-        this.world.cam_bounds.right = (this.world.offset + this.world.width) - this.uiFormat.margin;
-        this.world.cam_bounds.top = this.world.offset + this.uiFormat.margin;
-        this.world.cam_bounds.bottom = (this.world.offset + this.world.height) - this.uiFormat.margin;
+        this.world.cam_bounds.left = this.world.offset + this.uiFormat.camMargin;
+        this.world.cam_bounds.right = (this.world.offset + this.world.width) - this.uiFormat.camMargin;
+        this.world.cam_bounds.top = this.world.offset + this.uiFormat.camMargin;
+        this.world.cam_bounds.bottom = (this.world.offset + this.world.height) - this.uiFormat.camMargin;
 
         this.world.cam_bounds.width = this.world.cam_bounds.right - this.world.cam_bounds.left;
         this.world.cam_bounds.height = this.world.cam_bounds.bottom - this.world.cam_bounds.top;
@@ -119,10 +120,13 @@ class Play extends Phaser.Scene {
         // set the world bounds
         this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
         //#endregion
-        
+    
+        //#region << SKYCHART >>
 
+        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width * 1.5, this.world.height * 1.5);
 
-
+        //#endregion
+    
     //#endregion
 
     // #region [[ GUI ]] ==============================================================
@@ -198,14 +202,20 @@ class Play extends Phaser.Scene {
     const canvas = document.getElementById('game-container');
     }
 
+    // ================================================================================= ///??^
+    //                          CREATE
+    // =======its hamster time===========================================)) 0o0p ~
+
     create() {
+        // << CREATE GIZMOS >>
+        this.gizmosCreate();
 
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
         this.mainCamera.scrollY = this.world.center.y;
 
         //#region << BACKGROUND PARALLAX >>
-        this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width, screen.height, 'starfield').setOrigin(0.5, 0.5);
+        this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width*4, this.world.height*4, 'starfield').setOrigin(0.5, 0.5);
         //#endregion
 
         //#region << PLAYER SHIP >>
@@ -230,12 +240,16 @@ class Play extends Phaser.Scene {
             key: 'asteroid',
             quantity: 5,
             collideWorldBounds: false,
-            velocityX: -150
+            velocityY: 150
         });
 
-        // spawn asteroids
-        Phaser.Actions.RandomRectangle(this.asteroids.getChildren(), this.physics.world.bounds);
-        
+        // set asteroid pos
+        this.asteroids.getChildren().forEach((asteroid) => {
+            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
+            asteroid.x = point.x;
+            asteroid.y = point.y;
+        });
+
         // auto primary fire
         this.physics.add.overlap(
             this.asteroids,
@@ -255,15 +269,24 @@ class Play extends Phaser.Scene {
                 asteroid.destroy();
             }
         });
+
+        // Listen for the 'destroy' event on the asteroids group
+        this.asteroids.on('destroy', (asteroid) => {
+            // Spawn a new asteroid at a randomly chosen point in the points array
+            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
+            asteroid.x = point.x;
+            asteroid.y = point.y;
+            this.asteroids.create(asteroid.x, asteroid.y, 'asteroid');
+        });
         //#endregion
 
         //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
-        enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+        enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
         enableGizmosButton.addEventListener("click", () => { 
-            gizmosDebug = !gizmosDebug;
-            enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+            gizmosActive = !gizmosActive;
+            enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
         }); 
 
         // toggle edit mode
@@ -282,10 +305,25 @@ class Play extends Phaser.Scene {
         }); 
         //#endregion
 
-        //#region << CREATE GIZMOS >>
+
+    }
+
+    gizmosCreate(){
+        if (!gizmosActive) { return; }
+
         // show center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
-        //#endregion
+
+        // << DRAW SCREEN BOUNDS >> ( white )
+        //this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
+
+        // << DRAW WORLD BOUNDS >> ( bold white )
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 1, 1);
+
+        // << DRAW CAMERA BOUNDS >> ( blue )
+        //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
+
     }
         
     // ================================================================================= // *~
@@ -301,21 +339,10 @@ class Play extends Phaser.Scene {
     }
 
     gizmosUpdate(){
-        if (!gizmosDebug) { return; }
+        if (!gizmosActive) { return; }
 
         // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
-        this.gizmos.graphics.clear();
-
-        // << DRAW SCREEN BOUNDS >> ( white )
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
-
-        // << DRAW WORLD BOUNDS >> ( bold white )
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 5);
-
-        // << DRAW CAMERA BOUNDS >> ( blue )
-        //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 0, color_pal.toInt("blue"), 2);
-
+        //this.gizmos.graphics.clear();
     }
 
     playUpdate(){

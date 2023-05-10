@@ -11,7 +11,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     this.body.setCollideWorldBounds(true);
     this.setDepth(1);
-    this.setScale(2);
+    this.setScale(2); //64px
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
@@ -47,9 +47,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     //#endregion
 
     //#region [[ SHIP VALUES ]] ===================================================================
-    this.moveSpeed = 300;
+    this.moveSpeed = 200;
     this.dodgeForce = 600;
-    this.dodgeDuration = 500;
+    this.dodgeDuration = 250;
 
     // primary fire
     this.primaryFireCheckLength = screen.height * 0.8;
@@ -234,7 +234,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     //#endregion
     
     //#region << GIZMOS >>
-    if (gizmosDebug)
+    if (gizmosActive)
     {
       this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
       this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));

@@ -29,10 +29,10 @@ class Menu extends Phaser.Scene {
 
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
-        enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+        enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
         enableGizmosButton.addEventListener("click", () => { 
-            gizmosDebug = !gizmosDebug;
-            enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+            gizmosActive = !gizmosActive;
+            enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
         }); 
 
         // toggle edit mode

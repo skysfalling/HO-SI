@@ -32,7 +32,7 @@ let config = {
     fps: 60
 }
 const game = new Phaser.Game(config);
-let gizmosDebug = true;
+let gizmosActive = true;
 let editorActive = false;
 
 // reserve keyboard variables
