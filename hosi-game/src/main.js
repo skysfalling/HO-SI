@@ -18,7 +18,7 @@ HAMSTER ORIGINS : SNAKE INVADERS
 
 let config = {
     type: Phaser.CANVAS,
-    width: 540,
+    width: 576,
     height: 960 ,
     parent: 'game-container',
     physics: {
@@ -28,7 +28,7 @@ let config = {
           gravity: { y: 0 }
       }
     },  
-    scene: [ Menu, Play, Editor ],
+    scene: [ Menu, LevelZero, Play, Editor ],
     pixelArt: true,
     fps: 60
 }

@@ -36,11 +36,6 @@ class Play extends Phaser.Scene {
 
         // 
 
-        // << TEXTURE ATLAS >>
-        this.load.atlas('hosi_atlas', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
-
-        //
-
     //#endregion
 
     //#region [[ SCENE SETUP]]
@@ -258,69 +253,6 @@ class Play extends Phaser.Scene {
         // show center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
 
-        //#region << HAMSTER ANIMATIONS >>
-
-        // << Beige Hamster >>
-        this.anims.create({
-            key: 'beigeIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "beige_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        // << Green Hamster >>
-        this.anims.create({
-            key: 'greenIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "green_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        // << Pink Hamster >>
-        this.anims.create({
-            key: 'pinkIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "pink_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        // << Blue Hamster >>
-        this.anims.create({
-            key: 'blueIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "blue_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        // << Black Hamster >> 
-        this.anims.create({
-            key: 'blackIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "black_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        
-        //#endregion
     }
         
     update(time, delta) {
