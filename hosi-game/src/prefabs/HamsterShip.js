@@ -17,6 +17,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.mainCamera = scene.cameras.main;
     this.cameraTarget = new Phaser.Math.Vector2(this.x, this.y);
 
+    this.primaryActive = true;
     this.bullets;
     this.ss_bullet = ss_bullet;
 
@@ -49,11 +50,17 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.moveSpeed = 300;
     this.dodgeForce = 600;
     this.dodgeDuration = 500;
+
+    // primary fire
+    this.primaryFireCheckLength = screen.height * 0.8;
+    this.primaryFireDelay = 200;
+    this.primarylastFired = 0;
+
+    // rocket fire
+    this.rocket;
+    this.rocketPos = {x: this.x + this.width, y: this.y};
     this.rocketForce = 400;
 
-    this.fireCheckLength = screen.height * 0.8;
-    this.fireDelay = 200;
-    this.lastFired = 0;
     //#endregion
 
   //#region [[ ANIMATIONS ]] ===================================================================
@@ -156,10 +163,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
               this.states.MOVE.enter();
             },
             loop: false
-          });
-
-
-          
+          });          
         },
         update: () => {}
       },
@@ -173,6 +177,13 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
         },
         update: () => {
         }
+      },
+      DISABLE: {
+        name: "disable",
+        enter: () => {
+          this.currentState = this.states.DISABLE;
+        },
+        update: () => {}
       }
     }
 
@@ -182,11 +193,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
   //#region [[ FIRE MODES ]] ===============================================================
 
     // << PRIMARY FIRE TRIGGER >>
-    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.fireCheckLength).setOrigin(0.5,1);
+    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.primaryFireCheckLength).setOrigin(0.5,1);
     this.physics.add.existing(this.primaryFireTrigger);
 
     // << ROCKET FIRE >>
-    this.rocket = new Rocket(this.scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
+    this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
     this.physics.add.existing(this.rocket);
 
   //#endregion
@@ -198,7 +209,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
   update(time) {
 
-    // << CAMERA >>
+    //#region << UPDATE CAMERA >>
     // Update the camera target position based on the player's position
     this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
 
@@ -210,14 +221,14 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
         // Update the camera target position based on the player's position
         this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
-
     }
 
     // In the update loop, move the camera towards the camera target
     this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.cameraTarget.x - this.mainCamera.width/2, 0.1);
     this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
-      
-    // << GIZMOS >>
+    //#endregion
+    
+    //#region << GIZMOS >>
     if (gizmosDebug)
     {
       this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
@@ -225,6 +236,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
       this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
       this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
     }
+    //#endregion
 
     // check for dodge
     if (!this.dodgeKey.isDown && this.dodgeUsed) { this.dodgeUsed = false; }
@@ -237,15 +249,18 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
       this.states.MOVE.enter();
     }
 
+    // check for fire
     this.rocket.currentState.update(this.moveLeft.isDown, this.moveRight.isDown);
     this.currentState.update();
   }
   
   primary_fire() {
 
+    if (!this.primaryActive) {return;}
+
     // check fire delay
-    if (this.scene.time.now < this.lastFired + this.fireDelay) return;
-    this.lastFired = this.scene.time.now;
+    if (this.scene.time.now < this.primarylastFired + this.primaryFireDelay) return;
+    this.primarylastFired = this.scene.time.now;
 
     this.bullets.fire(this, this.x, this.y, this.ss_bullet);
 

@@ -6,6 +6,7 @@ class Play extends Phaser.Scene {
     preload() {
         this.physics.add.existing(this);
         this.gizmos = new Gizmos(this);
+        
         this.showGizmos = true;
         this.level = 1;
 
@@ -37,10 +38,28 @@ class Play extends Phaser.Scene {
         //#endregion
 
     //#region [[ SCENE SETUP]]
+
+        // << CAMERA >>
         this.mainCamera = this.cameras.main;
         this.mainCamera.setBackgroundColor('#0000ff');
 
-        // set physical world bounds
+          // define inputs
+        const cursors = this.input.keyboard.createCursorKeys();
+        const editorControlConfig = {
+            camera: this.mainCamera,
+            left: cursors.left,
+            right: cursors.right,
+            up: cursors.up,
+            down: cursors.down,
+            zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
+            zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X),
+            acceleration: 0.01,
+            drag: 10,
+            maxSpeed: 0.001
+        };
+        this.editorCamControls = new Phaser.Cameras.Controls.SmoothedKeyControl(editorControlConfig);
+
+        // << WORLD BOUNDS >>
         this.world = {
             offset: 100,
             cam_offset: -200,
@@ -82,15 +101,78 @@ class Play extends Phaser.Scene {
         this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
       //#endregion
 
-        const canvas = document.getElementById('game-container');
+    // #region [[ GUI ]] ==============================================================
+    const cam = this.mainCamera;
+    this.gui = new dat.GUI();
+
+    const mouseGUI = this.gui.addFolder('Pointer');
+    mouseGUI.add(this.input, 'x').listen();
+    mouseGUI.add(this.input, 'y').listen();
+    mouseGUI.open();
+
+    const help = {
+        line1: 'Arrow Keys to move',
+        line2: 'Z & X to zoom in/out',
+    }
+
+    const cameraGUI = this.gui.addFolder('Camera Stats');
+    //cameraGUI.add(cam, 'x').listen();
+    //cameraGUI.add(cam, 'y').listen();
+    cameraGUI.add(cam, 'scrollX').listen();
+    cameraGUI.add(cam, 'scrollY').listen();
+    cameraGUI.add(cam, 'zoom', 0.1, 2).step(0.1).listen();
+    cameraGUI.open();
+    
+    const cameraMove = this.gui.addFolder('Camera Movement');
+    cameraMove.add(help, 'line1');
+    cameraMove.add(help, 'line2');
+    cameraMove.open();
+
+    this.gui.domElement.style.display = "none";
+    //#endregion
+    
+    // #region [[ LEVEL STATES ]] ===============================
+    this.levelState = {
+        START: {
+            name: 'start',
+            enter: () => {
+                this.currLevelState = this.levelState.START;
+            },
+            update: () => {
+
+            },
+        },
+        PLAY: {
+            name: 'play',
+            enter: () => {
+                this.currLevelState = this.levelState.PLAY;
+            },
+            update: () => {
+                this.playUpdate();
+            }
+        },
+        EDITOR: {
+            name: "editor",
+            enter: () => {
+                this.currLevelState = this.levelState.EDITOR;
+            },
+            update: () => {
+                this.editorUpdate();
+            }
+        }
+    }
+    this.currLevelState = this.levelState.PLAY;
+    //#endregion
+
+    // html reference to canvas
+    const canvas = document.getElementById('game-container');
     }
 
     create() {
 
-        // << BACKGROUND PARALLAX >>
+        //#region << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
-
-
+        //#endregion
 
         //#region << PLAYER SHIP >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
@@ -107,7 +189,7 @@ class Play extends Phaser.Scene {
           );
 
         //#endregion
-
+        
         //#region << ASTEROIDS >>
         // create asteroids
         this.asteroids = this.physics.add.group({
@@ -116,8 +198,10 @@ class Play extends Phaser.Scene {
             collideWorldBounds: false,
             velocityX: -150
         });
+
         // spawn asteroids
         Phaser.Actions.RandomRectangle(this.asteroids.getChildren(), this.physics.world.bounds);
+        
         // auto primary fire
         this.physics.add.overlap(
             this.asteroids,
@@ -127,8 +211,19 @@ class Play extends Phaser.Scene {
                 //console.log("asteroid overlap");
                 this.hamsterShip.primary_fire();
             });
+            
+        // handle collision between rocket and asteroid
+        this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
+            //console.log("rocket hit asteroid");
+            if (rocket.currentState.name == "fire")
+            {
+                rocket.states.EXPLODE.enter();
+                asteroid.destroy();
+            }
+        });
         //#endregion
 
+        //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
         enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
@@ -137,13 +232,43 @@ class Play extends Phaser.Scene {
             enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
         }); 
 
-        // center point
+        // toggle edit mode
+        const enableEditButton = document.querySelector("#enable-edit");
+        enableEditButton.innerHTML = "Edit Mode: " + editorActive;
+        enableEditButton.addEventListener("click", () => { 
+            editorActive = !editorActive;
+            enableEditButton.innerHTML = "Edit Mode: " + editorActive;
+            }); 
+            
+        // toggle primary fire
+        const primaryFireToggle = document.querySelector("#enable-primary");
+        primaryFireToggle.innerHTML = "Primary Fire: " + this.hamsterShip.primaryActive;
+        primaryFireToggle.addEventListener("click", () => { 
+            this.hamsterShip.primaryActive = !this.hamsterShip.primaryActive;
+            primaryFireToggle.innerHTML = "Primary Fire: " + this.hamsterShip.primaryActive;
+        }); 
+        //#endregion
+
+        // show center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
     }
         
-    update() {
-        // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
-        this.gizmos.graphics.clear();
+    update(time, delta) {
+
+        if (gizmosDebug)
+        {
+            // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
+            this.gizmos.graphics.clear();
+
+            // << DRAW WORLD BOUNDS >>
+            this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
+        }
+
+        this.currLevelState.update();
+    }
+
+
+    playUpdate(){
 
         this.starfield.tilePositionY -= 4;  // update tile sprite
         
@@ -151,13 +276,6 @@ class Play extends Phaser.Scene {
         this.hamsterShip.update();  
 
         this.physics.world.wrap(this.asteroids);
-
-        if (gizmosDebug)
-        {
-            // << DRAW WORLD BOUNDS >>
-            this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
-        }
-
 
         // << UPDATE CAMERA >>
         this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
@@ -169,6 +287,12 @@ class Play extends Phaser.Scene {
         );
 
         this.mainCamera.zoom = 1;
+    }
+
+    editorUpdate(){
+        // Independent Camera Movement
+        this.mainCamera.stopFollow();
+        this.editorCamControls.update(delta);
     }
 
     checkCollision(objectA, objectB) {

@@ -34,6 +34,7 @@ let config = {
 }
 const game = new Phaser.Game(config);
 let gizmosDebug = true;
+let editorActive = true;
 
 // reserve keyboard variables
 let keyD, keyF, keyLEFT, keyRIGHT, keyUP, keyDOWN;

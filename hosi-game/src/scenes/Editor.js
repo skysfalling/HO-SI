@@ -120,7 +120,6 @@ class Editor extends Phaser.Scene {
           line2: 'Z & X to zoom in/out',
       }
 
-      
       const cameraGUI = this.gui.addFolder('Camera Stats');
       //cameraGUI.add(cam, 'x').listen();
       //cameraGUI.add(cam, 'y').listen();
@@ -129,13 +128,13 @@ class Editor extends Phaser.Scene {
       cameraGUI.add(cam, 'zoom', 0.1, 2).step(0.1).listen();
       cameraGUI.open();
       
-
-
       const cameraMove = this.gui.addFolder('Camera Movement');
       cameraMove.add(help, 'line1');
       cameraMove.add(help, 'line2');
       cameraMove.open();
       //#endregion
+    
+    
     }
 
     update(delta) {
@@ -156,6 +155,7 @@ class Editor extends Phaser.Scene {
       
       // >> CONSTANT UPDATES
       this.graphics.clear();
+      
       // >> EDITOR UPDATE
       if (this.editorActive) { this.editorUpdate(delta); return; }
 
