@@ -33,7 +33,7 @@ let config = {
 }
 const game = new Phaser.Game(config);
 let gizmosDebug = true;
-let editorActive = true;
+let editorActive = false;
 
 // reserve keyboard variables
 let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN;
@@ -84,11 +84,6 @@ let screen = {
     x: 0,
     y: game.config.height/2
   },
-}
-
-// formatting
-let format = {
-  margin: 50
 }
 
 // border size

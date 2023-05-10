@@ -1,3 +1,9 @@
+
+body{
+    overflow: hidden;
+
+}
+
 #game-window {
     display: flex;
     flex-direction: columnm;
@@ -15,22 +21,32 @@
     padding: 10px;
 }
 
+#debug-wrapper {
+    border: 5px solid white;
+    justify-content: center;
+    padding: 50px;
+}
+
 #debug-window {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(140, 125, 125, 0.5);
     font-family: monospace;
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    width: 20%;
-}
 
+    margin: 10px;
+}
 #debug-window h3 {
-    background-color: rgba(0, 0, 0, 1);
-    font-size: 24px;
+    text-align: center;
+    padding: 30px;
 }
 
+#debug-window button {
+    margin: 5px;
+    padding: auto 10px;
 
+}
 
 /* Style the slider */
 .debug-slider {

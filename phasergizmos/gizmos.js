@@ -17,7 +17,7 @@ class Gizmos {
     }
   
     // [[ LINE ]]
-    line (startpoint, endpoint, color = 0xffffff, lineWidth = 2, opacity = 1) {
+    drawLine (startpoint, endpoint, color = 0xffffff, lineWidth = 2, opacity = 1) {
         const graphics = this.graphics;
         graphics.lineStyle(lineWidth, color);
         graphics.beginPath();
@@ -46,7 +46,7 @@ class Gizmos {
         
         radiusPoint.x = x + radius * cos;
         radiusPoint.y = y + radius * sin;
-        this.line(center, radiusPoint, color, lineWidth);
+        this.drawLine(center, radiusPoint, color, lineWidth);
     }
 
     drawCircleFill(x, y, radius, color) {
@@ -111,7 +111,7 @@ class Gizmos {
     //#region  [[ LINE RANGE ]] : line from start - end ,  colored lines show height
     horzlineRange(startX, endX, y, heightRange = 50, outerColor = 0xff0000, innerColor = 0xffffff) {
         // [[ MAIN LINE]] 
-        this.line({x: startX, y: y}, {x: endX, y: y}, innerColor, 1);
+        this.drawLine({x: startX, y: y}, {x: endX, y: y}, innerColor, 1);
 
         // [[ RANGE WIDTH ]]
         // draw rect at center point
@@ -130,12 +130,12 @@ class Gizmos {
             x: (startX + endX) / 2,
             y: y - (heightRange / 2)
         };
-        this.line(midpointStart, midpointEnd, innerColor, 1);
+        this.drawLine(midpointStart, midpointEnd, innerColor, 1);
     }
 
     vertlineRange(x, startY, endY, widthRange = 50, outerColor = 0xff0000, innerColor = 0xffffff) {
         // [[ MAIN LINE]]
-        this.line({x: x, y: startY}, {x: x, y: endY}, innerColor, 1);
+        this.drawLine({x: x, y: startY}, {x: x, y: endY}, innerColor, 1);
     
         // [[ RANGE WIDTH ]]
         // draw rect at center point
@@ -154,13 +154,13 @@ class Gizmos {
             x: x - (widthRange / 2),
             y: (startY + endY) / 2
         };
-        this.line(midpointStart, midpointEnd, innerColor, 1);
+        this.drawLine(midpointStart, midpointEnd, innerColor, 1);
     }
 
     diagonalLineRange(startX, startY, endX, endY, widthRange = 50, outerColor = 0xff0000, innerColor = 0xffffff) {
         
         // [[ MAIN LINE]] 
-        this.line({x: startX, y: startY}, {x: endX, y: endY}, innerColor, 1);
+        this.drawLine({x: startX, y: startY}, {x: endX, y: endY}, innerColor, 1);
 
         // calculate the angle of the main line
         const dx = endX - startX;
@@ -174,8 +174,8 @@ class Gizmos {
         };
 
         // [[ WIDTH LINES]]
-        this.line({x: startX + offset.x, y: startY - offset.y}, {x: endX + offset.x, y: endY - offset.y}, outerColor, 1);
-        this.line({x: startX - offset.x, y: startY + offset.y}, {x: endX - offset.x, y: endY + offset.y}, outerColor, 1);
+        this.drawLine({x: startX + offset.x, y: startY - offset.y}, {x: endX + offset.x, y: endY - offset.y}, outerColor, 1);
+        this.drawLine({x: startX - offset.x, y: startY + offset.y}, {x: endX - offset.x, y: endY + offset.y}, outerColor, 1);
 
         // [[ MID POINT ]]
         const midPoint = {
@@ -192,7 +192,7 @@ class Gizmos {
             x: endX - (((endX - startX) / 2) + (widthRange / 2) * Math.sin(angle)),
             y: endY - (((endY - startY) / 2) - (widthRange / 2) * Math.cos(angle)),
         };
-        this.line(midLineStart, midLineEnd, innerColor, 1);
+        this.drawLine(midLineStart, midLineEnd, innerColor, 1);
         
     }
     //#endregion

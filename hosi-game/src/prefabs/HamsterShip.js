@@ -205,7 +205,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
   
   /* ========================================================================================
                       UPDATE
-  ========================================================*/
+  ======================================================== */
 
   update(time) {
 
@@ -225,9 +225,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
       }
 
-      // In the update loop, move the camera towards the camera target
-      this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.cameraTarget.x - this.mainCamera.width/2, 0.1);
-      this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
+      // constrain the camera target within the world bounds
+      this.cameraTarget.x = Phaser.Math.Clamp(this.cameraTarget.x, this.scene.world.cam_bounds.left, this.scene.world.cam_bounds.right);
+      this.cameraTarget.y = Phaser.Math.Clamp(this.cameraTarget.y, this.scene.world.cam_bounds.top, this.scene.world.cam_bounds.bottom);
+
     }
 
     //#endregion
