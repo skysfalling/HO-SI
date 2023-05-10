@@ -17,7 +17,7 @@ HAMSTER ORIGINS : SNAKE INVADERS
 */
 let config = {
     type: Phaser.CANVAS,
-    width: 540,
+    width: 64*9,
     height: 960 ,
     parent: 'game-container',
     physics: {
@@ -27,7 +27,7 @@ let config = {
           gravity: { y: 0 }
       }
     },  
-    scene: [ Menu, Play, Editor ],
+    scene: [ Menu, Play, Editor, Pause ],
     pixelArt: true,
     fps: 60
 }
@@ -36,7 +36,8 @@ let gizmosActive = true;
 let editorActive = false;
 
 // reserve keyboard variables
-let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN;
+let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
+let prevScene;
 
 
 // #region [[ FORMATTING ]] =================================================

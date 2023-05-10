@@ -11,7 +11,11 @@ class Play extends Phaser.Scene {
         
         this.level = 1;
 
+        this.paused = false;
+
         this.hamsterShip;
+
+
 
     //#region [[ SPRITES ]]
         // load images/tile sprites
@@ -47,6 +51,7 @@ class Play extends Phaser.Scene {
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
         // Define the D dodge key control
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -331,6 +336,16 @@ class Play extends Phaser.Scene {
     // ==================================================// >>
 
     update(time, delta) {
+
+        if(Phaser.Input.Keyboard.JustDown(keyESC)){
+            
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene"});
+            this.pauseScene.scene.main
+            console.log("pause scene: " + this.pauseScene);
+            this.scene.pause();
+                
+        }
+
         this.gizmosUpdate();
 
         console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
@@ -401,6 +416,8 @@ class Play extends Phaser.Scene {
         // Keep camera within the bounds of the game world
         this.mainCamera.scrollX = Phaser.Math.Clamp(this.mainCamera.scrollX, 0, this.world.width);
         this.mainCamera.scrollY = Phaser.Math.Clamp(this.mainCamera.scrollY, 0, this.world.height);
+
+
     }
 
     // ================================================================================= )) o00 ++
