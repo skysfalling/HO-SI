@@ -194,10 +194,9 @@ class Play extends Phaser.Scene {
 
     create() {
 
-        // << BACKGROUND PARALLAX >>
+        //#region << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
-
-
+        //#endregion
 
         //#region << PLAYER SHIP >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
@@ -214,7 +213,7 @@ class Play extends Phaser.Scene {
           );
 
         //#endregion
-
+        
         //#region << ASTEROIDS >>
         // create asteroids
         this.asteroids = this.physics.add.group({
@@ -223,8 +222,10 @@ class Play extends Phaser.Scene {
             collideWorldBounds: false,
             velocityX: -150
         });
+
         // spawn asteroids
         Phaser.Actions.RandomRectangle(this.asteroids.getChildren(), this.physics.world.bounds);
+        
         // auto primary fire
         this.physics.add.overlap(
             this.asteroids,
@@ -234,8 +235,19 @@ class Play extends Phaser.Scene {
                 //console.log("asteroid overlap");
                 this.hamsterShip.primary_fire();
             });
+            
+        // handle collision between rocket and asteroid
+        this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
+            //console.log("rocket hit asteroid");
+            if (rocket.currentState.name == "fire")
+            {
+                rocket.states.EXPLODE.enter();
+                asteroid.destroy();
+            }
+        });
         //#endregion
 
+        //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
         enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
@@ -251,7 +263,6 @@ class Play extends Phaser.Scene {
             editorActive = !editorActive;
             enableEditButton.innerHTML = "Edit Mode: " + editorActive;
             }); 
-
         // toggle primary fire
         const primaryFireToggle = document.querySelector("#enable-primary");
         primaryFireToggle.innerHTML = "Primary Fire: " + this.hamsterShip.primaryActive;
@@ -288,13 +299,6 @@ class Play extends Phaser.Scene {
         this.hamsterShip.update();  
 
         this.physics.world.wrap(this.asteroids);
-
-        if (gizmosDebug)
-        {
-            // << DRAW WORLD BOUNDS >>
-            this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
-        }
-
 
         // << UPDATE CAMERA >>
         this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);

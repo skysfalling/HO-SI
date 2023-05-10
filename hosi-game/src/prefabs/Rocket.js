@@ -79,6 +79,8 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
                 enter: () => {
                     this.currentState = this.states.IDLE;
                     this.anims.play('fire');
+                    this.setPosition(this.ship.x , this.ship.y + this.ship.height);
+
                 },
                 update: () =>{
                     this.setPosition(this.ship.x , this.ship.y + this.ship.height);
@@ -107,10 +109,11 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
 
         // Set initial state
         this.states.IDLE.enter();
+            
+
     }
 
     update() {
-
         this.currentState.update();
     }
 

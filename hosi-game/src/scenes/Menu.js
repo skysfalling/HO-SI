@@ -15,8 +15,6 @@ class Menu extends Phaser.Scene {
     }
 
     create() {
-
-
         // show menu text
         this.add.text(game.config.centerX, game.config.centerY - borderUISize - borderPadding, 'HAMSTER ORIGINS', defaultTextStyle).setOrigin(0.5);
         this.add.text(game.config.width/2, game.config.height/2, 'SNAKE INVADERS', defaultTextStyle).setOrigin(0.5);
@@ -36,6 +34,14 @@ class Menu extends Phaser.Scene {
             gizmosDebug = !gizmosDebug;
             enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
         }); 
+
+        // toggle edit mode
+        const enableEditButton = document.querySelector("#enable-edit");
+        enableEditButton.innerHTML = "Edit Mode: " + editorActive;
+        enableEditButton.addEventListener("click", () => { 
+            editorActive = !editorActive;
+            enableEditButton.innerHTML = "Edit Mode: " + editorActive;
+          }); 
     }
 
     update() {
