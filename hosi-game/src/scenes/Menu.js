@@ -5,9 +5,9 @@ class Menu extends Phaser.Scene {
 
     preload() {
         // load audio
-        this.soundManager = new SoundManager(this);
+        this.soundManager = SoundManager.getInstance(this);
         this.soundManager.loadAllSounds();
-        console.log(this.soundManager);
+        //console.log(this.soundManager);
 
 
         game.config.centerX = game.config.width / 2;

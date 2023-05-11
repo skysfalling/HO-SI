@@ -4,7 +4,7 @@ class Spaceship extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture, frame, moveSpeed);
         scene.add.existing(this);   // add to existing scene
         scene.physics.add.existing(this);  // add to physics scene
-
+        this.soundManager = SoundManager.getInstance(this);
         this.name = name;
         this.scene = scene;
         this.graphics = this.scene.add.graphics();

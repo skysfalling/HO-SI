@@ -1,7 +1,7 @@
 class HamsterShip extends Phaser.GameObjects.Sprite {
   constructor(scene, x, y, ss_fly, ss_dodge, ss_bullet) {
     super(scene, x, y, ss_fly, ss_dodge, ss_bullet);
-
+    this.soundManager = SoundManager.getInstance(this);
     // Set up physics and initial properties
     scene.add.existing(this);
     scene.physics.world.enable(this);

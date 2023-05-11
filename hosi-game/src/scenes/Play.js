@@ -2,6 +2,9 @@ class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
     }
+    init(data){
+        this.soundManager = data.soundManager;
+    }
 
     preload() {
         this.physics.add.existing(this);

@@ -5,18 +5,36 @@ class SoundManager {
       this.currentMusic = null;
     }
   
-    loadSound(key, path) {
-      this.scene.load.audio(key, path);
+    static getInstance(scene) {
+      if (!SoundManager.instance) {
+        SoundManager.instance = new SoundManager(scene);
+      }
+      return SoundManager.instance;
+    }
+  
+    loadSound(key) {
+      this.scene.sound.add(key);
     }
   
     loadAllSounds() {
-      //this.loadSound('music1', 'assets/sounds/music1.mp3');
-      //this.loadSound('music2', 'assets/sounds/music2.mp3');
-      console.log("loading all Sounds");
-      this.loadSound('sfx_select', './assets/sounds/blip_select12.wav');
-      this.loadSound('sfx_explosion', './assets/sounds/explosion38.wav');
-      this.loadSound('sfx_rocket', './assets/sounds/rocket_shot.wav');
-      // Load more sounds as needed
+      console.log("Loading all Sounds");
+      this.scene.load.audio('sfx_select', './assets/sounds/blip_select12.wav');
+      this.scene.load.audio('sfx_explosion', './assets/sounds/explosion38.wav');
+      this.scene.load.audio('sfx_rocket', './assets/sounds/rocket_shot.wav');
+  
+      // Register a callback for when all the sound files are loaded
+      this.scene.load.on('complete', () => {
+        this.addSoundsToCache();
+      });
+  
+      this.scene.load.start();
+    }
+  
+    addSoundsToCache() {
+      console.log("Adding sounds to cache");
+      this.loadSound('sfx_select');
+      this.loadSound('sfx_explosion');
+      this.loadSound('sfx_rocket');
     }
   
     playMusic(key, config) {
@@ -28,7 +46,6 @@ class SoundManager {
       } else {
         this.startNewMusic(key, config);
       }
-      
     }
   
     startNewMusic(key, config) {
@@ -37,16 +54,18 @@ class SoundManager {
       }
       this.currentMusic = this.sounds[key];
       this.currentMusic.play();
-      console.log("playing " + key + " " + sound.isPlaying);
+      console.log("Playing " + key + " " + this.currentMusic.isPlaying);
     }
-    play(key, config) { //plays oneshot
-        var sound= this.scene.sound.add(key, config);
-        sound.play();
-        console.log("playing " + key + " " + sound.isPlaying);
+  
+    play(key, config) {
+      const sound = this.scene.sound.add(key, config);
+      sound.play();
+      console.log("Playing " + key + " " + sound.isPlaying);
     }
-
-    // Add more methods as needed, e.g., pause, stop, volume control, etc.
   }
+  
+  
+  
 
 
   /*

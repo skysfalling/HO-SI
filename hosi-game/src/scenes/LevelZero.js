@@ -378,7 +378,7 @@ class LevelZero extends Phaser.Scene {
             // delete tutorial rocket bring out rocket attached to hamster
             this.p1Rocket.update();
             this.hamsterShip.visible = true;
-            this.hamsterShip.update();
+            //this.hamsterShip.update();
             //this.scene.start("loadingScene");
             
 
