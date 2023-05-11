@@ -18,12 +18,12 @@ HAMSTER ORIGINS : SNAKE INVADERS
 let config = {
     type: Phaser.CANVAS,
     width: 64 * 9,
-    height: 960 ,
+    height: 64 * 16 ,
     parent: 'game-container',
     physics: {
       default: 'arcade',  
       arcade: {
-          debug: false,
+          debug: true,
           gravity: { y: 0 }
       }
     },  

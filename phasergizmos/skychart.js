@@ -11,16 +11,16 @@ class SkyChart {
         
         // #region << CREATE SPAWN POINT GRID >>
         this.rect = new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height);
-        this.spawnGridPoints = this.createRectPoints(this.rect, gridSize);
+        this.points = this.createRectPoints(this.rect, gridSize);
 
         if (gizmosActive)
         {
-            this.drawRectGridPoints(this.spawnGridPoints);
+            this.drawRectGridPoints(this.points);
 
-            this.createPointIndexText(this.spawnGridPoints.top, 0, -20);
-            this.createPointIndexText(this.spawnGridPoints.bottom, 0, 20);
-            this.createPointIndexText(this.spawnGridPoints.right, 20, 0);
-            this.createPointIndexText(this.spawnGridPoints.left, -20, 0);
+            this.createPointIndexText(this.points.top, 0, -20);
+            this.createPointIndexText(this.points.bottom, 0, 20);
+            this.createPointIndexText(this.points.right, 20, 0);
+            this.createPointIndexText(this.points.left, -20, 0);
         }
     }
 
@@ -37,16 +37,16 @@ class SkyChart {
             corners: []
         };
 
-
+        // left / right
         for (let y = rect.y; y <= rect.y + rect.height; y += gridSize) {
             rectPoints.allPoints.push(new Phaser.Geom.Point(rect.x, y));
             rectPoints.allPoints.push(new Phaser.Geom.Point(rect.x + rect.width, y));
         }
 
+        // top / bottom
         for (let x = rect.x; x <= rect.x + rect.width; x += gridSize) {
             rectPoints.allPoints.push(new Phaser.Geom.Point(x, rect.y));
             rectPoints.allPoints.push(new Phaser.Geom.Point(x, rect.y + rect.height));
-
         }
         
         // check position of point , and store accordingly
