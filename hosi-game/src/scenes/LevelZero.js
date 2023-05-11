@@ -57,19 +57,19 @@ class LevelZero extends Phaser.Scene {
     create() {
 
         //#region << SPACE BACKGROUNDS >>
-        this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0);
+        this.starfield = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'starfield').setOrigin(0, 0).setScale(2);
 
         this.bunker = this.add.sprite(game.config.width/2, game.config.height - borderUISize - borderPadding, 'bunker');
 
         //#endregion
-    
+        
         //#region << ROCKET AND SPACESHIPS >>
         // add Rocket (p1)
 
-        this.p1Rocket = new Rocket(this, this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5);
+        this.p1Rocket = new Rocket(this, this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5).setVisible(false);
         this.tutorialRocket = new TutorialRocket(this, game.config.width/2, game.config.height -100, 'rocket_fire').setOrigin(0.5);
-        this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
-        this.hamsterShip.visible = false;
+        this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
+        this.hamsterShip.rocket.setVisible(false);  // make rocket attached to ship invisibile
 
         // add Spaceships (x3)
         this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'spaceship', 0, 10, this.defaultShipSpeed);        
@@ -374,9 +374,10 @@ class LevelZero extends Phaser.Scene {
 
             // update controls so the player can freely move
             // delete tutorial rocket bring out rocket attached to hamster
-            this.p1Rocket.update();
+            //this.p1Rocket.update();
             //this.hamsterShip.update();
-            this.hamsterShip.visible = true;
+            //this.hamsterShip.visible = true;
+            this.tutorialRocket.setVisible(false);
             this.scene.launch("loadingScene", {
                 prevScene: "levelZeroScene",
                 nextScene: 'playScene',

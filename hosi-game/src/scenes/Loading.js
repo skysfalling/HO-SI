@@ -17,7 +17,7 @@ class Loading extends Phaser.Scene {
         this.load.image('cyan_beam', './assets/hyperspace/cyanfield.png');
         //#endregion
 
-        this.hamsterShip = new HamsterShip(this, this.hamsterShipX, this.hamsterShipY - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
+        this.loadHamsterShip = new HamsterShip(this, this.hamsterShipX, this.hamsterShipY - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
     }
 
     create(){
@@ -38,13 +38,16 @@ class Loading extends Phaser.Scene {
         this.time.delayedCall(5000, () => {
             this.slow = true;
             this.scene.launch(this.nextScene, {
-                hampsterShipX: this.hamsterShip.x,
-                hamsterShipY: this.hamsterShip.y
+                hampsterShipX: this.loadHamsterShip.x,
+                hamsterShipY: this.loadHamsterShip.y
             });
-            this.hamsterShip.setVisible(false);
+            this.loadHamsterShip.setVisible(false);
+            this.loadHamsterShip.rocket.setVisible(false);
+
+
         }, null, this);
 
-        this.time.delayedCall(7500, () => {
+        this.time.delayedCall(7000, () => {
             this.scene.setVisible(false, "loadingScene");
             this.scene.stop("loadingScene");
 
