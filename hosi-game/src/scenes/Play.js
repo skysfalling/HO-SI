@@ -11,6 +11,10 @@ class Play extends Phaser.Scene {
         
         this.level = 1;
 
+        this.hamsterShip;
+
+
+
     //#region [[ SPRITES ]]
         // load images/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
@@ -39,31 +43,15 @@ class Play extends Phaser.Scene {
 
     //#region [[ SCENE SETUP]]
 
-        //#region << INPUTS >>
-        // Define the arrow key movement controls
-        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 
-        // Define the D dodge key control
-        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-
-        // Define the F rocket fire key control
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-
-        // Editor camera zoom in / out
-        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
-        //#endregion
 
         //#region << FORMAT VALUES >>
-        this.gridFormat = {
-            gridSize: 64, // 64 pixels
+        this.grid = {
+            cellSize: 64, // 64 pixels
         };
 
         this.uiFormat = {
-            camMargin : 64 * 4
+            camMargin : this.grid.cellSize * 2
         }
         
         //#endregion
@@ -74,9 +62,9 @@ class Play extends Phaser.Scene {
 
         //#region << WORLD BOUNDS >>
         this.world = {
-            offset: 350,
-            width: 900,
-            height: 1600,
+            offset: 3 * this.grid.cellSize,
+            width: 9 * this.grid.cellSize,
+            height: 9 * this.grid.cellSize,
             center: {
             x: null,
             y: null,
@@ -120,8 +108,7 @@ class Play extends Phaser.Scene {
         //#endregion
     
         //#region << SKYCHART >>
-
-        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width * 1.5, this.world.height * 1.5);
+        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width, this.world.height + (this.grid.cellSize * 2));
 
         //#endregion
     
@@ -202,12 +189,32 @@ class Play extends Phaser.Scene {
 
     // ================================================================================= ///??^
     //                          CREATE
-    // =======its hamster time===========================================)) 0o0p ~
+    // ======= its hamster time ===========================================)) 0o0p ~
 
     create() {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
+        
+        //#region << INPUTS >>
+        // Define the arrow key movement controls
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
+        // Define the D dodge key control
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+        // Define the F rocket fire key control
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+
+        // Editor camera zoom in / out
+        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        //#endregion
+        
+        
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
         this.mainCamera.scrollY = this.world.center.y;
@@ -217,47 +224,43 @@ class Play extends Phaser.Scene {
         //#endregion
 
         //#region << PLAYER SHIP >>
+        
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         // bullets
         this.hamsterShip.bullets = this.physics.add.group({
             key: 'bullets',
-            quantity: 50,
             collideWorldBounds: false,
-            velocityX: -600
+            runChildUpdate: true,
         });
-        this.hamsterShip.bullets = this.add.existing(
-            new Bullets(this)
-          );
-
+        this.hamsterShip.bullets = this.add.existing( new BulletGroup(this) );
+        
         //#endregion
         
         //#region << ASTEROIDS >>
-        // create asteroids
+        // create an asteroid group
         this.asteroids = this.physics.add.group({
-            key: 'asteroid',
-            quantity: 5,
-            collideWorldBounds: false,
-            velocityY: 150
+            classType: Asteroid,
+            maxSize: 10,
+            runChildUpdate: true,
+            createCallback: (asteroid) => {
+                // set constructor values for each asteroid when it is created
+                asteroid.setVelocity(0, 200);
+            }
         });
+        this.asteroids = this.add.existing( new AsteroidGroup(this) );
+        this.asteroids.spawn(this.skychart.points.top[4], 'asteroid');
 
-        // set asteroid pos
-        this.asteroids.getChildren().forEach((asteroid) => {
-            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
-            asteroid.x = point.x;
-            asteroid.y = point.y;
-        });
+
 
         // auto primary fire
-        this.physics.add.overlap(
-            this.asteroids,
-            this.hamsterShip.primaryFireTrigger,
-            (asteroid, hamsterShip) =>
-            {
-                //console.log("asteroid overlap");
-                this.hamsterShip.primary_fire();
-            });
+        this.physics.add.overlap(this.asteroids, this.hamsterShip.primaryFireTrigger,
+        (asteroid, trigger) => {
+            //console.log("asteroid overlap");
+            this.hamsterShip.primary_fire();
+        });
             
+        /*
         // handle collision between rocket and asteroid
         this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
             //console.log("rocket hit asteroid");
@@ -271,11 +274,13 @@ class Play extends Phaser.Scene {
         // Listen for the 'destroy' event on the asteroids group
         this.asteroids.on('destroy', (asteroid) => {
             // Spawn a new asteroid at a randomly chosen point in the points array
-            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
+            const point = Phaser.Math.RND.pick(this.skychart.points.top);
             asteroid.x = point.x;
             asteroid.y = point.y;
             this.asteroids.create(asteroid.x, asteroid.y, 'asteroid');
         });
+        */
+
         //#endregion
 
         //#region << HTML REFERENCES >>
@@ -304,6 +309,7 @@ class Play extends Phaser.Scene {
         //#endregion
 
 
+
     }
 
     gizmosCreate(){
@@ -313,7 +319,7 @@ class Play extends Phaser.Scene {
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
 
         // << DRAW SCREEN BOUNDS >> ( white )
-        //this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
 
         // << DRAW WORLD BOUNDS >> ( bold white )
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 1, 1);
@@ -322,13 +328,36 @@ class Play extends Phaser.Scene {
         //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
 
+        this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
-        
+    
+    init(){
+        console.log('running init')
+        //#region << DEFINE KEYS >>
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        //#endregion
+    }
+
     // ================================================================================= // *~
     //                          UPDATE
     // ==================================================// >>
 
     update(time, delta) {
+
+        this.init(); //STUPID KEY REASSIGNING THING
+        
+        if(Phaser.Input.Keyboard.JustDown(keyESC)){
+            this.input.keyboard.resetKeys();
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene"});
+            //this.pauseScene.scene.main
+            console.log("pause scene: " + this.pauseScene);
+            this.scene.pause();
+        }
+
         this.gizmosUpdate();
 
         console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
@@ -350,7 +379,7 @@ class Play extends Phaser.Scene {
         // [[ UPDATE GAME OBJECTS]]
         this.hamsterShip.update();  
 
-        this.physics.world.wrap(this.asteroids);
+        //this.physics.world.wrap(this.asteroids);
 
         // << UPDATE CAMERA >>
         this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
@@ -399,6 +428,8 @@ class Play extends Phaser.Scene {
         // Keep camera within the bounds of the game world
         this.mainCamera.scrollX = Phaser.Math.Clamp(this.mainCamera.scrollX, 0, this.world.width);
         this.mainCamera.scrollY = Phaser.Math.Clamp(this.mainCamera.scrollY, 0, this.world.height);
+
+
     }
 
     // ================================================================================= )) o00 ++

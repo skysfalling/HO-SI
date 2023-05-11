@@ -20,13 +20,13 @@ class Menu extends Phaser.Scene {
         this.add.text(game.config.width/2, game.config.height/2, 'SNAKE INVADERS', defaultTextStyle).setOrigin(0.5);
         
         defaultTextStyle.color = color_pal.green;
-        this.add.text(game.config.width/2, game.config.height/2 + borderUISize + borderPadding, 'Press ← for Novice or → for Expert', defaultTextStyle).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2 + borderUISize + borderPadding, 'Press ← for Play.js or → for Level0', defaultTextStyle).setOrigin(0.5);
 
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-
+        
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
         enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
@@ -52,7 +52,7 @@ class Menu extends Phaser.Scene {
             gameTimer: 60000    
           }
           this.sound.play('sfx_select', {volume: 0.1});
-          this.scene.start("levelZeroScene");    
+          this.scene.start("playScene");    
         }
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
           // Expert mode

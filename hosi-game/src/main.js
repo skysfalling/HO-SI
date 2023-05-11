@@ -17,17 +17,17 @@ HAMSTER ORIGINS : SNAKE INVADERS
 */
 let config = {
     type: Phaser.CANVAS,
-    width: 64 * 9 ,
+    width: 64 * 9,
     height: 64 * 16 ,
     parent: 'game-container',
     physics: {
       default: 'arcade',  
       arcade: {
-          debug: false,
+          debug: true,
           gravity: { y: 0 }
       }
     },  
-    scene: [ Menu, LevelZero, Play, Editor, Loading ],
+    scene: [ Menu, LevelZero, Play, Editor, Pause, Loading ],
     pixelArt: true,
     fps: 60
 }
@@ -36,8 +36,23 @@ let gizmosActive = true;
 let editorActive = false;
 
 // reserve keyboard variables
-let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN;
+let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
+let prevScene;
+//#region [[]] ==============================================================
 
+let waveAlgo={
+  enemyHealth: {
+  
+  },
+  enemySpawns: {
+  
+  },
+  enemyFrequency: {
+
+  },
+}
+
+//#engregion
 
 // #region [[ FORMATTING ]] =================================================
 
@@ -84,6 +99,10 @@ let screen = {
     x: 0,
     y: game.config.height/2
   },
+}
+
+let format = {
+  margin: 50
 }
 
 // border size
@@ -142,3 +161,4 @@ let defaultTextStyle = {
   fixedWidth: 0,
 }
 //#endregion
+

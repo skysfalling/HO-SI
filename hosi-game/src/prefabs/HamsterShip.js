@@ -109,7 +109,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           } else if (this.moveRight.isDown) {
             this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.1));
           } else {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 0.1));
+            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 1));
           }
 
           // vertical movement
@@ -118,7 +118,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           } else if (this.moveDown.isDown) {
             this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, this.moveSpeed, 0.1));
           } else {
-            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 0.1));
+            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 1));
           }
 
           // dodge
@@ -195,7 +195,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     // << PRIMARY FIRE TRIGGER >>
     this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.primaryFireCheckLength).setOrigin(0.5,1);
     this.physics.add.existing(this.primaryFireTrigger);
-
+    
     // << ROCKET FIRE >>
     this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
     this.physics.add.existing(this.rocket);
@@ -212,6 +212,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     //#region << UPDATE CAMERA >>
     if (this.scene.currLevelState.name == "play")
     {
+
+      // avoid 'half' pixels
+      this.x = Math.floor(this.x);
+      this.y = Math.floor(this.y);
+
       // Update the camera target position based on the player's position
       this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
 
@@ -240,6 +245,8 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
       this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
       this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
       this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
+
+      
     }
     //#endregion
 
