@@ -52,7 +52,7 @@ class Menu extends Phaser.Scene {
             gameTimer: 60000    
           }
           this.sound.play('sfx_select', {volume: 0.1});
-          this.scene.start("playScene");    
+          this.scene.start("levelZeroScene");    
         }
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
           // Expert mode
