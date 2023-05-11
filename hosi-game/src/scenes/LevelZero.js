@@ -348,7 +348,7 @@ class LevelZero extends Phaser.Scene {
             this.p1Rocket.update();
             this.hamsterShip.visible = true;
             this.hamsterShip.update();
-            //this.scene.start("loadingScene");
+            this.scene.start("loadingScene");
             
 
         }
