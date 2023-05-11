@@ -11,7 +11,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     this.body.setCollideWorldBounds(true);
     this.setDepth(1);
-    this.setScale(2);
+    this.setScale(2); //64px
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
@@ -23,10 +23,10 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     //#region [[ INPUTS ]] ====================================================================
     // Define the arrow key movement controls
-    this.moveUp = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-    this.moveDown = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-    this.moveLeft = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-    this.moveRight = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+    this.moveUp = keyUP;
+    this.moveDown = keyDOWN;
+    this.moveLeft = keyLEFT;
+    this.moveRight = keyRIGHT;
 
     // Define the D dodge key control
     this.dodgeKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -47,9 +47,9 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     //#endregion
 
     //#region [[ SHIP VALUES ]] ===================================================================
-    this.moveSpeed = 300;
+    this.moveSpeed = 200;
     this.dodgeForce = 600;
-    this.dodgeDuration = 500;
+    this.dodgeDuration = 250;
 
     // primary fire
     this.primaryFireCheckLength = screen.height * 0.8;
@@ -205,31 +205,36 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
   
   /* ========================================================================================
                       UPDATE
-  ========================================================*/
+  ======================================================== */
 
   update(time) {
 
     //#region << UPDATE CAMERA >>
-    // Update the camera target position based on the player's position
-    this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
+    if (this.scene.currLevelState.name == "play")
+    {
+      // Update the camera target position based on the player's position
+      this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
 
-    // follow the midpoint between the rocket and ship with the main camera
-    if (this.currentState.name == "rocket_fire") {
-        const rocket = this.rocket;
-        const midpointX = (this.x + rocket.x) / 2;
-        const midpointY = (this.y + rocket.y) / 2;
+      // follow the midpoint between the rocket and ship with the main camera
+      if (this.currentState.name == "rocket_fire") {
+          const rocket = this.rocket;
+          const midpointX = (this.x + rocket.x) / 2;
+          const midpointY = (this.y + rocket.y) / 2;
 
-        // Update the camera target position based on the player's position
-        this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
+          // Update the camera target position based on the player's position
+          this.cameraTarget.lerp(new Phaser.Math.Vector2(midpointX, midpointY), 0.5);
+      }
+
+      // constrain the camera target within the world bounds
+      this.cameraTarget.x = Phaser.Math.Clamp(this.cameraTarget.x, this.scene.world.cam_bounds.left, this.scene.world.cam_bounds.right);
+      this.cameraTarget.y = Phaser.Math.Clamp(this.cameraTarget.y, this.scene.world.cam_bounds.top, this.scene.world.cam_bounds.bottom);
+
     }
 
-    // In the update loop, move the camera towards the camera target
-    this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.cameraTarget.x - this.mainCamera.width/2, 0.1);
-    this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.cameraTarget.y - this.mainCamera.height/2, 0.1);
     //#endregion
     
     //#region << GIZMOS >>
-    if (gizmosDebug)
+    if (gizmosActive)
     {
       this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
       this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));

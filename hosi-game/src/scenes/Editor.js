@@ -51,9 +51,6 @@ class Editor extends Phaser.Scene {
       this.world.bounds.bottom = this.world.offset + this.world.height;
 
       this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
-
-
-
       //#endregion
     }
 

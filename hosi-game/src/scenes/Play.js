@@ -5,17 +5,16 @@ class Play extends Phaser.Scene {
 
     preload() {
         this.physics.add.existing(this);
-        this.gizmos = new Gizmos(this);
+        this.scene_graphics = this.add.graphics();
+
+        this.gizmos = new Gizmos(this, this.add.graphics());
         
-        this.showGizmos = true;
         this.level = 1;
 
-    
     //#region [[ SPRITES ]]
         // load images/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('starfield', './assets/starfield.png');
-
         // load spritesheet
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
 
@@ -40,48 +39,62 @@ class Play extends Phaser.Scene {
 
     //#region [[ SCENE SETUP]]
 
+        //#region << INPUTS >>
+        // Define the arrow key movement controls
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+
+        // Define the D dodge key control
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+        // Define the F rocket fire key control
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+
+        // Editor camera zoom in / out
+        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        //#endregion
+
+        //#region << FORMAT VALUES >>
+        this.gridFormat = {
+            gridSize: 64, // 64 pixels
+        };
+
+        this.uiFormat = {
+            camMargin : 64 * 4
+        }
+        
+        //#endregion
+
         // << CAMERA >>
         this.mainCamera = this.cameras.main;
         this.mainCamera.setBackgroundColor('#0000ff');
 
-          // define inputs
-        const cursors = this.input.keyboard.createCursorKeys();
-        const editorControlConfig = {
-            camera: this.mainCamera,
-            left: cursors.left,
-            right: cursors.right,
-            up: cursors.up,
-            down: cursors.down,
-            zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z),
-            zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X),
-            acceleration: 0.01,
-            drag: 10,
-            maxSpeed: 0.001
-        };
-        this.editorCamControls = new Phaser.Cameras.Controls.SmoothedKeyControl(editorControlConfig);
-
-        // << WORLD BOUNDS >>
+        //#region << WORLD BOUNDS >>
         this.world = {
-            offset: 100,
-            cam_offset: -200,
-            width: screen.width,
-            height: screen.height,
+            offset: 350,
+            width: 900,
+            height: 1600,
             center: {
             x: null,
             y: null,
             },
             bounds: {
-            left: null,
-            right: null,
-            top: null,
-            bottom: null,
+                left: null,
+                right: null,
+                top: null,
+                bottom: null,
             },
             cam_bounds: {
                 left: null,
                 right: null,
                 top: null,
                 bottom: null,
-            }
+                width: null,
+                height: null
+            },
         };
         this.world.center.x = (this.world.width / 2) + this.world.offset;
         this.world.center.y = (this.world.height / 2) + this.world.offset;
@@ -93,14 +106,26 @@ class Play extends Phaser.Scene {
         this.world.bounds.bottom = this.world.offset + this.world.height;
 
         // set cam bounds
-        this.world.cam_bounds.left = this.world.cam_offset;
-        this.world.cam_bounds.right = this.world.cam_offset + this.world.width;
-        this.world.cam_bounds.top = this.world.cam_offset;
-        this.world.cam_bounds.bottom = this.world.cam_offset + this.world.height;
+        this.world.cam_bounds.left = this.world.offset + this.uiFormat.camMargin;
+        this.world.cam_bounds.right = (this.world.offset + this.world.width) - this.uiFormat.camMargin;
+        this.world.cam_bounds.top = this.world.offset + this.uiFormat.camMargin;
+        this.world.cam_bounds.bottom = (this.world.offset + this.world.height) - this.uiFormat.camMargin;
+
+        this.world.cam_bounds.width = this.world.cam_bounds.right - this.world.cam_bounds.left;
+        this.world.cam_bounds.height = this.world.cam_bounds.bottom - this.world.cam_bounds.top;
+
 
         // set the world bounds
         this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
-      //#endregion
+        //#endregion
+    
+        //#region << SKYCHART >>
+
+        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width * 1.5, this.world.height * 1.5);
+
+        //#endregion
+    
+    //#endregion
 
     // #region [[ GUI ]] ==============================================================
     const cam = this.mainCamera;
@@ -138,6 +163,7 @@ class Play extends Phaser.Scene {
             name: 'start',
             enter: () => {
                 this.currLevelState = this.levelState.START;
+                this.hamsterShip.states.DISABLED.enter();
             },
             update: () => {
 
@@ -147,32 +173,47 @@ class Play extends Phaser.Scene {
             name: 'play',
             enter: () => {
                 this.currLevelState = this.levelState.PLAY;
+                //this.hamsterShip.states.MOVE.enter();
             },
             update: () => {
                 this.playUpdate();
             }
         },
         EDITOR: {
-            name: "editor",
+            name: 'editor',
             enter: () => {
                 this.currLevelState = this.levelState.EDITOR;
             },
-            update: () => {
-                this.editorUpdate();
+            update: (time, delta) => {
+                this.editorUpdate(delta);
             }
         }
     }
-    this.currLevelState = this.levelState.PLAY;
+    // set level type
+    if (editorActive) { 
+        this.levelState.EDITOR.enter(); 
+    }
+    else { this.levelState.PLAY.enter();}
     //#endregion
 
     // html reference to canvas
     const canvas = document.getElementById('game-container');
     }
 
+    // ================================================================================= ///??^
+    //                          CREATE
+    // =======its hamster time===========================================)) 0o0p ~
+
     create() {
+        // << CREATE GIZMOS >>
+        this.gizmosCreate();
+
+        // set the mainCamera to world center
+        this.mainCamera.scrollX = this.world.center.x;
+        this.mainCamera.scrollY = this.world.center.y;
 
         //#region << BACKGROUND PARALLAX >>
-        this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width + (format.margin * 4), screen.height + (format.margin * 4), 'starfield').setOrigin(0.5, 0.5);
+        this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width*4, this.world.height*4, 'starfield').setOrigin(0.5, 0.5);
         //#endregion
 
         //#region << PLAYER SHIP >>
@@ -197,12 +238,16 @@ class Play extends Phaser.Scene {
             key: 'asteroid',
             quantity: 5,
             collideWorldBounds: false,
-            velocityX: -150
+            velocityY: 150
         });
 
-        // spawn asteroids
-        Phaser.Actions.RandomRectangle(this.asteroids.getChildren(), this.physics.world.bounds);
-        
+        // set asteroid pos
+        this.asteroids.getChildren().forEach((asteroid) => {
+            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
+            asteroid.x = point.x;
+            asteroid.y = point.y;
+        });
+
         // auto primary fire
         this.physics.add.overlap(
             this.asteroids,
@@ -222,15 +267,24 @@ class Play extends Phaser.Scene {
                 asteroid.destroy();
             }
         });
+
+        // Listen for the 'destroy' event on the asteroids group
+        this.asteroids.on('destroy', (asteroid) => {
+            // Spawn a new asteroid at a randomly chosen point in the points array
+            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
+            asteroid.x = point.x;
+            asteroid.y = point.y;
+            this.asteroids.create(asteroid.x, asteroid.y, 'asteroid');
+        });
         //#endregion
 
         //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
-        enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+        enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
         enableGizmosButton.addEventListener("click", () => { 
-            gizmosDebug = !gizmosDebug;
-            enableGizmosButton.innerHTML = "Gizmos: " + gizmosDebug;
+            gizmosActive = !gizmosActive;
+            enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
         }); 
 
         // toggle edit mode
@@ -240,7 +294,6 @@ class Play extends Phaser.Scene {
             editorActive = !editorActive;
             enableEditButton.innerHTML = "Edit Mode: " + editorActive;
             }); 
-            
         // toggle primary fire
         const primaryFireToggle = document.querySelector("#enable-primary");
         primaryFireToggle.innerHTML = "Primary Fire: " + this.hamsterShip.primaryActive;
@@ -250,25 +303,45 @@ class Play extends Phaser.Scene {
         }); 
         //#endregion
 
+
+    }
+
+    gizmosCreate(){
+        if (!gizmosActive) { return; }
+
         // show center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
 
+        // << DRAW SCREEN BOUNDS >> ( white )
+        //this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
+
+        // << DRAW WORLD BOUNDS >> ( bold white )
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 1, 1);
+
+        // << DRAW CAMERA BOUNDS >> ( blue )
+        //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
+
     }
         
+    // ================================================================================= // *~
+    //                          UPDATE
+    // ==================================================// >>
+
     update(time, delta) {
+        this.gizmosUpdate();
 
-        if (gizmosDebug)
-        {
-            // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
-            this.gizmos.graphics.clear();
+        console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
+        this.currLevelState.update(time, delta);
 
-            // << DRAW WORLD BOUNDS >>
-            this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0);
-        }
-
-        this.currLevelState.update();
     }
 
+    gizmosUpdate(){
+        if (!gizmosActive) { return; }
+
+        // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
+        //this.gizmos.graphics.clear();
+    }
 
     playUpdate(){
 
@@ -281,21 +354,56 @@ class Play extends Phaser.Scene {
 
         // << UPDATE CAMERA >>
         this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
-
-        // constrain the main camera within the world bounds
-        this.mainCamera.setScroll(
-            Phaser.Math.Clamp(this.mainCamera.scrollX, format.margin, (this.world.width-this.mainCamera.width) + (format.margin*3)),
-            Phaser.Math.Clamp(this.mainCamera.scrollY, format.margin, (this.world.height-this.mainCamera.height) + (format.margin*3))
-        );
-
+        // In the update loop, move the camera towards the camera target
+        this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.hamsterShip.cameraTarget.x, 0.1);
+        this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.hamsterShip.cameraTarget.y, 0.1);
         this.mainCamera.zoom = 1;
     }
 
     editorUpdate(){
-        // Independent Camera Movement
-        this.mainCamera.stopFollow();
-        this.editorCamControls.update(delta);
+        this.editorCamUpdate();
     }
+
+    editorCamUpdate(){
+        this.mainCamera.stopFollow();
+
+        const cameraSpeed = 10;
+        const zoomSpeed = 0.01;
+      
+        // Move the camera with arrow keys
+        if (keyLEFT.isDown) {
+          this.mainCamera.scrollX -= cameraSpeed;
+        }
+        else if (keyRIGHT.isDown) {
+          this.mainCamera.scrollX += cameraSpeed;
+        }
+      
+        if (keyUP.isDown) {
+          this.mainCamera.scrollY -= cameraSpeed;
+        }
+        else if (keyDOWN.isDown) {
+          this.mainCamera.scrollY += cameraSpeed;
+        }
+      
+        // Zoom in/out with Z/X keys
+        if (keyZ.isDown) {
+          this.mainCamera.zoom += zoomSpeed;
+        }
+        else if (keyX.isDown) {
+          this.mainCamera.zoom -= zoomSpeed;
+        }
+      
+        // Clamp camera zoom to a minimum value of 0.1
+        this.mainCamera.zoom = Phaser.Math.Clamp(this.mainCamera.zoom, 0.1, 0.5);
+      
+        // Keep camera within the bounds of the game world
+        this.mainCamera.scrollX = Phaser.Math.Clamp(this.mainCamera.scrollX, 0, this.world.width);
+        this.mainCamera.scrollY = Phaser.Math.Clamp(this.mainCamera.scrollY, 0, this.world.height);
+    }
+
+    // ================================================================================= )) o00 ++
+    //                          HELPER FUNCTIONS
+    // ==================================================// 00o
 
     checkCollision(objectA, objectB) {
         // simple AABB checking

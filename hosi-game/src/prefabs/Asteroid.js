@@ -1,94 +1,45 @@
 //Asteroid Prefab
 class Asteroid extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, name, x, y, texture, frame, moveSpeed = 50, spawnRange = 50, debug_color = 0xffffff){
-        super(scene, x, y, texture, frame, moveSpeed);
+    constructor(scene, startPoint, resetPoint, texture, velocity = 200){
+        super(scene, startPoint, resetPoint, texture, velocity);
 
+        this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
         scene.physics.add.existing(this) // add to physics
-        //this.gizmos = new Gizmos(this.scene);
+        this.gizmos = new Gizmos(this.scene);
 
-        this.name = name;
-        this.scene = scene;
-        this.graphics = this.scene.add.graphics();
-        //this.gizmos = new Gizmos(this.scene, this.graphics);
-        this.debug_color = debug_color;
-        //this.showGizmos = false;
-
-        //this.points = points;
-        this.moveSpeed = moveSpeed;
-        this.spawnRange = spawnRange;
-        
-        this.asteroidRotationForce = .2;
-
-        // active position
-        this.x = Math.floor(x);
-        this.y = Math.floor(y);
+        this.velocity = velocity;
+        this.rotationForce = 2;
 
         // start position
-        this.startX = this.x;
-        this.startY = this.y;
-        this.ast_scale = 3;
-        // start scale / rotation
+        this.spawnPoint = startPoint; // {x, y}
+        this.resetPoint = resetPoint; // {x, y}
+
         this.setScale(3);
         this.setAngle(0);
-
-        // death state
-        this.dead = false;
-
-        // spaceship fly animation config
-        /*this.anims.create({
-            key: 'asteroid',
-            frames: this.anims.generateFrameNumbers('asteroid', { 
-                start: 0, 
-                end: 1, 
-                first: 0
-            }),
-            frameRate: 8,
-            repeat: -1
-        });
-*/ 
-        this.anims.create({
-            key: 'ast',
-            frames: this.anims.generateFrameNumbers('asteroid', {
-                start: 0,
-                end: 0,
-                first: 0,
-            }),
-            frameRate: 8,
-            repeat: -1,
-        })
-        this.anims.play('ast');
-        //this.anims.play('asteroid');  // play fly animation
-        this.anims.create({
-            key: 'ast_explosion',
-            frames: this.anims.generateFrameNumbers('asteroid', { 
-                start: 0, 
-                end: 4, 
-                first: 0
-            }),
-            frameRate: 8,
-            //repeat: 1,
-        });
+        
+        const angle = Phaser.Math.Angle.BetweenPoints(this.spawnPoint, endPoint);
+        this.setAngle(Phaser.Math.RadToDeg(angle));
+        
+        const velocityX = this.velocity * Math.cos(angle);
+        const velocityY = this.velocity * Math.sin(angle);
+        this.setVelocity(velocityX, velocityY);
 
     }
-    flipRotation(){ //makes da asteroid rotate the other direction
-        this.asteroidRotationForce*=-1;
-    }
+
+    // ========================================================================================= /// **
+    //                          UPDATE
+    // ==================================================================/// >>> 
+
+
     update(){
+
         //rotates da asteroid
-        this.body.setAngularVelocity(this.body.angularVelocity + this.asteroidRotationForce); 
-        if (!this.dead) {
-            // move up and down in range
-            const yVelocity = Math.sin(this.x / 50) * this.spawnRange / 4;
-            this.body.setVelocity(-this.moveSpeed, yVelocity);
-        }
-        else { this.body.setVelocity(0, 0); }
-        if(this.x <= 0 && !this.dead) {
-            
-            this.dead = true;
-            this.respawn();
-        }
+        this.body.setAngularVelocity(this.body.angularVelocity + this.rotationForce); 
+        
+
     }
+
     respawn(){
 
         // disable
