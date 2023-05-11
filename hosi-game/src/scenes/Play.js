@@ -189,7 +189,7 @@ class Play extends Phaser.Scene {
 
     // ================================================================================= ///??^
     //                          CREATE
-    // =======its hamster time===========================================)) 0o0p ~
+    // ======= its hamster time ===========================================)) 0o0p ~
 
     create() {
         // << CREATE GIZMOS >>
@@ -224,47 +224,43 @@ class Play extends Phaser.Scene {
         //#endregion
 
         //#region << PLAYER SHIP >>
+        
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         // bullets
         this.hamsterShip.bullets = this.physics.add.group({
             key: 'bullets',
-            quantity: 50,
             collideWorldBounds: false,
-            velocityX: -600
+            runChildUpdate: true,
         });
-        this.hamsterShip.bullets = this.add.existing(
-            new Bullets(this)
-          );
-
+        this.hamsterShip.bullets = this.add.existing( new BulletGroup(this) );
+        
         //#endregion
         
         //#region << ASTEROIDS >>
-        // create asteroids
+        // create an asteroid group
         this.asteroids = this.physics.add.group({
-            key: 'asteroid',
-            quantity: 5,
-            collideWorldBounds: false,
-            velocityY: 150
+            classType: Asteroid,
+            maxSize: 10,
+            runChildUpdate: true,
+            createCallback: (asteroid) => {
+                // set constructor values for each asteroid when it is created
+                asteroid.setVelocity(0, 200);
+            }
         });
+        this.asteroids = this.add.existing( new AsteroidGroup(this) );
+        this.asteroids.spawn(this.skychart.points.top[4], 'asteroid');
 
-        // set asteroid pos
-        this.asteroids.getChildren().forEach((asteroid) => {
-            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
-            asteroid.x = point.x;
-            asteroid.y = point.y;
-        });
+
 
         // auto primary fire
-        this.physics.add.overlap(
-            this.asteroids,
-            this.hamsterShip.primaryFireTrigger,
-            (asteroid, hamsterShip) =>
-            {
-                //console.log("asteroid overlap");
-                this.hamsterShip.primary_fire();
-            });
+        this.physics.add.overlap(this.asteroids, this.hamsterShip.primaryFireTrigger,
+        (asteroid, trigger) => {
+            //console.log("asteroid overlap");
+            this.hamsterShip.primary_fire();
+        });
             
+        /*
         // handle collision between rocket and asteroid
         this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
             //console.log("rocket hit asteroid");
@@ -278,11 +274,13 @@ class Play extends Phaser.Scene {
         // Listen for the 'destroy' event on the asteroids group
         this.asteroids.on('destroy', (asteroid) => {
             // Spawn a new asteroid at a randomly chosen point in the points array
-            const point = Phaser.Math.RND.pick(this.skychart.spawnGridPoints.top);
+            const point = Phaser.Math.RND.pick(this.skychart.points.top);
             asteroid.x = point.x;
             asteroid.y = point.y;
             this.asteroids.create(asteroid.x, asteroid.y, 'asteroid');
         });
+        */
+
         //#endregion
 
         //#region << HTML REFERENCES >>
@@ -309,6 +307,9 @@ class Play extends Phaser.Scene {
             primaryFireToggle.innerHTML = "Primary Fire: " + this.hamsterShip.primaryActive;
         }); 
         //#endregion
+
+
+
     }
 
     gizmosCreate(){
@@ -318,7 +319,7 @@ class Play extends Phaser.Scene {
         this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
 
         // << DRAW SCREEN BOUNDS >> ( white )
-        //this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
 
         // << DRAW WORLD BOUNDS >> ( bold white )
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 1, 1);
@@ -327,8 +328,7 @@ class Play extends Phaser.Scene {
         //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
 
-        this.gizmos.drawLine(this.skychart.spawnGridPoints.top[2], this.skychart.spawnGridPoints.bottom[2]);
-
+        this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
     
     init(){
@@ -379,7 +379,7 @@ class Play extends Phaser.Scene {
         // [[ UPDATE GAME OBJECTS]]
         this.hamsterShip.update();  
 
-        this.physics.world.wrap(this.asteroids);
+        //this.physics.world.wrap(this.asteroids);
 
         // << UPDATE CAMERA >>
         this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
