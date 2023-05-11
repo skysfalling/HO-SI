@@ -2,6 +2,9 @@ class LevelZero extends Phaser.Scene {
     constructor() {
         super("levelZeroScene");
     }
+    init(data){
+        this.soundManager = data.soundManager;
+    }
 
     preload() {
         this.gizmos = new Gizmos(this);

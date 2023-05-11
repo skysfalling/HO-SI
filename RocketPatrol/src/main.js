@@ -118,13 +118,16 @@ let color_pal = {
 
 let neon_color_pal = {
   pink: "#EF45F5",
-  purple: "#7C3CD6"
+  purple: "#7C3CD6",
+  toInt: function(colorName) {
+    return parseInt(this[colorName].replace("#", "0x"));
+  }
 }
 
 // header config
 let headerConfig = {
   fontFamily: 'Courier New',
-  fontSize: '30px',
+  fontSize: '100px',
   backgroundColor: color_pal.black,
   color: color_pal.white,
   align: 'center',

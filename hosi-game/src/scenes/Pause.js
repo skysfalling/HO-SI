@@ -21,38 +21,48 @@ class Pause extends Phaser.Scene {
         //#region [[PAUSE STATE]]
 
         let volPercent=1;
-        this.title=this.add.text(screen.topMid.x,screen.center.y, 'PAUSE MENU', defaultTextStyle,{depth: 10}).setOrigin(0.5);
-        this.resText=this.add.text(screen.topMid.x,screen.center.y+40, 'RESUME', defaultTextStyle,{depth: 10}).setOrigin(0.5);
-        this.volText=this.add.text(screen.topMid.x,screen.center.y+80, 'VOLUME:', defaultTextStyle, {depth: 10}).setOrigin(0.5);
-        this.volSlider=this.add.text(screen.topMid.x,screen.center.y+100, '----o', defaultTextStyle, {depth: 10}).setOrigin(0.5);
+        this.title=this.add.text(screen.topMid.x,screen.center.y-50, 'PAUSE MENU', defaultTextStyle,{depth: 10, backgroundColor: color_pal.black }).setOrigin(0.5);
+        this.resText=this.add.text(screen.topMid.x,screen.center.y+40, 'RESUME', defaultTextStyle,{depth: 10, backgroundColor: color_pal.black}).setOrigin(0.5);
+        this.volSlider=this.add.text(screen.topMid.x,screen.center.y+100, '----o', defaultTextStyle, {depth: 10, backgroundColor: color_pal.black}).setOrigin(0.5);
+        this.volText=this.add.text(screen.topMid.x,screen.center.y+80, 'VOLUME:', defaultTextStyle, {depth: 10, backgroundColor: color_pal.black}).setOrigin(0.5);
         this.volSliderTextShit(volPercent);
         this.restartText=this.add.text(screen.topMid.x,screen.center.y+140, 'RESTART', defaultTextStyle, {depth: 10}).setOrigin(0.5);
 
+        this.title.setBackgroundColor(color_pal.black);
+        this.resText.setBackgroundColor(color_pal.black);
+        //this.volSlider.setBackgroundColor(color_pal.black);
+        this.volText.setBackgroundColor(color_pal.black);
+        this.restartText.setBackgroundColor(color_pal.black);
+        
+
+
+
+        console.log()
         this.pauseState = {
             RESUMEBUT: {
                 name: 'resumeButton',
                 enter: () => {
                     this.currPauseState = this.pauseState.RESUMEBUT;
-                    this.resText.setAlpha(.75);
-                    //make button less setAlpha
+                    this.resText.setBackgroundColor(color_pal.grey);
+                    //make button less setBackgroundColor
                     console.log('resume enter');
                 },
                 update: () => {
                     if(Phaser.Input.Keyboard.JustDown(keyENTER)){ //if enter is pressed, run resume
                         console.log("pressed enter while resume");
-                        this.resText.setAlpha(1);
+                        this.resText.setBackgroundColor(color_pal.black);
                         //this.resumeScene(this.data.key);
                         this.resumeScene(this.prevScene);
                         //this.scene.resume("playScene");
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){ //if down, change state to VOLSLIDER & enter
                         //this.currPauseState=this.pauseState.VOLSLIDER;
-                        this.resText.setAlpha(1);
+                        this.resText.setBackgroundColor(color_pal.black);
                         this.pauseState.VOLSLIDER.enter();
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyUP)){ //if down, enter RESTARTBUT & 
                         //this.currPauseState=this.pauseState.VOLSLIDER;
-                        this.resText.setAlpha(1);
+                        this.resText.setBackgroundColor(color_pal.black);
                         this.pauseState.RESTARTBUT.enter();
                     }
                 },
@@ -61,7 +71,9 @@ class Pause extends Phaser.Scene {
                 name: 'volumeSlider',
                 enter: () => {
                     this.currPauseState = this.pauseState.VOLSLIDER;
-                    this.volText.setAlpha(.75);
+                    this.volText.setBackgroundColor(color_pal.grey);
+                    this.volSlider.setColor(neon_color_pal.pink);
+                    this.volSlider.setBackgroundColor(color_pal.grey);
                     //make knob more
                     console.log('volume enter');
                 },
@@ -84,12 +96,16 @@ class Pause extends Phaser.Scene {
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){
                         //this.currPauseState=this.pauseState.RESTARTBUT;
-                        this.volText.setAlpha(1);
+                        this.volText.setBackgroundColor(color_pal.black);
+                        this.volSlider.setBackgroundColor(color_pal.black);
+                        this.volSlider.setColor(color_pal.green);
                         this.pauseState.RESTARTBUT.enter();
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyUP)){ //if down, change state to VOLSLIDER & enter
                         //this.currPauseState=this.pauseState.VOLSLIDER;
-                        this.volText.setAlpha(1)
+                        this.volText.setBackgroundColor(color_pal.black);
+                        this.volSlider.setBackgroundColor(color_pal.black);
+                        this.volSlider.setColor(color_pal.green);
                         this.pauseState.RESUMEBUT.enter();
                     }
                     //if arrow keys left & right, move knob
@@ -101,27 +117,29 @@ class Pause extends Phaser.Scene {
                 name: 'restartButton',
                 enter: () => {
                     this.currPauseState = this.pauseState.RESTARTBUT;
-                    this.restartText.setAlpha(.75);
+                    this.restartText.setBackgroundColor(color_pal.grey);
                     console.log('restart enter');
                 },
                 update: () => {
                     if(Phaser.Input.Keyboard.JustDown(keyENTER)){
-                        this.restartText.setAlpha(1);
+                        this.restartText.setBackgroundColor(color_pal.black);
                         console.log("going to menu scene");
                         this.scene.setVisible(false, this.prevScene);
                         console.log(this.prevScene + " " + this.scene.isVisible(this.prevScene));
                         this.scene.stop(this.prevScene);
                         this.scene.start('menuScene');
+                        this.scene.setVisible(true, 'menuScene');
+                        this.scene.stop();
                         //this.pauseState.RESTARTBUT.enter();
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){ //if down, change state to VOLSLIDER & enter
                         //this.currPauseState=this.pauseState.VOLSLIDER;
-                        this.restartText.setAlpha(1)
+                        this.restartText.setBackgroundColor(color_pal.black)
                         this.pauseState.RESUMEBUT.enter();
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyUP)){ //if down, change state to VOLSLIDER & enter
                         //this.currPauseState=this.pauseState.VOLSLIDER;
-                        this.restartText.setAlpha(1)
+                        this.restartText.setBackgroundColor(color_pal.black)
                         this.pauseState.VOLSLIDER.enter();
                     }
                 }

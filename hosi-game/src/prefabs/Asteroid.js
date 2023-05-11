@@ -54,7 +54,7 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
     explode(){
     }
 }
-
+/*
 class AsteroidGroup extends Phaser.Physics.Arcade.Group
 {
     constructor (scene)
@@ -71,4 +71,4 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         this.scene.asteroids.add(asteroid);
 
     }
-}
+}*/

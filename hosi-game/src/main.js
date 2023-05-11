@@ -38,17 +38,18 @@ let editorActive = false;
 // reserve keyboard variables
 let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
 let prevScene;
+let soundManager;
 //#region [[]] ==============================================================
 
 let waveAlgo={
   enemyHealth: {
-  
+    
   },
   enemySpawns: {
-  
+    
   },
   enemyFrequency: {
-
+    
   },
 }
 
@@ -130,7 +131,10 @@ let color_pal = {
 
 let neon_color_pal = {
   pink: "#EF45F5",
-  purple: "#7C3CD6"
+  purple: "#7C3CD6",
+  toInt: function(colorName) {
+    return parseInt(this[colorName].replace("#", "0x"));
+  }
 }
 //#endregion
 
@@ -154,7 +158,7 @@ let headerConfig = {
 // menu text configuration
 let defaultTextStyle = {
   fontFamily: 'Courier',
-  fontSize: screen.width / 50,
+  fontSize: screen.width/25,
   color: color_pal.pink,
   align: 'right',
   padding: 5,

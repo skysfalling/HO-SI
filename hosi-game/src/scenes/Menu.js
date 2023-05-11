@@ -5,9 +5,10 @@ class Menu extends Phaser.Scene {
 
     preload() {
         // load audio
-        this.load.audio('sfx_select', './assets/sounds/blip_select12.wav');
-        this.load.audio('sfx_explosion', './assets/sounds/explosion38.wav');
-        this.load.audio('sfx_rocket', './assets/sounds/rocket_shot.wav');
+        this.soundManager = new SoundManager(this);
+        this.soundManager.loadAllSounds();
+        console.log(this.soundManager);
+
 
         game.config.centerX = game.config.width / 2;
         game.config.centerY = game.config.height / 2;
@@ -49,10 +50,11 @@ class Menu extends Phaser.Scene {
           // Novice mode
           game.settings = {
             spaceshipSpeed: 3,
-            gameTimer: 60000    
+            gameTimer: 60000
           }
-          this.sound.play('sfx_select', {volume: 0.1});
-          this.scene.start("playScene");    
+          this.soundManager.play('sfx_select', {volume: .10});
+          console.log(this.soundManager);
+          this.scene.start("playScene", {soundManager: this.soundManager});    
         }
         if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
           // Expert mode
@@ -60,8 +62,9 @@ class Menu extends Phaser.Scene {
             spaceshipSpeed: 4,
             gameTimer: 45000    
           }
-          this.sound.play('sfx_select', {volume: 0.1});
-          this.scene.start("levelZeroScene");    
+          this.soundManager.play('sfx_select', {volume: .10});
+          console.log(this.soundManager);
+          this.scene.start("levelZeroScene", {soundManager: this.soundManager});    
         }
 
       }

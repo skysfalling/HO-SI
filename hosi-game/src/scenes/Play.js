@@ -248,8 +248,8 @@ class Play extends Phaser.Scene {
                 asteroid.setVelocity(0, 200);
             }
         });
-        this.asteroids = this.add.existing( new AsteroidGroup(this) );
-        this.asteroids.spawn(this.skychart.points.top[4], 'asteroid');
+        //this.asteroids = this.add.existing( new AsteroidGroup(this) );
+        //this.asteroids.spawn(this.skychart.points.top[4], 'asteroid');
 
 
 
