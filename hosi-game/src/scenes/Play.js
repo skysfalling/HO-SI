@@ -121,7 +121,8 @@ class Play extends Phaser.Scene {
         //#endregion
     
         //#region << SKYCHART >>
-        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y / 2, this.world.width * 2, this.world.height * 2);
+        this.spawner = new Spawner(this);
+        this.skychart = this.spawner.skychart;
 
         //#endregion
     
@@ -225,8 +226,11 @@ class Play extends Phaser.Scene {
         
         //#region << ASTEROIDS >>
         // create an asteroid group
-        this.asteroids = new AsteroidGroup(this);
-        this.asteroids.spawn(this, this.skychart.points.top[4], 'asteroid');
+
+        //#region ( Asteroid Overlap Trigger ) >>
+        this.spawner.asteroids = new AsteroidGroup(this);
+        this.asteroids = this.spawner.asteroids;
+        this.spawner.createNewRandomAsteroids();
 
         // auto primary fire trigger
         this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.asteroids, this.onOverlap, () => {
@@ -237,10 +241,8 @@ class Play extends Phaser.Scene {
         // primary fire vs. asteroids
         this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
             (asteroid, bullet) => {
-                this.asteroids.remove(asteroid, true, true);
                 this.hamsterShip.bullets.remove(bullet, true, true);
-
-                this.newRandomAsteroid(this.skychart.points.top);
+                this.spawner.resetAsteroid(asteroid);
             });
 
         // handle collision between rocket and asteroid
@@ -249,11 +251,10 @@ class Play extends Phaser.Scene {
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                this.asteroids.remove(asteroid, true, true);
-
-                this.newRandomAsteroid(this.skychart.points.top);
+                this.spawner.resetAsteroid(asteroid);
             }
         });
+        //#endregion
 
         //#endregion
 
@@ -302,11 +303,8 @@ class Play extends Phaser.Scene {
 
         this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
-    
-    newRandomAsteroid(points){
-        const point = Phaser.Math.RND.pick(points);
-        this.asteroids.spawn(this, {x: point.x, y: point.y}, 'asteroid', 200);
-    }
+
+
 
     // ================================================================================= // *~
     //                          UPDATE

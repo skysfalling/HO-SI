@@ -11,14 +11,21 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
 
     this.setDepth(1);
     this.setScale(2); //64px
-    this.body.setCollideWorldBounds(true);
+    this.body.collideWorldBounds = true;
 
-    // make sure that the ship does not go over world bounds
-    this.body.onWorldBounds = true;
-    this.physics.world.on('worldbounds', function(body){
-        console.log('hello from the edge of the world', body);
-        body.x += 1;
-    },this);
+  // make sure that the ship does not go over world bounds
+  this.body.onWorldBounds = true;
+  this.physics.world.on('worldbounds', function(body){
+      //console.log('hello from the edge of the world', body);
+      body.x = Math.floor(body.x);
+      body.y = Math.floor(body.y);
+
+      // calculate the angle between the current position and the center of the world
+      const angle = Phaser.Math.Angle.Between(body.x, body.y, this.physics.world.bounds.centerX, this.physics.world.bounds.centerY);
+
+      // set the velocity of the object towards the center at a slower pace
+      this.physics.velocityFromRotation(angle, 200, body.velocity);
+  },this);
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;

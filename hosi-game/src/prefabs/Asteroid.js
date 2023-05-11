@@ -53,11 +53,11 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         super(scene.physics.world, scene);
     }
 
-    spawn (scene, spawnpoint, texture, velocity = 100)
+    spawn (scene, spawnpoint, texture, velocityX = 0, velocityY = 100)
     {
         const asteroid = new Asteroid(scene, spawnpoint, texture);
         this.add(asteroid);
-
-        asteroid.body.setVelocityY(velocity);
+        asteroid.body.velocity.x = velocityX;
+        asteroid.body.velocity.y = velocityY;
     }
 }
