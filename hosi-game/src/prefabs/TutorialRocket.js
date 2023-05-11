@@ -17,9 +17,9 @@ class TutorialRocket extends Phaser.GameObjects.Sprite{
          // left/right movement
          if(!this.isFiring) {
             if(keyLEFT.isDown) {
-                this.rotation--;    // i def need to do a physics thing there ugh
+                //this.rotation--;    // i def need to do a physics thing there ugh
             } else if (keyRIGHT.isDown) {
-                this.rotation++;
+                //this.rotation++;
             }
         }
         // fire button
@@ -44,7 +44,7 @@ class TutorialRocket extends Phaser.GameObjects.Sprite{
 
     reset(){
         this.isFiring = false;
-        this.y = game.config.height - borderUISize - borderPadding;
+        this.y = game.config.height - 100;
         this.x = game.config.width/2;
     }
 }

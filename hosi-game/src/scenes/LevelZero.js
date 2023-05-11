@@ -40,6 +40,9 @@ class LevelZero extends Phaser.Scene {
         this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
         this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
 
+        // << BUNKER >>
+        this.load.image('bunker', './assets/bunker.png');
+
         // << TEXTURE ATLAS >>
         this.load.atlas('hosi_atlas', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
@@ -54,6 +57,8 @@ class LevelZero extends Phaser.Scene {
         //#region << SPACE BACKGROUNDS >>
         this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0);
 
+        this.bunker = this.add.sprite(game.config.width/2, game.config.height - borderUISize - borderPadding, 'bunker');
+
         //#endregion
     
         //#region << ROCKET AND SPACESHIPS >>
@@ -61,8 +66,9 @@ class LevelZero extends Phaser.Scene {
         //this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         this.p1Rocket = new Rocket(this, this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5);
-        this.tutorialRocket = new TutorialRocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5);
-        // add HamsterShip 
+        this.tutorialRocket = new TutorialRocket(this, game.config.width/2, game.config.height -100, 'rocket_fire').setOrigin(0.5);
+        this.hamsterShip= new HamsterShip(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
+        this.hamsterShip.visible = false;
 
         // add Spaceships (x3)
         this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'spaceship', 0, 10, this.defaultShipSpeed);        
@@ -260,13 +266,13 @@ class LevelZero extends Phaser.Scene {
         //#endregion
 
         //#region << GAME TIMER >> 
-        this.startTime = 10;
+        this.startTime = 0;
         this.curTime = this.startTime;
         this.extraTime = 0;
         this.gameTimer = this.time.addEvent({
             delay: 1000,
             callback: () => {
-              this.curTime--;
+              this.curTime++;
             },
             callbackScope: this,
             loop: true
@@ -316,11 +322,14 @@ class LevelZero extends Phaser.Scene {
         this.starfield.tilePositionX -= 4;  // update tile sprite
 
         // [[ UPDATE GAME OBJECTS]]
-        this.tutorialRocket.update();             // update p1
+        if(this.hitcount < 3){
+            this.tutorialRocket.update();             // update tutorial rocket 
+        }
         this.ship01.update();               // update spaceship (x3)
         this.ship02.update();
         this.ship03.update();
         //this.fastShip.update();
+        this.bunker.update();
         
 
         // << CHECK PLAYER OUT OF BOUNDS >>
@@ -357,12 +366,19 @@ class LevelZero extends Phaser.Scene {
         }*/
         //#endregion
 
-        if(this.hitcount = 3){
+        if(this.hitcount >= 3){
             // change scenes / move onto level 0.5
             // we want to add animation here about hamster getting in the ship and launching
             // so make ship appear
 
             // update controls so the player can freely move
+            // delete tutorial rocket bring out rocket attached to hamster
+            this.p1Rocket.update();
+            this.hamsterShip.visible = true;
+            this.hamsterShip.update();
+            //this.scene.start("loadingScene");
+            
+
         }
     }
 
