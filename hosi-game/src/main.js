@@ -38,7 +38,21 @@ let editorActive = false;
 // reserve keyboard variables
 let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
 let prevScene;
+//#region [[]] ==============================================================
 
+let waveAlgo={
+  enemyHealth: {
+  
+  },
+  enemySpawns: {
+  
+  },
+  enemyFrequency: {
+
+  },
+}
+
+//#engregion
 
 // #region [[ FORMATTING ]] =================================================
 
@@ -85,6 +99,10 @@ let screen = {
     x: 0,
     y: game.config.height/2
   },
+}
+
+let format = {
+  margin: 50
 }
 
 // border size
@@ -143,3 +161,4 @@ let defaultTextStyle = {
   fixedWidth: 0,
 }
 //#endregion
+

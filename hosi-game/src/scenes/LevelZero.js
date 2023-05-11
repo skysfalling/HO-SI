@@ -10,6 +10,13 @@ class LevelZero extends Phaser.Scene {
         this.level = 1;
         this.defaultShipSpeed = 100;
 
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        
+
         //#region << SPRITES >>
         // load images/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
@@ -61,8 +68,8 @@ class LevelZero extends Phaser.Scene {
         this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'spaceship', 0, 10, this.defaultShipSpeed);        
         this.ship02 = new Spaceship(this, "ship2", game.config.width, game.config.height * 0.50, 'spaceship', 0, 10, this.defaultShipSpeed);
         this.ship03 = new Spaceship(this, "ship3", game.config.width, game.config.height * 0.75, 'spaceship', 0, 10, this.defaultShipSpeed);
-        this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'spaceship', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4), color_pal.toInt("green"));
-        this.fastShip.setScale(1);
+        //this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'spaceship', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4)/*, color_pal.toInt("green")*/);
+        //this.fastShip.setScale(1);
         //#endregion
 
         //#region << DEFINE KEYS >>
@@ -70,6 +77,7 @@ class LevelZero extends Phaser.Scene {
         //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         //#endregion
 
         //#region << SKY GIZMOS THINGS >>
@@ -225,7 +233,7 @@ class LevelZero extends Phaser.Scene {
             frameRate: 10,
             repeat: -1
         });
-        //#endregion
+            //#endregion
         //#endregion
 
         //#region  << GAME UI >>
@@ -268,12 +276,32 @@ class LevelZero extends Phaser.Scene {
         // initalize total hit count
         this.hitcount = 0;
     }
-        
+    init(){
+        console.log('running init')
+        //#region << DEFINE KEYS >>
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        //#endregion
+    }    
 
     update(time) {
 
         // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
         this.gizmos.graphics.clear();
+
+        this.init(); //STUPID KEY RE ASSIGNING
+
+        if(Phaser.Input.Keyboard.JustDown(keyESC)){
+            this.input.keyboard.resetKeys();
+            console.log("esc pressed");
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "levelZeroScene"});
+            //this.pauseScene.scene.main
+            console.log("pause scene: " + this.pauseScene);
+            this.scene.pause();
+        }
 
         // update time
         this.timePassedText.setText(`${this.curTime}`);
@@ -292,7 +320,7 @@ class LevelZero extends Phaser.Scene {
         this.ship01.update();               // update spaceship (x3)
         this.ship02.update();
         this.ship03.update();
-        this.fastShip.update();
+        //this.fastShip.update();
         
 
         // << CHECK PLAYER OUT OF BOUNDS >>
@@ -320,13 +348,13 @@ class LevelZero extends Phaser.Scene {
             this.shipExplode(this.ship03);
             this.tutorialRocket.reset();
         }
-
+        /*
         if (!this.fastShip.dead && this.checkCollision(this.tutorialRocket, this.fastShip))
         {
             this.hitcount++;
             this.shipExplode(this.fastShip);
             this.tutorialRocket.reset();
-        }
+        }*/
         //#endregion
 
         if(this.hitcount = 3){

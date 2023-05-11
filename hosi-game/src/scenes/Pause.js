@@ -108,7 +108,9 @@ class Pause extends Phaser.Scene {
                     if(Phaser.Input.Keyboard.JustDown(keyENTER)){
                         this.restartText.setAlpha(1);
                         console.log("going to menu scene");
-                        
+                        this.scene.setVisible(false, this.prevScene);
+                        console.log(this.prevScene + " " + this.scene.isVisible(this.prevScene));
+                        this.scene.stop(this.prevScene);
                         this.scene.start('menuScene');
                         //this.pauseState.RESTARTBUT.enter();
                     }
@@ -164,8 +166,9 @@ class Pause extends Phaser.Scene {
         console.log("in resume scene function");
         console.log(x);
         this.scene.resume(x);
+        console.log("started "+ x +" about to stop pause menu");
         //x.resume();
-        this.scene.stop();        
+        this.scene.stop();
     }
 
     volSliderTextShit(x){
