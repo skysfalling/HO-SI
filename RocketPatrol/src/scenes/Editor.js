@@ -69,7 +69,6 @@ class Editor extends Phaser.Scene {
       // create spaceship
       this.ship01 = new Spaceship(this, "ship1", this.world.bounds.right, this.world.center.y, 'spaceship', 0);  
 
-
       //#region [[ GIZMOS ]] ==============================================================
       this.graphics.clear();
       // draw world bounds

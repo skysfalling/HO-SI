@@ -218,53 +218,41 @@ class Play extends Phaser.Scene {
         //#endregion
 
         //#region << PLAYER SHIP >>
-        
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         // bullets
-        this.hamsterShip.bullets = this.physics.add.group({
-            key: 'bullets',
-            collideWorldBounds: false,
-            runChildUpdate: true,
-        });
-        this.hamsterShip.bullets = this.add.existing( new BulletGroup(this) );
-        
+        this.hamsterShip.bullets = new BulletGroup(this);        
         //#endregion
         
         //#region << ASTEROIDS >>
         // create an asteroid group
-        this.asteroids = this.physics.add.group({
-            classType: Asteroid,
-            maxSize: 10,
-            runChildUpdate: true,
-            createCallback: (asteroid) => {
-                // set constructor values for each asteroid when it is created
-                asteroid.setVelocity(0, 200);
-            }
-        });
-        this.asteroids = this.add.existing( new AsteroidGroup(this) );
-        this.asteroids.spawn(this.skychart.points.top[4], 'asteroid');
+        this.asteroids = new AsteroidGroup(this);
+        this.asteroids.spawn(this, this.skychart.points.top[4], 'asteroid');
 
-
-
-        // auto primary fire
-        this.physics.add.overlap(this.asteroids, this.hamsterShip.primaryFireTrigger,
-        (asteroid, trigger) => {
-            //console.log("asteroid overlap");
+        // auto primary fire trigger
+        this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.asteroids, this.onOverlap, () => {
+            console.log("asteroid overlap");
             this.hamsterShip.primary_fire();
         });
-            
-        /*
+
+        // primary fire vs. asteroids
+        this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
+            (asteroid, bullet) => {
+                this.asteroids.remove(asteroid, true, true);
+                this.hamsterShip.bullets.remove(bullet, true, true);
+            });
+
         // handle collision between rocket and asteroid
         this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
             //console.log("rocket hit asteroid");
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                asteroid.destroy();
+                this.asteroids.remove(asteroid, true, true);
             }
         });
 
+        /*
         // Listen for the 'destroy' event on the asteroids group
         this.asteroids.on('destroy', (asteroid) => {
             // Spawn a new asteroid at a randomly chosen point in the points array
@@ -332,7 +320,7 @@ class Play extends Phaser.Scene {
     update(time, delta) {
         this.gizmosUpdate();
 
-        console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
+        //console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
         this.currLevelState.update(time, delta);
 
     }

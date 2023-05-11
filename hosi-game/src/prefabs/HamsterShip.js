@@ -1,4 +1,4 @@
-class HamsterShip extends Phaser.GameObjects.Sprite {
+class HamsterShip extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, ss_fly, ss_dodge, ss_bullet) {
     super(scene, x, y, ss_fly, ss_dodge, ss_bullet);
 
@@ -270,12 +270,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     if (!this.primaryActive) {return;}
 
-    // check fire delay
-    if (this.scene.time.now < this.primarylastFired + this.primaryFireDelay) return;
-    this.primarylastFired = this.scene.time.now;
+    if (this.scene.time.now < this.lastFired + this.primaryFireDelay) return; 
+    this.lastFired = this.scene.time.now;
 
-    this.bullets.fire(this, this.x, this.y, this.ss_bullet);
 
+    this.bullets.fire(this.scene, this.x, this.y);
   }
 
 }

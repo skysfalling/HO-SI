@@ -4,7 +4,8 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
 
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
-        scene.physics.add.existing(this) // add to physics
+        scene.physics.add.existing(this); // add to physics
+
 
         this.spawnpoint = spawnpoint;
         this.x = spawnpoint.x;
@@ -15,6 +16,8 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
         this.rotationForce = 100;
         this.setAngle(0);
         this.body.setAngularVelocity(this.rotationForce); 
+        this.body.setAllowGravity(false);
+
         
 
         this.anims.create({
@@ -29,6 +32,8 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
           });
         this.anims.play('asteroid');
 
+
+
         /*
         if (this.spawnpoint && this.resetPoint){
             const angle = Phaser.Math.Angle.BetweenPoints(this.spawnPoint, this.resetPoint);
@@ -39,36 +44,23 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
             this.setVelocity(velocityX, velocityY);
         }
         */
-
-        this.reaction = {
-            EXLPODE: {
-                anim: () => {
-                    console.log("Asteroid Explode");
-                }
-            }
-
-
-        }
-    }
-
-    explode(){
     }
 }
 
 class AsteroidGroup extends Phaser.Physics.Arcade.Group
 {
-    constructor (scene)
-    {
-        super(scene);
-        this.scene = scene;
+    constructor(scene) {
+        super(scene.physics.world, scene);
     }
 
-    spawn (spawnpoint, texture)
+    spawn (scene, spawnpoint, texture, velocity = 100)
     {
-        console.log(JSON.stringify(spawnpoint));
+        //console.log(JSON.stringify(spawnpoint));
 
-        const asteroid = new Asteroid(this.scene, spawnpoint, texture);
-        this.scene.asteroids.add(asteroid);
+        const asteroid = new Asteroid(scene, spawnpoint, texture);
+        this.add(asteroid);
+
+        asteroid.body.setVelocityY(velocity);
 
     }
 }
