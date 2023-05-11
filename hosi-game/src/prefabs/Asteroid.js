@@ -55,12 +55,9 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
 
     spawn (scene, spawnpoint, texture, velocity = 100)
     {
-        //console.log(JSON.stringify(spawnpoint));
-
         const asteroid = new Asteroid(scene, spawnpoint, texture);
         this.add(asteroid);
 
         asteroid.body.setVelocityY(velocity);
-
     }
 }

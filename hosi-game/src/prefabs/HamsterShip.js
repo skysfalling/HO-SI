@@ -9,9 +9,16 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.scene = scene;
     this.physics = scene.physics;
 
-    this.body.setCollideWorldBounds(true);
     this.setDepth(1);
     this.setScale(2); //64px
+    this.body.setCollideWorldBounds(true);
+
+    // make sure that the ship does not go over world bounds
+    this.body.onWorldBounds = true;
+    this.physics.world.on('worldbounds', function(body){
+        console.log('hello from the edge of the world', body);
+        body.x += 1;
+    },this);
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
@@ -109,7 +116,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
           } else if (this.moveRight.isDown) {
             this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.1));
           } else {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 1));
+            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 0.1));
           }
 
           // vertical movement
@@ -118,7 +125,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
           } else if (this.moveDown.isDown) {
             this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, this.moveSpeed, 0.1));
           } else {
-            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 1));
+            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 0.1));
           }
 
           // dodge

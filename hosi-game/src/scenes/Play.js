@@ -6,7 +6,6 @@ class Play extends Phaser.Scene {
     preload() {
         this.physics.add.existing(this);
         this.scene_graphics = this.add.graphics();
-
         this.gizmos = new Gizmos(this, this.add.graphics());
         
         this.level = 1;
@@ -122,7 +121,7 @@ class Play extends Phaser.Scene {
         //#endregion
     
         //#region << SKYCHART >>
-        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width, this.world.height + (this.grid.cellSize * 2));
+        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y / 2, this.world.width * 2, this.world.height * 2);
 
         //#endregion
     
@@ -197,8 +196,8 @@ class Play extends Phaser.Scene {
     else { this.levelState.PLAY.enter();}
     //#endregion
 
-    // html reference to canvas
-    const canvas = document.getElementById('game-container');
+        // html reference to canvas
+        const canvas = document.getElementById('game-container');
     }
 
     // ================================================================================= ///??^
@@ -240,6 +239,8 @@ class Play extends Phaser.Scene {
             (asteroid, bullet) => {
                 this.asteroids.remove(asteroid, true, true);
                 this.hamsterShip.bullets.remove(bullet, true, true);
+
+                this.newRandomAsteroid(this.skychart.points.top);
             });
 
         // handle collision between rocket and asteroid
@@ -249,19 +250,10 @@ class Play extends Phaser.Scene {
             {
                 rocket.states.EXPLODE.enter();
                 this.asteroids.remove(asteroid, true, true);
+
+                this.newRandomAsteroid(this.skychart.points.top);
             }
         });
-
-        /*
-        // Listen for the 'destroy' event on the asteroids group
-        this.asteroids.on('destroy', (asteroid) => {
-            // Spawn a new asteroid at a randomly chosen point in the points array
-            const point = Phaser.Math.RND.pick(this.skychart.points.top);
-            asteroid.x = point.x;
-            asteroid.y = point.y;
-            this.asteroids.create(asteroid.x, asteroid.y, 'asteroid');
-        });
-        */
 
         //#endregion
 
@@ -290,8 +282,6 @@ class Play extends Phaser.Scene {
         }); 
         //#endregion
 
-
-
     }
 
     gizmosCreate(){
@@ -312,7 +302,12 @@ class Play extends Phaser.Scene {
 
         this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
-        
+    
+    newRandomAsteroid(points){
+        const point = Phaser.Math.RND.pick(points);
+        this.asteroids.spawn(this, {x: point.x, y: point.y}, 'asteroid', 200);
+    }
+
     // ================================================================================= // *~
     //                          UPDATE
     // ==================================================// >>
