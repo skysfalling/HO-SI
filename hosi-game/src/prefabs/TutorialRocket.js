@@ -35,7 +35,22 @@ class TutorialRocket extends Phaser.GameObjects.Sprite{
                 this.x += this.moveSpeed;
             }
             this.y -= this.moveSpeed;
+
+            if (this.body && this.body.velocity) {
+                this.scene.physics.velocityFromAngle(this.angle - 90, this.rocketForce, this.body.velocity); 
+    
+                // Aim the rocket based on user input
+                if (keyLEFT.isDown) {
+                    this.body.setAngularVelocity(this.body.angularVelocity - this.rocketRotationForce);
+                } else if (keyRIGHT.isDown) {
+                    this.body.setAngularVelocity(this.body.angularVelocity + this.rocketRotationForce);
+                } else {
+                    this.body.setAngularVelocity(Phaser.Math.Linear(this.body.angularVelocity, 0, 0.1));
+                }
+              }
         }
+
+       
         // reset on miss
         if(this.y <= borderUISize * 3 + borderPadding) {
             this.reset();

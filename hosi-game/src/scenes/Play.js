@@ -36,9 +36,9 @@ class Play extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
         // << ASTEROIDS >>
-        this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
-        this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
-
+        this.load.image('justAsteroid', './assets/asteroids/asteriod.png');
+        //this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
+        this.load.image('asteriodParticle', './assets/asteroids/asteroid_Crumble.png');
         // 
 
     //#endregion
@@ -197,6 +197,7 @@ class Play extends Phaser.Scene {
     create() {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
+        this.spawner.create();
         
         //#region << INPUTS >>
         // Define the arrow key movement controls
@@ -307,21 +308,28 @@ class Play extends Phaser.Scene {
 
         this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
-    
-    init(){
-        //console.log('running init')
-        //#region << DEFINE KEYS >>
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        //#endregion
-    }
 
     // ================================================================================= // *~
     //                          UPDATE
     // ==================================================// >>
+
+    //#region << INIT KEYS SO PAUSE DOESN'T DIE >>
+    init(){
+        // this is respectfully the stupidest shit JEEZ
+        console.log('running init')
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        // Editor camera zoom in / out
+        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+    }   
+    //#endregion
 
     update(time, delta) {
 

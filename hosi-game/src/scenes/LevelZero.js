@@ -1,6 +1,7 @@
 class LevelZero extends Phaser.Scene {
     constructor() {
         super("levelZeroScene");
+        this.loading=false;
     }
     init(data){
         this.soundManager = data.soundManager;
@@ -9,6 +10,7 @@ class LevelZero extends Phaser.Scene {
     preload() {
         this.gizmos = new Gizmos(this);
         this.showGizmos = true;
+        this.loading=false;
 
         this.level = 1;
         this.defaultShipSpeed = 100;
@@ -21,9 +23,10 @@ class LevelZero extends Phaser.Scene {
         
 
         //#region << SPRITES >>
-        // load images/tile sprites
+        // load backgrounds/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
-        this.load.image('starfield', './assets/starfield.png');
+        //this.load.image('starfield', './assets/starfield.png');
+        this.load.image('takeoff', './assets/takeoff.png');
 
         // load spritesheet
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
@@ -31,7 +34,9 @@ class LevelZero extends Phaser.Scene {
         // << HAMSTER SPACESHIP >>
         this.load.spritesheet('spaceship_fly', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 2});
         this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
-
+    
+        // << ENEMY SPACESHIPS >>
+        this.load.image('greenSnake1', './assets/greenSnakeShip0.png');
         // << BULLETS >>
         this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
 
@@ -40,8 +45,7 @@ class LevelZero extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
         // << ASTEROIDS >>
-        this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
-        this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
+        this.load.image('justAsteroid', './assets/asteroids/asteroid.png');
 
         // << BUNKER >>
         this.load.image('bunker', './assets/bunker.png');
@@ -57,28 +61,63 @@ class LevelZero extends Phaser.Scene {
 
     create() {
 
+        //#region << ENEMY SNAKESHIPS >>
+        this.anims.create({
+            key: 'greenSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "greenSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'purpleSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "purpleSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'orangeSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "orangeSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        //#endregion
+        
         //#region << SPACE BACKGROUNDS >>
-        this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0);
+        this.takeoff = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'takeoff').setOrigin(1, 1);
 
         this.bunker = this.add.sprite(game.config.width/2, game.config.height - borderUISize - borderPadding, 'bunker');
 
         //#endregion
-    
+        
         //#region << ROCKET AND SPACESHIPS >>
         // add Rocket (p1)
-        //this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
-        this.p1Rocket = new Rocket(this, this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5);
+        this.p1Rocket = new Rocket(this, this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5).setVisible(false);
         this.tutorialRocket = new TutorialRocket(this, game.config.width/2, game.config.height -100, 'rocket_fire').setOrigin(0.5);
-        this.hamsterShip= new HamsterShip(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
-        this.hamsterShip.visible = false;
+        this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
+        this.hamsterShip.rocket.setVisible(false);  // make rocket attached to ship invisibile
 
         // add Spaceships (x3)
-        this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'spaceship', 0, 10, this.defaultShipSpeed);        
-        this.ship02 = new Spaceship(this, "ship2", game.config.width, game.config.height * 0.50, 'spaceship', 0, 10, this.defaultShipSpeed);
-        this.ship03 = new Spaceship(this, "ship3", game.config.width, game.config.height * 0.75, 'spaceship', 0, 10, this.defaultShipSpeed);
-        //this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'spaceship', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4)/*, color_pal.toInt("green")*/);
-        //this.fastShip.setScale(1);
+        this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'greenSnake1', 0, 10, this.defaultShipSpeed);        
+        this.ship02 = new Spaceship(this, "ship2", game.config.width, game.config.height * 0.50, 'greenSnake1', 0, 10, this.defaultShipSpeed);
+        this.ship03 = new Spaceship(this, "ship3", game.config.width, game.config.height * 0.75, 'greenSnake1', 0, 10, this.defaultShipSpeed);
+        this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'purpleSnakeShip0', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4)/*, color_pal.toInt("green")*/);
+        this.fastShip.setScale(1);
         //#endregion
 
         //#region << DEFINE KEYS >>
@@ -322,7 +361,7 @@ class LevelZero extends Phaser.Scene {
 
         //#endregion
 
-        this.starfield.tilePositionX -= 4;  // update tile sprite
+        //this.starfield.tilePositionX;  // update tile sprite
 
         // [[ UPDATE GAME OBJECTS]]
         if(this.hitcount < 3){
@@ -331,7 +370,7 @@ class LevelZero extends Phaser.Scene {
         this.ship01.update();               // update spaceship (x3)
         this.ship02.update();
         this.ship03.update();
-        //this.fastShip.update();
+        this.fastShip.update();
         this.bunker.update();
         
 
@@ -342,19 +381,19 @@ class LevelZero extends Phaser.Scene {
         }
 
         //#region << ROCKET COLLISIONS >>
-        if (!this.ship01.dead && this.checkCollision(this.tutorialRocket, this.ship01))
+        if (!this.ship01.dead && (this.checkCollision(this.tutorialRocket, this.ship01))) //|| (this.checkCollision(this.hamsterShip, this.ship01)))
         {
             this.hitcount++;
             this.shipExplode(this.ship01);
             this.tutorialRocket.setPosition(20,20);
         }
-        if (!this.ship02.dead && this.checkCollision(this.tutorialRocket, this.ship02))
+        if (!this.ship02.dead && this.checkCollision(this.tutorialRocket, this.ship02)) //|| (this.checkCollision(this.hamsterShip, this.ship02)))
         {
             this.hitcount++;
             this.shipExplode(this.ship02);
             this.tutorialRocket.reset();
         }
-        if (!this.ship03.dead && this.checkCollision(this.tutorialRocket, this.ship03))
+        if (!this.ship03.dead && this.checkCollision(this.tutorialRocket, this.ship03)) //|| (this.checkCollision(this.hamsterShip, this.ship03)))
         {
             this.hitcount++;
             this.shipExplode(this.ship03);
@@ -369,17 +408,24 @@ class LevelZero extends Phaser.Scene {
         }*/
         //#endregion
 
-        if(this.hitcount >= 3){
+        if(this.hitcount >= 3 && !this.loading){
             // change scenes / move onto level 0.5
             // we want to add animation here about hamster getting in the ship and launching
             // so make ship appear
 
             // update controls so the player can freely move
             // delete tutorial rocket bring out rocket attached to hamster
-            this.p1Rocket.update();
-            this.hamsterShip.visible = true;
+            //this.p1Rocket.update();
             //this.hamsterShip.update();
-            //this.scene.start("loadingScene");
+            //this.hamsterShip.visible = true;
+            this.tutorialRocket.setVisible(false);
+            this.scene.launch("loadingScene", {
+                prevScene: "levelZeroScene",
+                nextScene: 'playScene',
+                hamsterShipX: this.hamsterShip.x,
+                hamsterShipY: this.hamsterShip.y                
+            });
+            this.scene.pause();
             
 
         }
