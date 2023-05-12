@@ -42,13 +42,8 @@ let soundManager;
 //#region [[]] ==============================================================
 
 let waveAlgo={
-  enemyHealth: {
-    
-  },
-  enemySpawns: {
-    
-  },
-  enemyFrequency: {
+  level: 0,
+  enemyCounts: {
     
   },
 }

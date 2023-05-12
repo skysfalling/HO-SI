@@ -261,6 +261,17 @@ class Play extends Phaser.Scene {
             }
         });
 
+        //this is stupid -t
+        this.physics.add.overlap(this.asteroids, this.hamsterShip, () => {
+            this.teeext = this.add.text(this.mainCamera.x, this.mainCamera.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
+            console.log(this.teeext.text);
+            
+            this.time.delayedCall(1000, () => {
+                this.slow = false;
+                this.scene.start('menuScene');
+            }, null, this);
+        });
+
         //#endregion
 
         //#region << HTML REFERENCES >>
