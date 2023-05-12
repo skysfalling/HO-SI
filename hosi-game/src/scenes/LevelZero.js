@@ -42,8 +42,7 @@ class LevelZero extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
         // << ASTEROIDS >>
-        this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
-        this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
+        this.load.image('justAsteroid', './assets/asteroids/asteroid.png');
 
         // << BUNKER >>
         this.load.image('bunker', './assets/bunker.png');

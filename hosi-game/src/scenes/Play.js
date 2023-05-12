@@ -35,7 +35,7 @@ class Play extends Phaser.Scene {
         // << ASTEROIDS >>
         this.load.image('justAsteroid', './assets/asteroids/asteriod.png');
         //this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
-        this.load.image('asteriodParticle', './assets/asteroids/asteroidCrumble.png');
+        this.load.image('asteriodParticle', './assets/asteroids/asteroid_Crumble.png');
         // 
 
     //#endregion
