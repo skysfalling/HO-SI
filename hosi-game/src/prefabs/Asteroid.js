@@ -47,6 +47,7 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         console.log("new asteroid group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.endpoints));
 
     }
+    //new func (set up config) takes in var "config:" sets all vals
 
     spawnNew (spawnpoint, velocity = this.defaultVelocity)
     {

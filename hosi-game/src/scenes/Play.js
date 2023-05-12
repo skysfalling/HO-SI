@@ -11,11 +11,11 @@ class Play extends Phaser.Scene {
         this.scene_graphics = this.add.graphics();
         this.gizmos = new Gizmos(this, this.add.graphics());
         
-        this.level = 1;
+        //this.level = 1;
 
         this.hamsterShip;
 
-
+        this.waves=Waves.getInstance(this, level, score);
 
     //#region [[ SPRITES ]]
         // load images/tile sprites

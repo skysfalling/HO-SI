@@ -40,6 +40,7 @@ let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
 let prevScene;
 let soundManager;
 //#region [[]] ==============================================================
+let waves;
 
 let waveAlgo={
   level: 0,
