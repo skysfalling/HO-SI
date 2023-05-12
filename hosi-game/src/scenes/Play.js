@@ -2,6 +2,9 @@ class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
     }
+    init(data){
+        this.soundManager = data.soundManager;
+    }
 
     preload() {
         this.physics.add.existing(this);
@@ -11,6 +14,8 @@ class Play extends Phaser.Scene {
         this.level = 1;
 
         this.hamsterShip;
+
+
 
     //#region [[ SPRITES ]]
         // load images/tile sprites
@@ -36,27 +41,11 @@ class Play extends Phaser.Scene {
 
         // 
 
-        //#endregion
+    //#endregion
 
     //#region [[ SCENE SETUP]]
 
-        //#region << INPUTS >>
-        // Define the arrow key movement controls
-        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 
-        // Define the D dodge key control
-        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-
-        // Define the F rocket fire key control
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-
-        // Editor camera zoom in / out
-        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
-        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
-        //#endregion
 
         //#region << FORMAT VALUES >>
         this.grid = {
@@ -208,8 +197,27 @@ class Play extends Phaser.Scene {
     create() {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
-        this.spawner.create();
+        
+        //#region << INPUTS >>
+        // Define the arrow key movement controls
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
+        // Define the D dodge key control
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+        // Define the F rocket fire key control
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+
+        // Editor camera zoom in / out
+        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        //#endregion
+        
+        
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
         this.mainCamera.scrollY = this.world.center.y;
@@ -299,14 +307,34 @@ class Play extends Phaser.Scene {
 
         this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
-
-
+    
+    init(){
+        //console.log('running init')
+        //#region << DEFINE KEYS >>
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        //#endregion
+    }
 
     // ================================================================================= // *~
     //                          UPDATE
     // ==================================================// >>
 
     update(time, delta) {
+
+        this.init(); //STUPID KEY REASSIGNING THING
+        
+        if(Phaser.Input.Keyboard.JustDown(keyESC)){
+            this.input.keyboard.resetKeys();
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene"});
+            //this.pauseScene.scene.main
+            console.log("pause scene: " + this.pauseScene);
+            this.scene.pause();
+        }
+
         this.gizmosUpdate();
 
         //console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
@@ -377,6 +405,8 @@ class Play extends Phaser.Scene {
         // Keep camera within the bounds of the game world
         this.mainCamera.scrollX = Phaser.Math.Clamp(this.mainCamera.scrollX, 0, this.world.width);
         this.mainCamera.scrollY = Phaser.Math.Clamp(this.mainCamera.scrollY, 0, this.world.height);
+
+
     }
 
     // ================================================================================= )) o00 ++

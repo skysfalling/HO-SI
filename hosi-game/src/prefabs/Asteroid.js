@@ -1,7 +1,7 @@
 class Asteroid extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, spawnpoint, texture){
         super(scene, spawnpoint, texture);
-
+        this.soundManager = SoundManager.getInstance(this);
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
         scene.physics.add.existing(this); // add to physics

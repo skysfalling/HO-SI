@@ -27,7 +27,7 @@ let config = {
           gravity: { y: 0 }
       }
     },  
-    scene: [ Menu, Play, Editor ],
+    scene: [ Menu, LevelZero, Play, Editor, Pause, Loading ],
     pixelArt: true,
     fps: 60
 }
@@ -36,8 +36,24 @@ let gizmosActive = true;
 let editorActive = false;
 
 // reserve keyboard variables
-let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN;
+let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
+let prevScene;
+let soundManager;
+//#region [[]] ==============================================================
 
+let waveAlgo={
+  enemyHealth: {
+    
+  },
+  enemySpawns: {
+    
+  },
+  enemyFrequency: {
+    
+  },
+}
+
+//#engregion
 
 // #region [[ FORMATTING ]] =================================================
 
@@ -86,6 +102,10 @@ let screen = {
   },
 }
 
+let format = {
+  margin: 50
+}
+
 // border size
 let borderUISize = 20;
 let borderPadding = 10;
@@ -111,7 +131,10 @@ let color_pal = {
 
 let neon_color_pal = {
   pink: "#EF45F5",
-  purple: "#7C3CD6"
+  purple: "#7C3CD6",
+  toInt: function(colorName) {
+    return parseInt(this[colorName].replace("#", "0x"));
+  }
 }
 //#endregion
 
@@ -135,10 +158,11 @@ let headerConfig = {
 // menu text configuration
 let defaultTextStyle = {
   fontFamily: 'Courier',
-  fontSize: screen.width / 50,
+  fontSize: screen.width/25,
   color: color_pal.pink,
   align: 'right',
   padding: 5,
   fixedWidth: 0,
 }
 //#endregion
+

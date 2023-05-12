@@ -2,7 +2,7 @@
 class Rocket extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, ship, x, y, texture, frame) {
         super(scene, ship, x, y, texture, frame);
-
+        this.soundManager = SoundManager.getInstance(this);
         this.scene = scene;
         this.ship = ship;
         scene.add.existing(this);   // add to existing, displayList, updateList
@@ -20,7 +20,7 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
         this.explode_delay = 2000;
         this.reset_delay = 1000;
 
-        this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
+        //this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
         
         // rocket fly animation config
         this.anims.create({
@@ -52,7 +52,7 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
                 name: "fire",
                 enter: () => {
                     this.body.setVelocityY(-100);
-                    this.sfxRocket.play({volume: 0.1});
+                    this.soundManager.play('sfx_rocket',{volume: 0.1});
                     this.currentState = this.states.FIRE;
                     this.anims.play('fire');
 
