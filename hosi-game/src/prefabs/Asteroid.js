@@ -115,8 +115,6 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
 
         asteroid.x = asteroid.spawnpoint.x;
         asteroid.y = asteroid.spawnpoint.y;
-
-        
     }
 
     

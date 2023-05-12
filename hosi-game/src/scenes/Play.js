@@ -254,8 +254,6 @@ class Play extends Phaser.Scene {
 
         //#endregion
 
-        //#endregion
-
         //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");

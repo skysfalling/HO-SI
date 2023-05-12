@@ -8,17 +8,15 @@ class Spawner {
         //<< SKYCHART >>
         this.skychart = new SkyChart(this.scene, this.scene.world.center.x, this.scene.world.center.y / 2, this.scene.world.width * 2, this.scene.world.height * 2);
 
-        // SPAWN BOUNDS
+        // << SPAWN BOUNDS >>
         this.topResetBound = this.skychart.rect.top;
         this.bottomResetBound = this.skychart.rect.bottom;
         this.leftResetBound = this.skychart.rect.left;
         this.rightResetBound = this.skychart.rect.right;
 
-        // << OBJECTS >>
-        this.targetGroups = scene.physics.add.group();
-
+        // << ALL SPAWN OBJECTS >>
         this.vertResetAsteroids;
-        this.vertIndexRange = {min: 2, max: 17};
+        this.vertIndexRange = {min: 5, max: 10};
 
         this.horzResetAsteroids;
         this.horzIndexRange = {min: 7, max: 12};
@@ -28,33 +26,30 @@ class Spawner {
     }
 
     create(){
-        // << VERTICAL ASTEROIDS >>
+        // << VERTICAL ASTEROIDS >> ==============================================
+        // create range of points to spawn from
         let top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
+        // create range of points to target
         let bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
 
+        this.gizmos.drawLine(top_spawnpoints[0], bot_spawnpoints[0], color_pal.toInt("pink"));
+        this.gizmos.drawLine(top_spawnpoints[top_spawnpoints.length-1], bot_spawnpoints[bot_spawnpoints.length-1], color_pal.toInt("pink"));
+
+        // create asteroid group with these points ^^^
         this.vertResetAsteroids = new AsteroidGroup(this.scene, this, top_spawnpoints, bot_spawnpoints);
-        this.vertResetAsteroids.spawnNewRandom();
+        this.vertResetAsteroids.spawnNewRandom(); // spawn 1 new random asteroid
 
-        this.targetGroups.addMultiple(this.vertResetAsteroids);
 
-        // << HORIZONTAL ASTEROIDS >>
+        // << HORIZONTAL ASTEROIDS >> ============================================
+        // not worried about target points, just using the top points
         let horz_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
+        // create group
         this.horzResetAsteroids = new AsteroidGroup(this.scene, this, horz_spawnpoints);
         
-        
+        // create 5 new random asteroids
         for (let i = 0; i < 5; i++){
             this.horzResetAsteroids.spawnNewRandom({x: 100, y: 0});
         }
-        this.targetGroups.addMultiple(this.horzResetAsteroids);
-        
-        // Enable physics for asteroids in targetGroups
-        this.targetGroups.getChildren().forEach(child => {
-            child.enableBody(true);
-        });
-
-        // draw bounds
-        this.gizmos.drawLine({x: 0, y: this.topResetBound}, {x: this.scene.world.width, y: this.topResetBound}, 0xff0000);
-        this.gizmos.drawLine({x: 0, y: this.bottomResetBound}, {x: this.scene.world.width, y: this.bottomResetBound}, 0xff0000);
     }
 
 
