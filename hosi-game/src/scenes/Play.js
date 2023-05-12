@@ -239,7 +239,7 @@ class Play extends Phaser.Scene {
         this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
             (asteroid, bullet) => {
                 this.hamsterShip.bullets.remove(bullet, true, true);
-                this.spawner.resetAsteroid(asteroid);
+                this.spawner.resetAsteroid(asteroid, true);
             });
 
         // handle collision between rocket and asteroid
@@ -248,7 +248,7 @@ class Play extends Phaser.Scene {
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                this.spawner.resetAsteroid(asteroid);
+                this.spawner.resetAsteroid(asteroid, true);
             }
         });
 

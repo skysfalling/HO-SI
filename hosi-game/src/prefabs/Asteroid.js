@@ -10,7 +10,6 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
         this.x = spawnpoint.x;
         this.y = spawnpoint.y;
         this.endpoint;
-        console.log("new asteroid: " + this.spawnpoint + " -> " + this.endpoint);
 
         // asteroid rotation
         this.rotationForce = 100;
@@ -69,10 +68,10 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
     spawnNewRandom (velocity = this.defaultVelocity)
     {
         // get random spawnpoint
-        this.spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
+        let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
 
         // create new asteroid
-        const asteroid = new Asteroid(this.scene, this.spawnpoint, this.texture);
+        const asteroid = new Asteroid(this.scene, spawnpoint, this.texture);
         this.add(asteroid);
         asteroid.group = this;
 
@@ -80,27 +79,45 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         if (this.endpoints.length > 0)
         {
             // get random point from the second list
-            this.endpoint = this.spawner.getRandomPoint(this.endpoints);
-            console.log("new random asteroid: " + JSON.stringify(this.spawnpoint) + " -> " + JSON.stringify(this.endpoint));
+            let endpoint = this.spawner.getRandomPoint(this.endpoints);
+            asteroid.endpoint = endpoint;
 
-            // calculate velocity direction towards the second point
-            let dx = this.endpoint.x - this.spawnpoint.x;
-            let dy = this.endpoint.y - this.spawnpoint.y;
-            
-            let angle = Math.atan2(dy, dx);
-            velocity.x = Math.cos(angle) * velocity.x;
-            velocity.y = Math.sin(angle) * velocity.y;
+            velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 1);
+
+            console.log("new random asteroid: " + JSON.stringify(spawnpoint) + " -> " + JSON.stringify(endpoint));
+            console.log(" ++ new random asteroid velocity: " + JSON.stringify(velocity));
             
         }
-        else {
-            // asteroid velocity
-            asteroid.body.velocity.x = velocity.x;
-            asteroid.body.velocity.y = velocity.y;
-        }
+
+        // asteroid velocity
+        asteroid.body.velocity.x = velocity.x;
+        asteroid.body.velocity.y = velocity.y;
     }
 
-    reset(asteroid){
+    reset(asteroid, random){
+
+        if (random)
+        {
+            asteroid.spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
+            if (this.endpoints.length > 0) 
+            { 
+                // get random point from the second list
+                let endpoint = this.spawner.getRandomPoint(this.endpoints);
+                asteroid.endpoint = endpoint;
+
+                let velocity = this.spawner.calculateVelocity(asteroid.spawnpoint, asteroid.endpoint, 1);
+
+                // asteroid velocity
+                asteroid.body.velocity.x = velocity.x;
+                asteroid.body.velocity.y = velocity.y;
+            }
+        }
+
         asteroid.x = asteroid.spawnpoint.x;
         asteroid.y = asteroid.spawnpoint.y;
+
+        
     }
+
+    
 }

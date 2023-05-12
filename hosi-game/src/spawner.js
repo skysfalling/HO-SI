@@ -18,7 +18,7 @@ class Spawner {
         this.targetGroups = scene.physics.add.group();
 
         this.vertResetAsteroids;
-        this.vertIndexRange = {min: 7, max: 12};
+        this.vertIndexRange = {min: 2, max: 17};
 
         this.horzResetAsteroids;
         this.horzIndexRange = {min: 7, max: 12};
@@ -33,14 +33,18 @@ class Spawner {
         let bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
 
         this.vertResetAsteroids = new AsteroidGroup(this.scene, this, top_spawnpoints, bot_spawnpoints);
-        
         this.vertResetAsteroids.spawnNewRandom();
+
         this.targetGroups.addMultiple(this.vertResetAsteroids);
 
         // << HORIZONTAL ASTEROIDS >>
         let horz_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
         this.horzResetAsteroids = new AsteroidGroup(this.scene, this, horz_spawnpoints);
-        this.horzResetAsteroids.spawnNewRandom({x: 100, y: 0});
+        
+        
+        for (let i = 0; i < 5; i++){
+            this.horzResetAsteroids.spawnNewRandom({x: 100, y: 0});
+        }
         this.targetGroups.addMultiple(this.horzResetAsteroids);
         
         // Enable physics for asteroids in targetGroups
@@ -60,7 +64,7 @@ class Spawner {
         if (this.vertResetAsteroids){
             this.vertResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.y > this.bottomResetBound){
-                    this.vertResetAsteroids.reset(asteroid);
+                    this.vertResetAsteroids.reset(asteroid, true);
                 }
             });
         }
@@ -69,7 +73,7 @@ class Spawner {
         if (this.horzResetAsteroids) {
             this.horzResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.x > this.rightResetBound){
-                    this.horzResetAsteroids.reset(asteroid);
+                    this.horzResetAsteroids.reset(asteroid, true);
                 }
             });
         }
@@ -89,6 +93,15 @@ class Spawner {
         return points[randomIndex];
     }
 
+    calculateVelocity(startPoint, endPoint, time) {
+        // Calculate the displacement vector from start to end
+        let displacement = new Phaser.Math.Vector2(endPoint.x - startPoint.x, endPoint.y - startPoint.y);
+        
+        // Calculate the velocity vector by dividing displacement by time
+        let velocity = displacement.scale(1 / time);
+        
+        return velocity;
+    }
 
     // ==============================
     //        ASTEROIDS
@@ -100,8 +113,8 @@ class Spawner {
         }
     }
 
-    resetAsteroid(asteroid){
-        asteroid.group.reset(asteroid);
+    resetAsteroid(asteroid, random){
+        asteroid.group.reset(asteroid, random);
     }
 }
 
