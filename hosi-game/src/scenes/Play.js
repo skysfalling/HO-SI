@@ -6,7 +6,6 @@ class Play extends Phaser.Scene {
     preload() {
         this.physics.add.existing(this);
         this.scene_graphics = this.add.graphics();
-
         this.gizmos = new Gizmos(this, this.add.graphics());
         
         this.level = 1;
@@ -17,7 +16,7 @@ class Play extends Phaser.Scene {
 
     //#region [[ SPRITES ]]
         // load images/tile sprites
-        this.load.image('spaceship', './assets/spaceship.png');
+        //this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('starfield', './assets/starfield.png');
         // load spritesheet
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
@@ -108,7 +107,8 @@ class Play extends Phaser.Scene {
         //#endregion
     
         //#region << SKYCHART >>
-        this.skychart = new SkyChart(this, this.world.center.x, this.world.center.y, this.world.width, this.world.height + (this.grid.cellSize * 2));
+        this.spawner = new Spawner(this);
+        this.skychart = this.spawner.skychart;
 
         //#endregion
     
@@ -183,8 +183,8 @@ class Play extends Phaser.Scene {
     else { this.levelState.PLAY.enter();}
     //#endregion
 
-    // html reference to canvas
-    const canvas = document.getElementById('game-container');
+        // html reference to canvas
+        const canvas = document.getElementById('game-container');
     }
 
     // ================================================================================= ///??^
@@ -194,14 +194,7 @@ class Play extends Phaser.Scene {
     create() {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
-        
-        //#region << INPUTS >>
-        // Define the arrow key movement controls
-        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        this.spawner.create();
 
         // Define the D dodge key control
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
@@ -224,62 +217,41 @@ class Play extends Phaser.Scene {
         //#endregion
 
         //#region << PLAYER SHIP >>
-        
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
 
         // bullets
-        this.hamsterShip.bullets = this.physics.add.group({
-            key: 'bullets',
-            collideWorldBounds: false,
-            runChildUpdate: true,
-        });
-        this.hamsterShip.bullets = this.add.existing( new BulletGroup(this) );
-        
+        this.hamsterShip.bullets = new BulletGroup(this);        
         //#endregion
         
         //#region << ASTEROIDS >>
         // create an asteroid group
-        this.asteroids = this.physics.add.group({
-            classType: Asteroid,
-            maxSize: 10,
-            runChildUpdate: true,
-            createCallback: (asteroid) => {
-                // set constructor values for each asteroid when it is created
-                asteroid.setVelocity(0, 200);
-            }
-        });
-        this.asteroids = this.add.existing( new AsteroidGroup(this) );
-        this.asteroids.spawn(this.skychart.points.top[4], 'asteroid');
 
+        //#region ( Asteroid Overlap Trigger ) >>
+        this.asteroids = this.spawner.vertResetAsteroids;
 
-
-        // auto primary fire
-        this.physics.add.overlap(this.asteroids, this.hamsterShip.primaryFireTrigger,
-        (asteroid, trigger) => {
+        // auto primary fire trigger
+        this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.asteroids, this.onOverlap, () => {
             //console.log("asteroid overlap");
             this.hamsterShip.primary_fire();
         });
-            
-        /*
+
+        // primary fire vs. asteroids
+        this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
+            (asteroid, bullet) => {
+                this.hamsterShip.bullets.remove(bullet, true, true);
+                this.spawner.resetAsteroid(asteroid);
+            });
+
         // handle collision between rocket and asteroid
         this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
             //console.log("rocket hit asteroid");
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                asteroid.destroy();
+                this.spawner.resetAsteroid(asteroid);
             }
         });
-
-        // Listen for the 'destroy' event on the asteroids group
-        this.asteroids.on('destroy', (asteroid) => {
-            // Spawn a new asteroid at a randomly chosen point in the points array
-            const point = Phaser.Math.RND.pick(this.skychart.points.top);
-            asteroid.x = point.x;
-            asteroid.y = point.y;
-            this.asteroids.create(asteroid.x, asteroid.y, 'asteroid');
-        });
-        */
+        //#endregion
 
         //#endregion
 
@@ -308,8 +280,6 @@ class Play extends Phaser.Scene {
         }); 
         //#endregion
 
-
-
     }
 
     gizmosCreate(){
@@ -330,17 +300,8 @@ class Play extends Phaser.Scene {
 
         this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
-    
-    init(){
-        console.log('running init')
-        //#region << DEFINE KEYS >>
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        //#endregion
-    }
+
+
 
     // ================================================================================= // *~
     //                          UPDATE
@@ -360,7 +321,7 @@ class Play extends Phaser.Scene {
 
         this.gizmosUpdate();
 
-        console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
+        //console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
         this.currLevelState.update(time, delta);
 
     }

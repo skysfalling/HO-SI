@@ -4,7 +4,7 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
 
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
-        scene.physics.add.existing(this) // add to physics
+        scene.physics.add.existing(this); // add to physics
 
         this.spawnpoint = spawnpoint;
         this.x = spawnpoint.x;
@@ -15,7 +15,10 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
         this.rotationForce = 100;
         this.setAngle(0);
         this.body.setAngularVelocity(this.rotationForce); 
-        
+        this.body.setAllowGravity(false);
+
+        this.group;
+        this.setDepth(2);
 
         this.anims.create({
             key: 'asteroid',
@@ -39,36 +42,39 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
             this.setVelocity(velocityX, velocityY);
         }
         */
-
-        this.reaction = {
-            EXLPODE: {
-                anim: () => {
-                    console.log("Asteroid Explode");
-                }
-            }
-
-
-        }
-    }
-
-    explode(){
     }
 }
 
 class AsteroidGroup extends Phaser.Physics.Arcade.Group
 {
-    constructor (scene)
+    constructor(scene) 
     {
-        super(scene);
+        super(scene.physics.world, scene);
+
         this.scene = scene;
+        this.spawnpoints;
+        this.spawner;
     }
 
-    spawn (spawnpoint, texture)
+    spawnNew (spawnpoint, texture, velocityX = 0, velocityY = 100)
     {
-        console.log(JSON.stringify(spawnpoint));
-
         const asteroid = new Asteroid(this.scene, spawnpoint, texture);
-        this.scene.asteroids.add(asteroid);
+        
+        this.add(asteroid);
+        asteroid.group = this;
 
+        asteroid.body.velocity.x = velocityX;
+        asteroid.body.velocity.y = velocityY;
+    }
+
+    spawnNewRandom (texture, velocityX = 0, velocityY = 100){
+        let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
+        const asteroid = new Asteroid(this.scene, spawnpoint, texture);
+        
+        this.add(asteroid);
+        asteroid.group = this;
+
+        asteroid.body.velocity.x = velocityX;
+        asteroid.body.velocity.y = velocityY;
     }
 }

@@ -1,4 +1,4 @@
-class HamsterShip extends Phaser.GameObjects.Sprite {
+class HamsterShip extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, ss_fly, ss_dodge, ss_bullet) {
     super(scene, x, y, ss_fly, ss_dodge, ss_bullet);
 
@@ -9,9 +9,23 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
     this.scene = scene;
     this.physics = scene.physics;
 
-    this.body.setCollideWorldBounds(true);
     this.setDepth(1);
     this.setScale(2); //64px
+    this.body.collideWorldBounds = true;
+
+  // make sure that the ship does not go over world bounds
+  this.body.onWorldBounds = true;
+  this.physics.world.on('worldbounds', function(body){
+      //console.log('hello from the edge of the world', body);
+      body.x = Math.floor(body.x);
+      body.y = Math.floor(body.y);
+
+      // calculate the angle between the current position and the center of the world
+      const angle = Phaser.Math.Angle.Between(body.x, body.y, this.physics.world.bounds.centerX, this.physics.world.bounds.centerY);
+
+      // set the velocity of the object towards the center at a slower pace
+      this.physics.velocityFromRotation(angle, 200, body.velocity);
+  },this);
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
@@ -109,7 +123,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           } else if (this.moveRight.isDown) {
             this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.1));
           } else {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 1));
+            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 0.1));
           }
 
           // vertical movement
@@ -118,7 +132,7 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
           } else if (this.moveDown.isDown) {
             this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, this.moveSpeed, 0.1));
           } else {
-            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 1));
+            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 0.1));
           }
 
           // dodge
@@ -270,12 +284,11 @@ class HamsterShip extends Phaser.GameObjects.Sprite {
 
     if (!this.primaryActive) {return;}
 
-    // check fire delay
-    if (this.scene.time.now < this.primarylastFired + this.primaryFireDelay) return;
-    this.primarylastFired = this.scene.time.now;
+    if (this.scene.time.now < this.lastFired + this.primaryFireDelay) return; 
+    this.lastFired = this.scene.time.now;
 
-    this.bullets.fire(this, this.x, this.y, this.ss_bullet);
 
+    this.bullets.fire(this.scene, this.x, this.y);
   }
 
 }
