@@ -8,9 +8,6 @@ class Spawner {
         //<< SKYCHART >>
         this.skychart = new SkyChart(this.scene, this.scene.world.center.x, this.scene.world.center.y / 2, this.scene.world.width * 2, this.scene.world.height * 2);
 
-        this.horzIndexRange = {min: 5, max: 12};
-        this.vertIndexRange = {min: 2, max: 9};
-
         // SPAWN BOUNDS
         this.topResetBound = this.skychart.rect.top;
         this.bottomResetBound = this.skychart.rect.bottom;
@@ -18,53 +15,69 @@ class Spawner {
         this.rightResetBound = this.skychart.rect.right;
 
         // << OBJECTS >>
-        this.vertResetAsteroids;
-        this.horzResetAsteroids;
+        this.targetGroups = scene.physics.add.group();
 
+        this.vertResetAsteroids;
+        this.vertIndexRange = {min: 7, max: 12};
+
+        this.horzResetAsteroids;
+        this.horzIndexRange = {min: 7, max: 12};
 
         // Add this line to ensure the update function is called automatically
         this.scene.events.on('update', this.update, this);
     }
 
     create(){
-        this.vertResetAsteroids = new AsteroidGroup(this.scene);
-        this.vertResetAsteroids.spawner = this;
-        this.vertResetAsteroids.spawnpoints = this.getPointsInRange(this.skychart.points.top, this.horzIndexRange.min, this.horzIndexRange.max);
+        // << VERTICAL ASTEROIDS >>
+        let top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
+        let bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
 
-        this.vertResetAsteroids.spawnNewRandom('asteroid');
+        this.vertResetAsteroids = new AsteroidGroup(this.scene, this, top_spawnpoints, bot_spawnpoints);
+        
+        this.vertResetAsteroids.spawnNewRandom();
+        this.targetGroups.addMultiple(this.vertResetAsteroids);
 
-        //this.createNewRandomAsteroid(this.vertResetAsteroids, this.skychart.points.top, {x: 0, y: 300}, 5);
+        // << HORIZONTAL ASTEROIDS >>
+        let horz_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
+        this.horzResetAsteroids = new AsteroidGroup(this.scene, this, horz_spawnpoints);
+        this.horzResetAsteroids.spawnNewRandom({x: 100, y: 0});
+        this.targetGroups.addMultiple(this.horzResetAsteroids);
+        
+        // Enable physics for asteroids in targetGroups
+        this.targetGroups.getChildren().forEach(child => {
+            child.enableBody(true);
+        });
 
-        //this.horzResetAsteroids = new AsteroidGroup(this, this.scene);
-        //let horzSpawnPoints = this.getPointsInRange(this.skychart.points.left, this.vertIndexRange.min, this.vertIndexRange.max);
-        //this.createNewRandomAsteroid(this.horzResetAsteroids, horzSpawnPoints, 5, {x: 300, y: 0});
-
+        // draw bounds
         this.gizmos.drawLine({x: 0, y: this.topResetBound}, {x: this.scene.world.width, y: this.topResetBound}, 0xff0000);
         this.gizmos.drawLine({x: 0, y: this.bottomResetBound}, {x: this.scene.world.width, y: this.bottomResetBound}, 0xff0000);
     }
 
+
     update(time, delta) {
 
-        // TOP -> BOTTOM
-        if (this.vertResetAsteroids) {
+        // VERTICAL ASTEROIDS RESET
+        if (this.vertResetAsteroids){
             this.vertResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.y > this.bottomResetBound){
-                    this.resetAsteroid(asteroid);
+                    this.vertResetAsteroids.reset(asteroid);
                 }
             });
         }
 
-        // TOP -> BOTTOM
+        // HORZONTAL ASTEROIDS RESET
         if (this.horzResetAsteroids) {
             this.horzResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.x > this.rightResetBound){
-                    this.resetAsteroid(asteroid);
+                    this.horzResetAsteroids.reset(asteroid);
                 }
             });
         }
     }
 
-
+    // ==============================
+    //          HELPER FUNCTIONS
+    // ==============================
     getPointsInRange(points, min, max)
     {
         return points.slice(min, max + 1);
@@ -76,17 +89,19 @@ class Spawner {
         return points[randomIndex];
     }
 
+
+    // ==============================
+    //        ASTEROIDS
+    // ==============================
     createNewRandomAsteroid(asteroidGroup, count = 1){
         for (let i = 0; i < count; i++) 
         {
-            let randPoint = this.getRandomPoint(spawnPoints);
-            asteroidGroup.spawnNewRandom('asteroid');
+            asteroidGroup.spawnNewRandom();
         }
     }
 
     resetAsteroid(asteroid){
-        this.scene.asteroids.remove(asteroid, true, true);
-        //asteroidGroup.spawnNewRandom('asteroid');
+        asteroid.group.reset(asteroid);
     }
 }
 
