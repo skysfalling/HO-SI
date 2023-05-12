@@ -33,9 +33,9 @@ class Play extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
         // << ASTEROIDS >>
-        this.load.image('justAsteroid', './assets/asteroids/singleAsteroid.png');
-        this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
-
+        this.load.image('justAsteroid', './assets/asteroids/asteriod.png');
+        //this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
+        this.load.image('asteriodParticle', './assets/asteroids/asteroidCrumble.png');
         // 
 
     //#endregion
@@ -306,6 +306,17 @@ class Play extends Phaser.Scene {
     // ================================================================================= // *~
     //                          UPDATE
     // ==================================================// >>
+
+    init(){
+        console.log('running init')
+        //#region << DEFINE KEYS >>
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        //#endregion
+    }   
 
     update(time, delta) {
 

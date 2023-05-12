@@ -19,7 +19,7 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
 
         this.group;
         this.setDepth(2);
-
+        /*
         this.anims.create({
             key: 'asteroid',
             frames: scene.anims.generateFrameNumbers('asteroid', { 
@@ -31,7 +31,7 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
             repeat: -1
           });
         this.anims.play('asteroid');
-
+          */
         /*
         if (this.spawnpoint && this.resetPoint){
             const angle = Phaser.Math.Angle.BetweenPoints(this.spawnPoint, this.resetPoint);
