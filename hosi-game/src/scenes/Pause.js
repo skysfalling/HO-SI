@@ -52,7 +52,7 @@ class Pause extends Phaser.Scene {
                         console.log("pressed enter while resume");
                         this.resText.setBackgroundColor(color_pal.black);
                         //this.resumeScene(this.data.key);
-                        this.resumeScene(this.prevScene);
+                        this.resumeScene(this.prevScene, this.input);
                         //this.scene.resume("playScene");
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){ //if down, change state to VOLSLIDER & enter
@@ -171,7 +171,14 @@ class Pause extends Phaser.Scene {
         this.volSliderTextShit(SoundManager.volPercent);
         this.restartText=this.add.text(screen.topMid.x,screen.topMid.y-40, 'RESUME', defaultTextStyle).setOrigin(0.5);
         */
+        this.gameScene = this.scene.get(this.prevScene);
 
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        keyENTER = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     }
 
     update(){
@@ -180,13 +187,18 @@ class Pause extends Phaser.Scene {
         this.currPauseState.update();
     }
 
-    resumeScene(x){
+    resumeScene(x, input) {
         console.log("in resume scene function");
         console.log(x);
-        this.scene.resume(x);
-        console.log("started "+ x +" about to stop pause menu");
-        //x.resume();
+      
+        // Enable the input listeners in the game scene
+        const gameScene = this.scene.get(this.prevScene);
+        gameScene.input.keyboard.enabled = true;
+      
         this.scene.stop();
+        
+        console.log("started " + x + " about to stop pause menu");
+        gameScene.scene.resume(this.prevScene);
     }
 
     volSliderTextShit(x){
