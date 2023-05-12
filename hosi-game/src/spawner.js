@@ -32,13 +32,13 @@ class Spawner {
         // create range of points to target
         let bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
 
+        // draw spawn range for vertical asteroids
         this.gizmos.drawLine(top_spawnpoints[0], bot_spawnpoints[0], color_pal.toInt("pink"));
         this.gizmos.drawLine(top_spawnpoints[top_spawnpoints.length-1], bot_spawnpoints[bot_spawnpoints.length-1], color_pal.toInt("pink"));
 
         // create asteroid group with these points ^^^
         this.vertResetAsteroids = new AsteroidGroup(this.scene, this, top_spawnpoints, bot_spawnpoints);
         this.vertResetAsteroids.spawnNewRandom(); // spawn 1 new random asteroid
-
 
         // << HORIZONTAL ASTEROIDS >> ============================================
         // not worried about target points, just using the top points
