@@ -307,16 +307,23 @@ class Play extends Phaser.Scene {
     //                          UPDATE
     // ==================================================// >>
 
+    //#region << INIT KEYS SO PAUSE DOESN'T DIE >>
     init(){
+        // this is respectfully the stupidest shit JEEZ
         console.log('running init')
-        //#region << DEFINE KEYS >>
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        //#endregion
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        // Editor camera zoom in / out
+        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
     }   
+    //#endregion
 
     update(time, delta) {
 

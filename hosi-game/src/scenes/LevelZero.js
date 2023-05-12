@@ -20,9 +20,10 @@ class LevelZero extends Phaser.Scene {
         
 
         //#region << SPRITES >>
-        // load images/tile sprites
+        // load backgrounds/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
-        this.load.image('starfield', './assets/starfield.png');
+        //this.load.image('starfield', './assets/starfield.png');
+        this.load.image('takeoff', './assets/takeoff.png');
 
         // load spritesheet
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
@@ -30,7 +31,9 @@ class LevelZero extends Phaser.Scene {
         // << HAMSTER SPACESHIP >>
         this.load.spritesheet('spaceship_fly', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 2});
         this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
-
+    
+        // << ENEMY SPACESHIPS >>
+        this.load.image('greenSnake1', './assets/greenSnakeShip0.png');
         // << BULLETS >>
         this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
 
@@ -56,8 +59,44 @@ class LevelZero extends Phaser.Scene {
 
     create() {
 
+        //#region << ENEMY SNAKESHIPS >>
+        this.anims.create({
+            key: 'greenSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "greenSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'purpleSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "purpleSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'orangeSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "orangeSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        //#endregion
+        
         //#region << SPACE BACKGROUNDS >>
-        this.starfield = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'starfield').setOrigin(0, 0).setScale(2);
+        this.takeoff = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'takeoff').setOrigin(1, 1);
 
         this.bunker = this.add.sprite(game.config.width/2, game.config.height - borderUISize - borderPadding, 'bunker');
 
@@ -72,10 +111,10 @@ class LevelZero extends Phaser.Scene {
         this.hamsterShip.rocket.setVisible(false);  // make rocket attached to ship invisibile
 
         // add Spaceships (x3)
-        this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'spaceship', 0, 10, this.defaultShipSpeed);        
-        this.ship02 = new Spaceship(this, "ship2", game.config.width, game.config.height * 0.50, 'spaceship', 0, 10, this.defaultShipSpeed);
-        this.ship03 = new Spaceship(this, "ship3", game.config.width, game.config.height * 0.75, 'spaceship', 0, 10, this.defaultShipSpeed);
-        this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'spaceship', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4)/*, color_pal.toInt("green")*/);
+        this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'greenSnake1', 0, 10, this.defaultShipSpeed);        
+        this.ship02 = new Spaceship(this, "ship2", game.config.width, game.config.height * 0.50, 'greenSnake1', 0, 10, this.defaultShipSpeed);
+        this.ship03 = new Spaceship(this, "ship3", game.config.width, game.config.height * 0.75, 'greenSnake1', 0, 10, this.defaultShipSpeed);
+        this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'purpleSnakeShip0', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4)/*, color_pal.toInt("green")*/);
         this.fastShip.setScale(1);
         //#endregion
 
@@ -320,7 +359,7 @@ class LevelZero extends Phaser.Scene {
 
         //#endregion
 
-        this.starfield.tilePositionX -= 4;  // update tile sprite
+        //this.starfield.tilePositionX;  // update tile sprite
 
         // [[ UPDATE GAME OBJECTS]]
         if(this.hitcount < 3){
