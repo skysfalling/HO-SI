@@ -39,7 +39,9 @@ class Play extends Phaser.Scene {
         this.load.image('asteroid', './assets/asteroids/asteriod.png');
         //this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
         this.load.image('asteriodParticle', './assets/asteroids/asteroid_Crumble.png');
-        // 
+
+        // << SNAKESHIPS >>
+        this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
     //#endregion
 
@@ -235,7 +237,7 @@ class Play extends Phaser.Scene {
         //#region [[ TRIGGERS ]] >>
         
         // set all enemy targets
-        this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids];
+        this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids, this.spawner.snakeshipGroup];
         this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids]
 
         // auto primary fire trigger
@@ -248,7 +250,7 @@ class Play extends Phaser.Scene {
         this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
             (asteroid, bullet) => {
                 this.hamsterShip.bullets.remove(bullet, true, true);
-                this.spawner.resetAsteroid(asteroid, true);
+                this.spawner.resetSpawnObject(asteroid, true);
             });
 
         // handle collision between rocket and asteroid
@@ -257,7 +259,7 @@ class Play extends Phaser.Scene {
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                this.spawner.resetAsteroid(asteroid, true);
+                this.spawner.resetSpawnObject(asteroid, true);
             }
         });
 

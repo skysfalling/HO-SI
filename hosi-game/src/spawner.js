@@ -21,35 +21,19 @@ class Spawner {
         this.horzResetAsteroids;
         this.horzIndexRange = {min: 7, max: 12};
 
+        this.snakeshipGroup;
+
         // Add this line to ensure the update function is called automatically
         this.scene.events.on('update', this.update, this);
     }
 
     create(){
-        // << VERTICAL ASTEROIDS >> ==============================================
-        // create range of points to spawn from
-        let top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
-        // create range of points to target
-        let bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
 
-        // draw spawn range for vertical asteroids
-        this.gizmos.drawLine(top_spawnpoints[0], bot_spawnpoints[0], color_pal.toInt("pink"));
-        this.gizmos.drawLine(top_spawnpoints[top_spawnpoints.length-1], bot_spawnpoints[bot_spawnpoints.length-1], color_pal.toInt("pink"));
+        // Create groups
+        //this.vertResetAsteroids = this.createVerticalAsteroids();
+        //this.horzResetAsteroids = this.createHorizontalAsteroids();
+        this.snakeshipGroup = this.createSnakeshipGroup();
 
-        // create asteroid group with these points ^^^
-        this.vertResetAsteroids = new AsteroidGroup(this.scene, this, top_spawnpoints, bot_spawnpoints);
-        this.vertResetAsteroids.spawnNewRandom(); // spawn 1 new random asteroid
-
-        // << HORIZONTAL ASTEROIDS >> ============================================
-        // not worried about target points, just using the top points
-        let horz_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
-        // create group
-        this.horzResetAsteroids = new AsteroidGroup(this.scene, this, horz_spawnpoints);
-        
-        // create 5 new random asteroids
-        for (let i = 0; i < 5; i++){
-            this.horzResetAsteroids.spawnNewRandom({x: 100, y: 0});
-        }
     }
 
 
@@ -72,11 +56,72 @@ class Spawner {
                 }
             });
         }
+
+        // SnakeshipGroup reset
+        if (this.snakeshipGroup) {
+            this.snakeshipGroup.getChildren().forEach(snakeship => {
+                if (snakeship.y > this.bottomResetBound) {
+                    this.snakeshipGroup.reset(snakeship, true);
+                }
+            });
+        }
     }
 
     // ==============================
-    //          HELPER FUNCTIONS
+    //      CREATE GROUPS
     // ==============================
+
+    createVerticalAsteroids(){
+        // << VERTICAL ASTEROIDS >> ==============================================
+        // create range of points to spawn from
+        let top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
+        // create range of points to target
+        let bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
+
+        // draw spawn range for vertical asteroids
+        this.gizmos.drawLine(top_spawnpoints[0], bot_spawnpoints[0], color_pal.toInt("pink"));
+        this.gizmos.drawLine(top_spawnpoints[top_spawnpoints.length-1], bot_spawnpoints[bot_spawnpoints.length-1], color_pal.toInt("pink"));
+
+        // create asteroid group with these points ^^^
+        const vertResetAsteroids = new AsteroidGroup(this.scene, this, top_spawnpoints, bot_spawnpoints);
+        vertResetAsteroids.spawnNewRandom(); // spawn 1 new random asteroid
+
+        return vertResetAsteroids;
+    }
+
+    createHorizontalAsteroids(){
+        // << HORIZONTAL ASTEROIDS >> ============================================
+        // not worried about target points, just using the top points
+        let horz_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
+        // create group
+        const horzResetAsteroids = new AsteroidGroup(this.scene, this, horz_spawnpoints);
+        
+        // create 5 new random asteroids
+        for (let i = 0; i < 5; i++){
+            horzResetAsteroids.spawnNewRandom({x: 100, y: 0});
+        }
+    }
+
+    createSnakeshipGroup() {
+        // Create range of points to spawn from
+        let topSpawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
+    
+        // Create range of points to target (optional)
+        let botSpawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
+    
+        // Draw spawn range for vertical snakeships
+        this.gizmos.drawLine(topSpawnpoints[0], botSpawnpoints[0], color_pal.toInt("pink"));
+        this.gizmos.drawLine(topSpawnpoints[topSpawnpoints.length - 1], botSpawnpoints[botSpawnpoints.length - 1], color_pal.toInt("pink"));
+    
+        // Create snakeship group with these points
+        const snakeshipGroup = new SnakeshipGroup(this.scene, this, topSpawnpoints, botSpawnpoints);
+        snakeshipGroup.spawnNewRandom(); // Spawn 1 new random snakeship
+    
+        return snakeshipGroup;
+    }
+
+    // ==============================
+    //      HELPER FUNCTIONS
     getPointsInRange(points, min, max)
     {
         return points.slice(min, max + 1);
@@ -98,18 +143,16 @@ class Spawner {
         return velocity;
     }
 
-    // ==============================
-    //        ASTEROIDS
-    // ==============================
-    createNewRandomAsteroid(asteroidGroup, count = 1){
+    createNewRandomSpawnObj(objGroup, count = 1){
         for (let i = 0; i < count; i++) 
         {
-            asteroidGroup.spawnNewRandom();
+            objGroup.spawnNewRandom();
         }
     }
 
-    resetAsteroid(asteroid, random){
-        asteroid.group.reset(asteroid, random);
+    resetSpawnObject(obj, random){
+        obj.group.reset(obj, random);
     }
+    //#endregion
 }
 
