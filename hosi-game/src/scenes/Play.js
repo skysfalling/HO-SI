@@ -183,8 +183,8 @@ class Play extends Phaser.Scene {
     else { this.levelState.PLAY.enter();}
     //#endregion
 
-        // html reference to canvas
-        const canvas = document.getElementById('game-container');
+    // html reference to canvas
+    const canvas = document.getElementById('game-container');
     }
 
     // ================================================================================= ///??^
@@ -218,19 +218,17 @@ class Play extends Phaser.Scene {
 
         //#region << PLAYER SHIP >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
-
-        // bullets
-        this.hamsterShip.bullets = new BulletGroup(this);        
+        this.hamsterShip.bullets = new BulletGroup(this); // create bullet group       
         //#endregion
         
-        //#region << ASTEROIDS >>
-        // create an asteroid group
-
-        //#region ( Asteroid Overlap Trigger ) >>
-        this.asteroids = this.spawner.vertResetAsteroids;
+        //#region [[ TRIGGERS ]] >>
+        
+        // set all enemy targets
+        this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids];
+        this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids]
 
         // auto primary fire trigger
-        this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.asteroids, this.onOverlap, () => {
+        this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.enemyTargets, this.onOverlap, () => {
             //console.log("asteroid overlap");
             this.hamsterShip.primary_fire();
         });
@@ -239,19 +237,18 @@ class Play extends Phaser.Scene {
         this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
             (asteroid, bullet) => {
                 this.hamsterShip.bullets.remove(bullet, true, true);
-                this.spawner.resetAsteroid(asteroid);
+                this.spawner.resetAsteroid(asteroid, true);
             });
 
         // handle collision between rocket and asteroid
-        this.physics.add.overlap(this.hamsterShip.rocket, this.asteroids, (rocket, asteroid) => {
+        this.physics.add.overlap(this.hamsterShip.rocket, this.enemyTargets, (rocket, asteroid) => {
             //console.log("rocket hit asteroid");
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                this.spawner.resetAsteroid(asteroid);
+                this.spawner.resetAsteroid(asteroid, true);
             }
         });
-        //#endregion
 
         //#endregion
 

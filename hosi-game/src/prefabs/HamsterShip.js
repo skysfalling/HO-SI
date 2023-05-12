@@ -105,7 +105,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.anims.play('fly');   
   //#endregion
 
-  // [[ STATES ]] ===================================================================
+  //#region [[ STATES ]] ===================================================================
 
     this.states = {
       MOVE: {
@@ -204,11 +204,16 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     // set initial state
     this.currentState = this.states.MOVE;
 
+  //#endregion
+
   //#region [[ FIRE MODES ]] ===============================================================
 
     // << PRIMARY FIRE TRIGGER >>
     this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.primaryFireCheckLength).setOrigin(0.5,1);
     this.physics.add.existing(this.primaryFireTrigger);
+    this.primaryFireTrigger.body.setCollideWorldBounds(false); // Disable world bounds collision if needed
+    this.primaryFireTrigger.body.setImmovable(true); // Set the body to be immovable
+        
     
     // << ROCKET FIRE >>
     this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
