@@ -1,5 +1,5 @@
 class Asteroid extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, spawnpoint, texture){
+    constructor(scene, spawnpoint, texture = 'asteroid'){
         super(scene, spawnpoint, texture);
         this.soundManager = SoundManager.getInstance(this);
         this.scene = scene;
@@ -20,22 +20,18 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
         this.group;
         this.setDepth(2);
 
-        /*
-        if (this.spawnpoint && this.resetPoint){
-            const angle = Phaser.Math.Angle.BetweenPoints(this.spawnPoint, this.resetPoint);
-            this.setAngle(Phaser.Math.RadToDeg(angle));
-            
-            const velocityX = this.velocity * Math.cos(angle);
-            const velocityY = this.velocity * Math.sin(angle);
-            this.setVelocity(velocityX, velocityY);
-        }
-        */
+        this.body.setSize(64, 64); // sets collider size
+        this.body.setOffset(0, 0); // makes image center
+
+        // Set the texture for the sprite
+        this.setTexture(texture);
+
     }
 }
 
 class AsteroidGroup extends Phaser.Physics.Arcade.Group
 {
-    constructor(scene, spawner, spawnpoints = [], endpoints = [], defaultVelocity = {x: 0, y: 100}, texture = 'asteroids')
+    constructor(scene, spawner, spawnpoints = [], endpoints = [], defaultVelocity = {x: 0, y: 100}, texture = 'asteroid')
     {
         super(scene.physics.world, scene);
         this.scene = scene;
@@ -81,7 +77,7 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
             let endpoint = this.spawner.getRandomPoint(this.endpoints);
             asteroid.endpoint = endpoint;
 
-            velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 1);
+            velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 4);
 
             console.log("new random asteroid: " + JSON.stringify(spawnpoint) + " -> " + JSON.stringify(endpoint));
             console.log(" ++ new random asteroid velocity: " + JSON.stringify(velocity));
@@ -104,7 +100,7 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
                 let endpoint = this.spawner.getRandomPoint(this.endpoints);
                 asteroid.endpoint = endpoint;
 
-                let velocity = this.spawner.calculateVelocity(asteroid.spawnpoint, asteroid.endpoint, 1);
+                let velocity = this.spawner.calculateVelocity(asteroid.spawnpoint, asteroid.endpoint, 4);
 
                 // asteroid velocity
                 asteroid.body.velocity.x = velocity.x;
