@@ -6,7 +6,6 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);   // add to existing, displayList, updateList
         scene.physics.add.existing(this); // add to physics
 
-
         this.spawnpoint = spawnpoint;
         this.x = spawnpoint.x;
         this.y = spawnpoint.y;
@@ -18,7 +17,8 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
         this.body.setAngularVelocity(this.rotationForce); 
         this.body.setAllowGravity(false);
 
-        
+        this.group;
+        this.setDepth(2);
 
         this.anims.create({
             key: 'asteroid',
@@ -31,8 +31,6 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
             repeat: -1
           });
         this.anims.play('asteroid');
-
-
 
         /*
         if (this.spawnpoint && this.resetPoint){
@@ -49,14 +47,33 @@ class Asteroid extends Phaser.Physics.Arcade.Sprite {
 
 class AsteroidGroup extends Phaser.Physics.Arcade.Group
 {
-    constructor(scene) {
+    constructor(scene) 
+    {
         super(scene.physics.world, scene);
+
+        this.scene = scene;
+        this.spawnpoints;
+        this.spawner;
     }
 
-    spawn (scene, spawnpoint, texture, velocityX = 0, velocityY = 100)
+    spawnNew (spawnpoint, texture, velocityX = 0, velocityY = 100)
     {
-        const asteroid = new Asteroid(scene, spawnpoint, texture);
+        const asteroid = new Asteroid(this.scene, spawnpoint, texture);
+        
         this.add(asteroid);
+        asteroid.group = this;
+
+        asteroid.body.velocity.x = velocityX;
+        asteroid.body.velocity.y = velocityY;
+    }
+
+    spawnNewRandom (texture, velocityX = 0, velocityY = 100){
+        let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
+        const asteroid = new Asteroid(this.scene, spawnpoint, texture);
+        
+        this.add(asteroid);
+        asteroid.group = this;
+
         asteroid.body.velocity.x = velocityX;
         asteroid.body.velocity.y = velocityY;
     }

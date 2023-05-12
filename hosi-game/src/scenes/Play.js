@@ -14,7 +14,7 @@ class Play extends Phaser.Scene {
 
     //#region [[ SPRITES ]]
         // load images/tile sprites
-        this.load.image('spaceship', './assets/spaceship.png');
+        //this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('starfield', './assets/starfield.png');
         // load spritesheet
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
@@ -208,6 +208,7 @@ class Play extends Phaser.Scene {
     create() {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
+        this.spawner.create();
 
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
@@ -228,13 +229,11 @@ class Play extends Phaser.Scene {
         // create an asteroid group
 
         //#region ( Asteroid Overlap Trigger ) >>
-        this.spawner.asteroids = new AsteroidGroup(this);
-        this.asteroids = this.spawner.asteroids;
-        this.spawner.createNewRandomAsteroids();
+        this.asteroids = this.spawner.vertResetAsteroids;
 
         // auto primary fire trigger
         this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.asteroids, this.onOverlap, () => {
-            console.log("asteroid overlap");
+            //console.log("asteroid overlap");
             this.hamsterShip.primary_fire();
         });
 
