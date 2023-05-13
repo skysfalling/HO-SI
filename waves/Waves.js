@@ -2,11 +2,6 @@ class Waves {
     constructor(scene, level, score){
         this.scene=scene;
         this.level=level;
-        this.chunkCount = 0;
-        this.medCount = 3;
-        this.smallCount = 3;
-        this.astCount = 1;
-
 
         let vertAsteroids = {
             group: null,
@@ -54,7 +49,7 @@ class Waves {
             size: 2, // "scale"
             spawnDelay: 2,
             level_update: (level) => {
-                if (level % 5 === 0) { 
+                if (level % 5 === 0) {
                     medShips.count += 1;
                 }
                 if(level % 10 === 0){
@@ -77,6 +72,7 @@ class Waves {
 
 
     levelUpdate(level){
+        this.level = level;
         vertAsteroids.level_update(level);
         horzAsteroids.level_update(level);
         smallShips.level_update(level);
