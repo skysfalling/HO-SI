@@ -1,5 +1,5 @@
 class Snakeship extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, spawnpoint, endPosRect, texture = 'greenSnakeShip') {
+    constructor(scene, group, spawnpoint, posTargetRect, texture = 'greenSnakeShip') {
         super(scene, spawnpoint.x, spawnpoint.y, texture);
 
         this.scene = scene;
@@ -11,7 +11,7 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
         this.gizmos = new Gizmos(scene); // gizmos instance
         this.gizmos.graphics.setDepth(2);
 
-        this.group; // store group
+        this.group = group; // store group
         this.setDepth(2);
 
         this.body.setSize(64, 64); // sets collider size
@@ -19,11 +19,11 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
 
         // target positions
         this.spawnpoint = spawnpoint;
-        this.endPosRect = endPosRect;
+        this.posTargetRect = posTargetRect;
         this.endpoint = null;
 
         // ship rotation
-        this.rotationOffset = -90;
+        this.setAngle(-90);
         this.body.setAllowGravity(false);
 
         // << STATE VARIABLES >>
@@ -71,16 +71,6 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                 if (this.checkAttackRange()) {
                   this.states.ATTACK.enter();
                 }
-
-                if (this.endpoint)
-                {
-                  // << ROTATE BODY TOWARDS ENDPOINT >>
-                  // Get the angle between the current velocity and the x-axis
-                  const targetAngle = Phaser.Math.Angle.Between(this.x, this.y, this.endpoint.x, this.endpoint.y);
-
-                  // Set the rotation of the body to face the velocity
-                  this.body.rotation = targetAngle + this.rotationOffset;
-                }
               }
             },
             ATTACK: {
@@ -121,12 +111,14 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                 //#region << RESET POSITION OF SHIP >>
                 this.setActive(false);
                 this.setVisible(false);
+                this.body.velocity.x = 0;
+                this.body.velocity.y = 0;
 
                 // get random spawnpoint
                 let spawnpoint = this.spawner.getRandomPoint(this.group.spawnpoints);
 
                 // get random point from the second list
-                let endpoint = Phaser.Geom.Rectangle.Random(this.group.endPosRect);
+                let endpoint = Phaser.Geom.Rectangle.Random(this.posTargetRect);
 
                 // set points
                 this.spawnpoint = spawnpoint;
@@ -135,7 +127,8 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                 // move ship
                 this.x = spawnpoint.x;
                 this.y = spawnpoint.y;
-                this.body.setVelocity(0); // kill velocity
+
+
                 //#endregion
 
                 // << KILL LOOPS >>
@@ -195,30 +188,45 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
 }
 
 class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
-    constructor(scene, spawner, spawnpoints, endPosRect, defaultVelocity = { x: 0, y: 100 }, texture = 'greenSnakeShip') {
+    constructor(scene, spawner, spawnpoints, posTargetRect, defaultVelocity = { x: 0, y: 100 }, texture = 'greenSnakeShip', debugColor = color_pal.toInt("green")) {
         super(scene.physics.world, scene);
         this.scene = scene;
         this.spawner = spawner;
         this.texture = texture;
         scene.physics.add.existing(this);
 
+        this.gizmos = new Gizmos(scene);
+
         this.defaultVelocity = { x: 0, y: 100 };
 
         this.spawnpoints = spawnpoints;
-        this.endPosRect = endPosRect;
+        this.posTargetRect = posTargetRect;
 
-        console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.endPosRect));
+        this.debugColor = color_pal.toInt("green");
+
+        console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.posTargetRect));
+
+        this.scene.events.on('update', this.update, this);
     }
 
-    spawnNewRandom(velocity = this.defaultVelocity) {
+    update(){
+      if (gizmosActive && this.posTargetRect)
+      {
+        this.gizmos.graphics.clear();
+        this.gizmos.graphics.lineStyle(5, this.debugColor, 1); // Set the line style with color and alpha
+        this.gizmos.graphics.fillStyle(this.debugColor, 0.05); // Set the fill style with color and alpha
+        this.gizmos.graphics.fillRectShape(this.posTargetRect); // Draw the filled rectangle
+        this.gizmos.graphics.strokeRectShape(this.posTargetRect);
+      }
+    }
 
+    spawnNewRandom() {
         // get random spawnpoint
         let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
 
         // create new snakeship
-        const snakeship = new Snakeship(this.scene, spawnpoint, this.endPosRect, this.texture);
+        const snakeship = new Snakeship(this.scene, this, spawnpoint, this.posTargetRect, this.texture);
         this.add(snakeship);
-        snakeship.group = this;
         snakeship.spawner = this.spawner;
         snakeship.states.RESET.enter();
     }
