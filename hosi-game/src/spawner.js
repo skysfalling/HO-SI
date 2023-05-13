@@ -14,8 +14,6 @@ class Spawner {
         this.leftResetBound = this.skychart.rect.left;
         this.rightResetBound = this.skychart.rect.right;
 
-
-
         // << ENEMY POS TARGETS >>
         this.enemyPosTarget = {
             closeRect: new Phaser.Geom.Rectangle(this.scene.world.center.x - (this.scene.world.width/2), this.skychart.rect.y*0.75, this.scene.world.width*0.75, this.skychart.rect.height/4)
@@ -49,19 +47,16 @@ class Spawner {
         this.snakeshipGroup = this.createSnakeshipGroup(this.top_spawnpoints, this.enemyPosTarget.closeRect);
 
         if (gizmosActive)
-        {
-            // draw vert range
-            this.gizmos.drawLine(this.top_spawnpoints[0], this.bot_spawnpoints[0], color_pal.toInt("pink"));
-            this.gizmos.drawLine(this.top_spawnpoints[this.top_spawnpoints.length-1], this.bot_spawnpoints[this.bot_spawnpoints.length-1], color_pal.toInt("pink"));
+        {        
+            // draw vert range            
+            this.gizmos.drawLine(this.top_spawnpoints[0], this.bot_spawnpoints[0], color_pal.toInt("pink"), 5, 0.1);
+            this.gizmos.drawLine(this.top_spawnpoints[this.top_spawnpoints.length-1], this.bot_spawnpoints[this.bot_spawnpoints.length-1], color_pal.toInt("pink"), 5, 0.1);
 
             // draw horz range
-            this.gizmos.drawLine(this.left_spawnpoints[0], this.right_spawnpoints[0], color_pal.toInt("green"));
-            this.gizmos.drawLine(this.left_spawnpoints[this.left_spawnpoints.length-1], this.right_spawnpoints[this.right_spawnpoints.length-1], color_pal.toInt("green"));
+            this.gizmos.drawLine(this.left_spawnpoints[0], this.right_spawnpoints[0], color_pal.toInt("green"), 5, 0.1);
+            this.gizmos.drawLine(this.left_spawnpoints[this.left_spawnpoints.length-1], this.right_spawnpoints[this.right_spawnpoints.length-1], color_pal.toInt("green"), 5, 0.1);
         }
-
-
     }
-
 
     update(time, delta) {
 
@@ -69,7 +64,7 @@ class Spawner {
         if (this.vertResetAsteroids){
             this.vertResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.y > this.bottomResetBound){
-                    this.vertResetAsteroids.reset(asteroid, true);
+                    this.vertResetAsteroids.reset(asteroid);
                 }
             });
         }
@@ -78,7 +73,7 @@ class Spawner {
         if (this.horzResetAsteroids) {
             this.horzResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.x > this.rightResetBound){
-                    this.horzResetAsteroids.reset(asteroid, true);
+                    this.horzResetAsteroids.reset(asteroid);
                 }
             });
         }
@@ -87,7 +82,7 @@ class Spawner {
         if (this.snakeshipGroup) {
             this.snakeshipGroup.getChildren().forEach(snakeship => {
                 if (snakeship.y > this.bottomResetBound) {
-                    this.snakeshipGroup.reset(snakeship, true);
+                    this.snakeshipGroup.reset(snakeship);
                 }
             });
         }

@@ -28,6 +28,7 @@ class Gizmos {
         graphics.closePath();
         graphics.strokePath();
         graphics.depth = 1;
+        graphics.setAlpha(opacity);
     }
 
     //#region  [[ CIRCLE ]]

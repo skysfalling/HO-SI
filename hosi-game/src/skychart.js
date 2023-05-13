@@ -20,8 +20,14 @@ class SkyChart {
 
         if (gizmosActive)
         {
+            // draw rect sides
+            this.gizmos.graphics.lineStyle(5, 0xffffff, 1); // Set the line style with color and alpha
+            this.gizmos.graphics.strokeRectShape(this.rect);
+
+            // draw points
             this.drawRectGridPoints(this.points);
 
+            // draw index text
             this.createPointIndexText(this.points.top, 0, -20);
             this.createPointIndexText(this.points.bottom, 0, 20);
             this.createPointIndexText(this.points.right, 20, 0);
