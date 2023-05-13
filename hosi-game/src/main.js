@@ -27,7 +27,7 @@ let config = {
           gravity: { y: 0 }
       }
     },  
-    scene: [ Menu, LevelZero, Play, Editor, Pause, Loading ],
+    scene: [ Menu, LevelZero, Play, Pause, Loading ],
     pixelArt: true,
     fps: 60
 }
