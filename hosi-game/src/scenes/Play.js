@@ -15,181 +15,179 @@ class Play extends Phaser.Scene {
 
         this.hamsterShip;
 
+        //#region [[ SPRITES ]]
+            // load images/tile sprites
+            //this.load.image('spaceship', './assets/spaceship.png');
+            this.load.image('starfield', './assets/starfield.png');
+            // load spritesheet
+            this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
 
+            // << HAMSTER SPACESHIP >>
+            this.load.spritesheet('spaceship_fly', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 2});
+            this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
 
-    //#region [[ SPRITES ]]
-        // load images/tile sprites
-        //this.load.image('spaceship', './assets/spaceship.png');
-        this.load.image('starfield', './assets/starfield.png');
-        // load spritesheet
-        this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
+            // << BULLETS >>
+            this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
 
-        // << HAMSTER SPACESHIP >>
-        this.load.spritesheet('spaceship_fly', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 2});
-        this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
+            // << ROCKET >>
+            this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
+            this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
-        // << BULLETS >>
-        this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
+            // << ASTEROIDS >>
+            this.load.image('asteroid', './assets/asteroids/asteriod.png');
+            //this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
+            this.load.image('asteriodParticle', './assets/asteroids/asteroid_Crumble.png');
 
-        // << ROCKET >>
-        this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
-        this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
+            // << SNAKESHIPS >>
+            this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
-        // << ASTEROIDS >>
-        this.load.image('asteroid', './assets/asteroids/asteriod.png');
-        //this.load.spritesheet('asteroid','./assets/asteroids/bigAstroidExploding.png',{frameWidth:53,frameHeight:50, startFrame: 0, endFrame: 4});
-        this.load.image('asteriodParticle', './assets/asteroids/asteroid_Crumble.png');
+        //#endregion
 
-        // << SNAKESHIPS >>
-        this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
-
-    //#endregion
-
-    //#region [[ SCENE SETUP]]
+        //#region [[ SCENE SETUP]]
 
 
 
-        //#region << FORMAT VALUES >>
-        this.grid = {
-            cellSize: 64, // 64 pixels
-        };
+            //#region << FORMAT VALUES >>
+            this.grid = {
+                cellSize: 64, // 64 pixels
+            };
 
-        this.uiFormat = {
-            camMargin : this.grid.cellSize * 2
-        }
+            this.uiFormat = {
+                camMargin : this.grid.cellSize * 2
+            }
+            
+            //#endregion
+
+            // << CAMERA >>
+            this.mainCamera = this.cameras.main;
+            this.mainCamera.setBackgroundColor('#0000ff');
+
+            //#region << WORLD BOUNDS >>
+            this.world = {
+                offset: 3 * this.grid.cellSize,
+                width: 9 * this.grid.cellSize,
+                height: 9 * this.grid.cellSize,
+                center: {
+                x: null,
+                y: null,
+                },
+                bounds: {
+                    left: null,
+                    right: null,
+                    top: null,
+                    bottom: null,
+                },
+                cam_bounds: {
+                    left: null,
+                    right: null,
+                    top: null,
+                    bottom: null,
+                    width: null,
+                    height: null
+                },
+            };
+            this.world.center.x = (this.world.width / 2) + this.world.offset;
+            this.world.center.y = (this.world.height / 2) + this.world.offset;
+
+            // set bounds
+            this.world.bounds.left = this.world.offset;
+            this.world.bounds.right = this.world.offset + this.world.width;
+            this.world.bounds.top = this.world.offset;
+            this.world.bounds.bottom = this.world.offset + this.world.height;
+
+            // set cam bounds
+            this.world.cam_bounds.left = this.world.offset + this.uiFormat.camMargin;
+            this.world.cam_bounds.right = (this.world.offset + this.world.width) - this.uiFormat.camMargin;
+            this.world.cam_bounds.top = this.world.offset + this.uiFormat.camMargin;
+            this.world.cam_bounds.bottom = (this.world.offset + this.world.height) - this.uiFormat.camMargin;
+
+            this.world.cam_bounds.width = this.world.cam_bounds.right - this.world.cam_bounds.left;
+            this.world.cam_bounds.height = this.world.cam_bounds.bottom - this.world.cam_bounds.top;
+
+
+            // set the world bounds
+            this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
+            //#endregion
+        
+            //#region << SKYCHART >>
+            this.spawner = new Spawner(this);
+            this.skychart = this.spawner.skychart;
+
+            //#endregion
         
         //#endregion
 
-        // << CAMERA >>
-        this.mainCamera = this.cameras.main;
-        this.mainCamera.setBackgroundColor('#0000ff');
+        // #region [[ GUI ]] ==============================================================
+        const cam = this.mainCamera;
+        this.gui = new dat.GUI();
 
-        //#region << WORLD BOUNDS >>
-        this.world = {
-            offset: 3 * this.grid.cellSize,
-            width: 9 * this.grid.cellSize,
-            height: 9 * this.grid.cellSize,
-            center: {
-            x: null,
-            y: null,
-            },
-            bounds: {
-                left: null,
-                right: null,
-                top: null,
-                bottom: null,
-            },
-            cam_bounds: {
-                left: null,
-                right: null,
-                top: null,
-                bottom: null,
-                width: null,
-                height: null
-            },
-        };
-        this.world.center.x = (this.world.width / 2) + this.world.offset;
-        this.world.center.y = (this.world.height / 2) + this.world.offset;
+        const mouseGUI = this.gui.addFolder('Pointer');
+        mouseGUI.add(this.input, 'x').listen();
+        mouseGUI.add(this.input, 'y').listen();
+        mouseGUI.open();
 
-        // set bounds
-        this.world.bounds.left = this.world.offset;
-        this.world.bounds.right = this.world.offset + this.world.width;
-        this.world.bounds.top = this.world.offset;
-        this.world.bounds.bottom = this.world.offset + this.world.height;
+        const help = {
+            line1: 'Arrow Keys to move',
+            line2: 'Z & X to zoom in/out',
+        }
 
-        // set cam bounds
-        this.world.cam_bounds.left = this.world.offset + this.uiFormat.camMargin;
-        this.world.cam_bounds.right = (this.world.offset + this.world.width) - this.uiFormat.camMargin;
-        this.world.cam_bounds.top = this.world.offset + this.uiFormat.camMargin;
-        this.world.cam_bounds.bottom = (this.world.offset + this.world.height) - this.uiFormat.camMargin;
+        const cameraGUI = this.gui.addFolder('Camera Stats');
+        //cameraGUI.add(cam, 'x').listen();
+        //cameraGUI.add(cam, 'y').listen();
+        cameraGUI.add(cam, 'scrollX').listen();
+        cameraGUI.add(cam, 'scrollY').listen();
+        cameraGUI.add(cam, 'zoom', 0.1, 2).step(0.1).listen();
+        cameraGUI.open();
+        
+        const cameraMove = this.gui.addFolder('Camera Movement');
+        cameraMove.add(help, 'line1');
+        cameraMove.add(help, 'line2');
+        cameraMove.open();
 
-        this.world.cam_bounds.width = this.world.cam_bounds.right - this.world.cam_bounds.left;
-        this.world.cam_bounds.height = this.world.cam_bounds.bottom - this.world.cam_bounds.top;
-
-
-        // set the world bounds
-        this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
+        this.gui.domElement.style.display = "none";
         //#endregion
-    
-        //#region << SKYCHART >>
-        this.spawner = new Spawner(this);
-        this.skychart = this.spawner.skychart;
+        
+        // #region [[ LEVEL STATES ]] ===============================
+        this.levelState = {
+            START: {
+                name: 'start',
+                enter: () => {
+                    this.currLevelState = this.levelState.START;
+                    this.hamsterShip.states.DISABLED.enter();
+                },
+                update: () => {
 
-        //#endregion
-    
-    //#endregion
-
-    // #region [[ GUI ]] ==============================================================
-    const cam = this.mainCamera;
-    this.gui = new dat.GUI();
-
-    const mouseGUI = this.gui.addFolder('Pointer');
-    mouseGUI.add(this.input, 'x').listen();
-    mouseGUI.add(this.input, 'y').listen();
-    mouseGUI.open();
-
-    const help = {
-        line1: 'Arrow Keys to move',
-        line2: 'Z & X to zoom in/out',
-    }
-
-    const cameraGUI = this.gui.addFolder('Camera Stats');
-    //cameraGUI.add(cam, 'x').listen();
-    //cameraGUI.add(cam, 'y').listen();
-    cameraGUI.add(cam, 'scrollX').listen();
-    cameraGUI.add(cam, 'scrollY').listen();
-    cameraGUI.add(cam, 'zoom', 0.1, 2).step(0.1).listen();
-    cameraGUI.open();
-    
-    const cameraMove = this.gui.addFolder('Camera Movement');
-    cameraMove.add(help, 'line1');
-    cameraMove.add(help, 'line2');
-    cameraMove.open();
-
-    this.gui.domElement.style.display = "none";
-    //#endregion
-    
-    // #region [[ LEVEL STATES ]] ===============================
-    this.levelState = {
-        START: {
-            name: 'start',
-            enter: () => {
-                this.currLevelState = this.levelState.START;
-                this.hamsterShip.states.DISABLED.enter();
+                },
             },
-            update: () => {
-
+            PLAY: {
+                name: 'play',
+                enter: () => {
+                    this.currLevelState = this.levelState.PLAY;
+                    //this.hamsterShip.states.MOVE.enter();
+                },
+                update: () => {
+                    this.playUpdate();
+                }
             },
-        },
-        PLAY: {
-            name: 'play',
-            enter: () => {
-                this.currLevelState = this.levelState.PLAY;
-                //this.hamsterShip.states.MOVE.enter();
-            },
-            update: () => {
-                this.playUpdate();
-            }
-        },
-        EDITOR: {
-            name: 'editor',
-            enter: () => {
-                this.currLevelState = this.levelState.EDITOR;
-            },
-            update: (time, delta) => {
-                this.editorUpdate(delta);
+            EDITOR: {
+                name: 'editor',
+                enter: () => {
+                    this.currLevelState = this.levelState.EDITOR;
+                },
+                update: (time, delta) => {
+                    this.editorUpdate(delta);
+                }
             }
         }
-    }
-    // set level type
-    if (editorActive) { 
-        this.levelState.EDITOR.enter(); 
-    }
-    else { this.levelState.PLAY.enter();}
-    //#endregion
+        // set level type
+        if (editorActive) { 
+            this.levelState.EDITOR.enter(); 
+        }
+        else { this.levelState.PLAY.enter();}
+        //#endregion
 
-    // html reference to canvas
-    const canvas = document.getElementById('game-container');
+        // html reference to canvas
+        const canvas = document.getElementById('game-container');
     }
 
     // ================================================================================= ///??^

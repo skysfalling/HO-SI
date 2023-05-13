@@ -2,40 +2,44 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, spawnpoint, endPosRect, texture = 'greenSnakeShip') {
         super(scene, spawnpoint.x, spawnpoint.y, texture);
 
-        this.soundManager = SoundManager.getInstance(this);
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
         scene.physics.add.existing(this); // add to physics
 
-        this.gizmos = new Gizmos(scene);
+        this.soundManager = SoundManager.getInstance(this); // get singleton instance
+
+        this.gizmos = new Gizmos(scene); // gizmos instance
         this.gizmos.graphics.setDepth(2);
 
-        this.spawnpoint = spawnpoint;
-        this.endPosRect = endPosRect;
-        this.endpoint = null;
-
-        this.state = 'SPAWN'; // Initial state
-        this.attackRange = 30; // Distance threshold to switch to ATTACK state
-        
-
-        this.strafeDelay = 1000;
-        this.strafeVelocity = 100;
-
-        
-        this.primaryFireDelay = 3000;
-        this.lastFired;
-        this.bullets = new BulletGroup(this.scene);
-        this.bulletVelocity = {x: 0, y: 200};
-
-        // ship rotation
-        this.setAngle(-90);
-        this.body.setAllowGravity(false);
-
-        this.group;
+        this.group; // store group
         this.setDepth(2);
 
         this.body.setSize(64, 64); // sets collider size
         this.body.setOffset(0, 0); // makes image center
+
+        // target positions
+        this.spawnpoint = spawnpoint;
+        this.endPosRect = endPosRect;
+        this.endpoint = null;
+
+        // ship rotation
+        this.rotationOffset = -90;
+        this.body.setAllowGravity(false);
+
+        // << STATE VARIABLES >>
+        // SPAWN state
+        this.spawnDelay = 1000;
+        this.spawnDuration = 2000;
+
+        // ATTACK state
+        this.attackRange = 30; // Distance threshold to switch to ATTACK state
+        this.strafeDelay = 1000;
+        this.strafeVelocity = 100;
+
+        // bullet values
+        this.primaryFireDelay = 2000;
+        this.bullets = new BulletGroup(this.scene);
+        this.bulletVelocity = {x: 0, y: 200};
 
         // Create animations
         this.anims.create({
@@ -47,29 +51,35 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
             frameRate: 8,
             repeat: -1
         });
-
-        // Play the animation
         this.anims.play('greenSnakeShip');
 
         this.states = {
             SPAWN: {
               name: "spawn",
-              enter: () => {
+              enter: (velocity) => {
                 this.currentState = this.states.SPAWN;
 
-                // << ROTATE BODY TOWARDS VELOCITY >>
-                // Get the angle between the current velocity and the x-axis
-                const angle = Phaser.Math.Angle.Between(0, 0, this.body.velocity.x, this.body.velocity.y);
+                // snakeship init velocity
+                this.body.velocity.x = velocity.x;
+                this.body.velocity.y = velocity.y;
 
-                // Convert the angle to degrees
-                const angleDegrees = Phaser.Math.RadToDeg(angle);
+                this.setVisible(true);
+                this.setActive(true);
 
-                // Set the rotation of the body to face the velocity
-                this.body.rotation = angleDegrees;
               },
               update: () => {
                 if (this.checkAttackRange()) {
                   this.states.ATTACK.enter();
+                }
+
+                if (this.endpoint)
+                {
+                  // << ROTATE BODY TOWARDS ENDPOINT >>
+                  // Get the angle between the current velocity and the x-axis
+                  const targetAngle = Phaser.Math.Angle.Between(this.x, this.y, this.endpoint.x, this.endpoint.y);
+
+                  // Set the rotation of the body to face the velocity
+                  this.body.rotation = targetAngle + this.rotationOffset;
                 }
               }
             },
@@ -77,7 +87,8 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
               name: "attack",
               enter: () => {
                 this.currentState = this.states.ATTACK;
-                // Start firing bullets
+
+                // Fire Bullets Loop
                 this.fireLoop = this.scene.time.addEvent({
                     delay: this.primaryFireDelay,
                     callback: () => {
@@ -87,12 +98,13 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                     loop: true
                   });
 
-                // strafe
+                // Strafe Loop
+                this.body.setVelocity(0);
                 this.strafeTween = this.scene.tweens.add({
                     targets: this.body.velocity,
                     x: { from: -this.strafeVelocity, to: this.strafeVelocity }, // Move between -200 and 200
                     y: 0,
-                    duration: 500,
+                    duration: 750,
                     ease: 'Linear',
                     repeat: -1, // Repeat indefinitely
                     yoyo: true, // Reverse the movement
@@ -101,11 +113,32 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
               },
               update: () => {}
             },
-
             RESET: {
               name: "reset",
               enter: () => {
                 this.currentState = this.states.RESET;
+
+                //#region << RESET POSITION OF SHIP >>
+                this.setActive(false);
+                this.setVisible(false);
+
+                // get random spawnpoint
+                let spawnpoint = this.spawner.getRandomPoint(this.group.spawnpoints);
+
+                // get random point from the second list
+                let endpoint = Phaser.Geom.Rectangle.Random(this.group.endPosRect);
+
+                // set points
+                this.spawnpoint = spawnpoint;
+                this.endpoint = endpoint;
+
+                // move ship
+                this.x = spawnpoint.x;
+                this.y = spawnpoint.y;
+                this.body.setVelocity(0); // kill velocity
+                //#endregion
+
+                // << KILL LOOPS >>
                 if (this.strafeTween) {
                     this.strafeTween.destroy();
                 }
@@ -113,31 +146,13 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                     this.fireLoop.destroy();
                 }
 
-                this.body.setVelocity(0);
+                // << DELAY NEW SPAWN >>
                 // Delayed call to set spawn velocity
                 const delay = 2000; // Delay in milliseconds
-
                 this.scene.time.delayedCall(delay, () => {
-                //#region << SET SPAWN VELOCITY >>
-                    // get random spawnpoint
-                    let spawnpoint = this.spawner.getRandomPoint(this.group.spawnpoints);
-
-                    // get random point from the second list
-                    let endpoint = Phaser.Geom.Rectangle.Random(this.group.endPosRect);
-
-                    // set points
-                    this.spawnpoint = spawnpoint;
-                    this.endpoint = endpoint;
-
-                    this.x = spawnpoint.x;
-                    this.y = spawnpoint.y;
-
+                //<< SET SPAWN VELOCITY >>
                     let velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 1);
-
-                    // snakeship velocity
-                    this.body.velocity.x = velocity.x;
-                    this.body.velocity.y = velocity.y;
-                //#endregion
+                    this.states.SPAWN.enter(velocity);
                 }, [], this);
 
               },
@@ -145,9 +160,12 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
             }
         };
 
-        
-        this.currentState = this.states.SPAWN;
-        this.currentState.enter();
+        if (this.currentState)
+        {
+          this.stateText = this.gizmos.createText(this.x, this.y + this.height, this.currentState.name, color_pal.toInt("green"));
+        } else {        
+          this.stateText = this.gizmos.createText(this.x, this.y + this.height, "null state", color_pal.toInt("green"));
+        }
 
         this.scene.events.on('update', this.update, this);
     }
@@ -155,17 +173,14 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
     update(){
         this.currentState.update();
 
-
-
-
         if (gizmosActive && this.endpoint)
         {
             this.gizmos.graphics.clear();
             this.gizmos.drawCircle(this.endpoint.x, this.endpoint.y, this.attackRange, 0xff0000, 0, 3);
             this.gizmos.drawLine(this.spawnpoint, this.endpoint, 0xff0000);
+            this.gizmos.updateText(this.stateText, this.x, this.y - this.height, this.currentState.name, color_pal.green);
         }
     }
-
 
     checkAttackRange() {
         if (this.endpoint)
@@ -177,7 +192,6 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
             return distance <= this.attackRange;
         }
     }
-
 }
 
 class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
@@ -206,30 +220,11 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         this.add(snakeship);
         snakeship.group = this;
         snakeship.spawner = this.spawner;
-
-        // get random point from the second list
-        let endpoint = Phaser.Geom.Rectangle.Random(this.endPosRect);
-        snakeship.endpoint = endpoint;
-
-        velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 1);
-
-        //console.log("new random snakeship: " + JSON.stringify(spawnpoint) + " -> " + JSON.stringify(endpoint));
-        //console.log(" ++ new random snakeship velocity: " + JSON.stringify(velocity));
-
-        // snakeship velocity
-        snakeship.body.velocity.x = velocity.x;
-        snakeship.body.velocity.y = velocity.y;
+        snakeship.states.RESET.enter();
     }
 
     reset(snakeship) {
-
-
-
         snakeship.states.RESET.enter();
-
-
-
-
     }
 }
 
