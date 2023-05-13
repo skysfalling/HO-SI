@@ -16,7 +16,6 @@ class Gizmos {
         this.showTextGizmos = true;
         this.showLineRangeGizmos = true;
 
-        
     }
   
     // [[ LINE ]]
@@ -86,13 +85,13 @@ class Gizmos {
         this.graphics.stroke();
     }
 
-    drawRectFill(x, y, width, height, rotation = 0, color = 0xffffff, lineWidth = 2) {
+    drawRectFill(x, y, width, height, rotation = 0, color = 0xffffff, lineWidth = 2, opacity = 0.2) {
         this.graphics.fillStyle(color, 1);
         this.graphics.lineStyle(lineWidth, color);
         
         // [[ SET ORIGIN ( 0.5 , 0.5 ) ]]
-        const rectX = x - width / 2;
-        const rectY = y - height / 2;
+        const rectX = x ;
+        const rectY = y;
 
         // calculate rotation angle
         const topLeft = this.rotatePoint(rectX, rectY, x, y, rotation);
@@ -109,8 +108,8 @@ class Gizmos {
         this.graphics.closePath();
         this.graphics.fill();
         this.graphics.stroke();
+        this.graphics.setAlpha(opacity);
     }
-
     //#endregion
 
     //#region  [[ LINE RANGE ]] : line from start - end ,  colored lines show height
