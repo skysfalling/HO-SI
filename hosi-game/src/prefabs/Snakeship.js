@@ -171,7 +171,7 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
             this.gizmos.graphics.clear();
             this.gizmos.drawCircle(this.endpoint.x, this.endpoint.y, this.attackRange, 0xff0000, 0, 3);
             this.gizmos.drawLine(this.spawnpoint, this.endpoint, 0xff0000);
-            this.gizmos.updateText(this.stateText, this.x, this.y - this.height, this.currentState.name, color_pal.green);
+            //this.gizmos.updateText(this.stateText, this.x, this.y - this.height, this.currentState.name, color_pal.green);
         }
     }
 

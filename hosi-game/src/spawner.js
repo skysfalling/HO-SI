@@ -35,8 +35,8 @@ class Spawner {
     create(){
 
         // Create groups
-        //this.vertResetAsteroids = this.createVerticalAsteroids();
-        //this.horzResetAsteroids = this.createHorizontalAsteroids();
+        this.vertResetAsteroids = this.createVerticalAsteroids();
+        this.horzResetAsteroids = this.createHorizontalAsteroids();
 
         let top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
         this.snakeshipGroup = this.createSnakeshipGroup(top_spawnpoints, this.enemyPosTarget.closeRect);

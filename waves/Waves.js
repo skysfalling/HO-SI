@@ -71,7 +71,6 @@ class Waves {
         }
     }
 
-
     levelUpdate(level){
         this.level = level;
         vertAsteroids.level_update(level);
@@ -80,7 +79,6 @@ class Waves {
         medShips.level_update(level);
         chunkyShips.level_update(level);
     }
-
 
     static getInstance(scene, level, score) {
         if (!Waves.instance) {

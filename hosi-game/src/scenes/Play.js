@@ -11,6 +11,7 @@ class Play extends Phaser.Scene {
         this.scene_graphics = this.add.graphics();
         this.gizmos = new Gizmos(this, this.add.graphics());
         
+        this.gameOver = false;
         //this.level = 1;
 
         this.hamsterShip;
@@ -263,16 +264,19 @@ class Play extends Phaser.Scene {
         });
 
         //this is stupid -t
-        this.physics.add.overlap(this.asteroids, this.hamsterShip, () => {
-            this.teeext = this.add.text(this.mainCamera.x, this.mainCamera.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
-            console.log(this.teeext.text);
-            
-            this.time.delayedCall(1000, () => {
-                this.slow = false;
-                this.scene.start('menuScene');
-            }, null, this);
-        });
-
+        if(!this.gameOver){
+            this.physics.add.overlap(this.asteroids, this.hamsterShip, () => {
+                this.gameOver = true;
+                this.teeext = this.add.text(this.hamsterShip.cameraTarget.x, this.hamsterShip.cameraTarget.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
+                console.log(this.teeext.text);
+                
+                this.time.delayedCall(1000, () => {
+                    //this.slow = false;
+                    this.scene.start('menuScene');
+                    this.scene.stop();
+                }, null, this);
+            });
+        }
         //#endregion
 
         //#region << HTML REFERENCES >>
