@@ -25,6 +25,7 @@ class Waves {
             velocity: {x: 100, y: 0}, // "speed"
             size: 2, // "scale"
             spawnDelay: 2,
+            spawnDuration: 2,
             level_update: (level) => {
                 if (level % 3 === 0) {
                     horzAsteroids.count += 1;
