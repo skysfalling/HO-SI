@@ -238,7 +238,8 @@ class Play extends Phaser.Scene {
         
         // set all enemy targets
         this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids, this.spawner.snakeshipGroup];
-        this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids]
+        this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids];
+        this.enemyShips = [this.spawner.snakeshipGroup];
 
         // auto primary fire trigger
         this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.enemyTargets, this.onOverlap, () => {
@@ -247,11 +248,10 @@ class Play extends Phaser.Scene {
         });
 
         // primary fire vs. asteroids
-        this.physics.add.overlap(this.asteroids, this.hamsterShip.bullets,
-            (asteroid, bullet) => {
-                this.hamsterShip.bullets.remove(bullet, true, true);
-                this.spawner.resetSpawnObject(asteroid, true);
-            });
+        this.physics.add.overlap(this.enemyTargets, this.hamsterShip.bullets, (enemy, bullet) => {
+            this.hamsterShip.bullets.remove(bullet, true, true);
+            this.spawner.resetSpawnObject(enemy, true);
+        });
 
         // handle collision between rocket and asteroid
         this.physics.add.overlap(this.hamsterShip.rocket, this.enemyTargets, (rocket, asteroid) => {
@@ -296,19 +296,17 @@ class Play extends Phaser.Scene {
         if (!gizmosActive) { return; }
 
         // show center point
-        this.gizmos.createText(this.world.center.x, this.world.center.y, "X");
+        this.gizmos.createText(this.world.center.x, this.world.center.y, "world center");
 
         // << DRAW SCREEN BOUNDS >> ( white )
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
+        //this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
 
         // << DRAW WORLD BOUNDS >> ( bold white )
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 1, 1);
+        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 5, 1);
 
         // << DRAW CAMERA BOUNDS >> ( blue )
         //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
         this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
-
-        this.gizmos.drawLine(this.skychart.points.top[2], this.skychart.points.bottom[2]);
     }
 
     // ================================================================================= // *~
@@ -318,7 +316,7 @@ class Play extends Phaser.Scene {
     //#region << INIT KEYS SO PAUSE DOESN'T DIE >>
     init(){
         // this is respectfully the stupidest shit JEEZ
-        console.log('running init')
+        //console.log('running init')
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);

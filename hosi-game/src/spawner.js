@@ -6,7 +6,7 @@ class Spawner {
         this.gizmos = new Gizmos(scene, this.graphics);
     
         //<< SKYCHART >>
-        this.skychart = new SkyChart(this.scene, this.scene.world.center.x, this.scene.world.center.y / 2, this.scene.world.width * 2, this.scene.world.height * 2);
+        this.skychart = new SkyChart(this.scene, this.scene.world.center.x, this.scene.world.center.y * 0.5, this.scene.world.width * 2, this.scene.world.height * 2.5);
 
         // << SPAWN BOUNDS >>
         this.topResetBound = this.skychart.rect.top;
@@ -14,9 +14,11 @@ class Spawner {
         this.leftResetBound = this.skychart.rect.left;
         this.rightResetBound = this.skychart.rect.right;
 
+        // << ENEMY POSITION BOUNDS >>
+
         // << ALL SPAWN OBJECTS >>
         this.vertResetAsteroids;
-        this.vertIndexRange = {min: 5, max: 10};
+        this.vertIndexRange = {min: 4, max: 12};
 
         this.horzResetAsteroids;
         this.horzIndexRange = {min: 7, max: 12};
@@ -33,6 +35,7 @@ class Spawner {
         //this.vertResetAsteroids = this.createVerticalAsteroids();
         //this.horzResetAsteroids = this.createHorizontalAsteroids();
         this.snakeshipGroup = this.createSnakeshipGroup();
+
 
     }
 
@@ -106,15 +109,17 @@ class Spawner {
         // Create range of points to spawn from
         let topSpawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
     
-        // Create range of points to target (optional)
-        let botSpawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
-    
-        // Draw spawn range for vertical snakeships
-        this.gizmos.drawLine(topSpawnpoints[0], botSpawnpoints[0], color_pal.toInt("pink"));
-        this.gizmos.drawLine(topSpawnpoints[topSpawnpoints.length - 1], botSpawnpoints[botSpawnpoints.length - 1], color_pal.toInt("pink"));
-    
+        // create end pos rect
+        const endPosRect = new Phaser.Geom.Rectangle(this.scene.world.center.x - (this.scene.world.width/2), this.skychart.rect.y*0.75, this.scene.world.width*0.75, this.skychart.rect.height/4);
+
+        if (gizmosActive)
+        {
+            this.gizmos.graphics.fillStyle(0xff0000, 0.1); // Set the fill color with alpha
+            this.gizmos.graphics.fillRectShape(endPosRect); // Draw the filled rectangle
+        }
+
         // Create snakeship group with these points
-        const snakeshipGroup = new SnakeshipGroup(this.scene, this, topSpawnpoints, botSpawnpoints);
+        const snakeshipGroup = new SnakeshipGroup(this.scene, this, topSpawnpoints, endPosRect);
         snakeshipGroup.spawnNewRandom(); // Spawn 1 new random snakeship
     
         return snakeshipGroup;
@@ -129,6 +134,7 @@ class Spawner {
 
     getRandomPoint(points)
     {
+
         const randomIndex = Phaser.Math.RND.between(0, points.length-1);
         return points[randomIndex];
     }

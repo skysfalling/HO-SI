@@ -5,6 +5,11 @@ class SkyChart {
         this.graphics.setDepth(2);
         this.gizmos = new Gizmos(scene, this.graphics);
 
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+
         this.showPoints = true;
         this.showLines = true;
         this.showPointIndex = true;

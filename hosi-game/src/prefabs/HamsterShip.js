@@ -13,19 +13,19 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.setScale(2); //64px
     this.body.collideWorldBounds = true;
 
-  // make sure that the ship does not go over world bounds
-  this.body.onWorldBounds = true;
-  this.physics.world.on('worldbounds', function(body){
-      //console.log('hello from the edge of the world', body);
-      body.x = Math.floor(body.x);
-      body.y = Math.floor(body.y);
+    // make sure that the ship does not go over world bounds
+    this.body.onWorldBounds = true;
+    this.physics.world.on('worldbounds', function(body){
+        //console.log('hello from the edge of the world', body);
+        body.x = Math.floor(body.x);
+        body.y = Math.floor(body.y);
 
-      // calculate the angle between the current position and the center of the world
-      const angle = Phaser.Math.Angle.Between(body.x, body.y, this.physics.world.bounds.centerX, this.physics.world.bounds.centerY);
+        // calculate the angle between the current position and the center of the world
+        const angle = Phaser.Math.Angle.Between(body.x, body.y, this.physics.world.bounds.centerX, this.physics.world.bounds.centerY);
 
-      // set the velocity of the object towards the center at a slower pace
-      this.physics.velocityFromRotation(angle, 200, body.velocity);
-  },this);
+        // set the velocity of the object towards the center at a slower pace
+        this.physics.velocityFromRotation(angle, 200, body.velocity);
+    },this);
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
@@ -66,9 +66,13 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.dodgeDuration = 250;
 
     // primary fire
-    this.primaryFireCheckLength = screen.height * 0.8;
-    this.primaryFireDelay = 200;
+    this.primaryFireCheckLength = 500;
+    this.primaryFireCheckWidth = 200;
+
+    this.primaryFireDelay = 300;
     this.primarylastFired = 0;
+
+    this.bulletVelocity = {x: 0, y: -500}
 
     // rocket fire
     this.rocket;
@@ -209,11 +213,11 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
   //#region [[ FIRE MODES ]] ===============================================================
 
     // << PRIMARY FIRE TRIGGER >>
-    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.width*3, this.primaryFireCheckLength).setOrigin(0.5,1);
+    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.primaryFireCheckWidth, this.primaryFireCheckLength).setOrigin(0.5,1);
     this.physics.add.existing(this.primaryFireTrigger);
     this.primaryFireTrigger.body.setCollideWorldBounds(false); // Disable world bounds collision if needed
     this.primaryFireTrigger.body.setImmovable(true); // Set the body to be immovable
-        
+    this
     
     // << ROCKET FIRE >>
     this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
@@ -260,11 +264,13 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     //#region << GIZMOS >>
     if (gizmosActive)
     {
+      this.gizmos.graphics.clear();
       this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
       this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
       this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
       this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
-
+    
+      this.gizmos.drawRect(this.primaryFireTrigger.x, this.primaryFireTrigger.y - this.primaryFireTrigger.height/2, this.primaryFireTrigger.width, this.primaryFireTrigger.height)
       
     }
     //#endregion
@@ -293,7 +299,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.lastFired = this.scene.time.now;
 
 
-    this.bullets.fire(this.scene, this.x, this.y);
+    this.bullets.fire(this.scene, this.x, this.y, this.bulletVelocity);
   }
 
 }
