@@ -1,6 +1,6 @@
 class Snakeship extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, group, spawnpoint, posTargetRect, texture = 'greenSnakeShip') {
-        super(scene, spawnpoint.x, spawnpoint.y, texture);
+    constructor(scene, group, spawnpoint, posTargetRect, bulletGroup, texture = 'greenSnakeShip') {
+        super(scene, spawnpoint, texture);
 
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
@@ -8,12 +8,11 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
 
         this.soundManager = SoundManager.getInstance(this); // get singleton instance
 
+        this.setDepth(depthLayers.playArea);
         this.gizmos = new Gizmos(scene); // gizmos instance
-        this.gizmos.graphics.setDepth(2);
-
+        this.gizmos.graphics.setDepth(depthLayers.playArea);
+        
         this.group = group; // store group
-        this.setDepth(2);
-
         this.body.setSize(64, 64); // sets collider size
         this.body.setOffset(0, 0); // makes image center
 
@@ -38,7 +37,7 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
 
         // bullet values
         this.primaryFireDelay = 2000;
-        this.bullets = new BulletGroup(this.scene);
+        this.bullets = bulletGroup;
         this.bulletVelocity = {x: 0, y: 200};
 
         // Create animations
@@ -127,8 +126,6 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                 // move ship
                 this.x = spawnpoint.x;
                 this.y = spawnpoint.y;
-
-
                 //#endregion
 
                 // << KILL LOOPS >>
@@ -196,28 +193,22 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         scene.physics.add.existing(this);
 
         this.gizmos = new Gizmos(scene);
+        this.debugColor = color_pal.toInt("green");
 
         this.defaultVelocity = { x: 0, y: 100 };
 
         this.spawnpoints = spawnpoints;
         this.posTargetRect = posTargetRect;
 
-        this.debugColor = color_pal.toInt("green");
+        this.bulletGroup = new BulletGroup(scene); // create bullet group    
 
-        console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.posTargetRect));
+        if (gizmosActive)
+        {
+          this.gizmos.graphics.clear();
+          this.gizmos.drawExistingRectFill(this.posTargetRect, this.debugColor, 5, 0.5);
+        }
 
-        this.scene.events.on('update', this.update, this);
-    }
-
-    update(){
-      if (gizmosActive && this.posTargetRect)
-      {
-        this.gizmos.graphics.clear();
-        this.gizmos.graphics.lineStyle(5, this.debugColor, 1); // Set the line style with color and alpha
-        this.gizmos.graphics.fillStyle(this.debugColor, 0.05); // Set the fill style with color and alpha
-        this.gizmos.graphics.fillRectShape(this.posTargetRect); // Draw the filled rectangle
-        this.gizmos.graphics.strokeRectShape(this.posTargetRect);
-      }
+        // console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.posTargetRect));
     }
 
     spawnNewRandom() {
@@ -225,7 +216,7 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
 
         // create new snakeship
-        const snakeship = new Snakeship(this.scene, this, spawnpoint, this.posTargetRect, this.texture);
+        const snakeship = new Snakeship(this.scene, this, spawnpoint, this.posTargetRect, this.bulletGroup, this.texture);
         this.add(snakeship);
         snakeship.spawner = this.spawner;
         snakeship.states.RESET.enter();

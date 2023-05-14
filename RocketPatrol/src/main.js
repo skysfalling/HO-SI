@@ -39,7 +39,7 @@ let config = {
     scene: [ Menu, Play, Editor ],
     pixelArt: true
 }
-const game = new Phaser.Game(config);
+const game = new Phaser.Game(game_config);
 
 // reserve keyboard variables
 let keyE, keyF, keyR, keyLEFT, keyRIGHT, keyUP;

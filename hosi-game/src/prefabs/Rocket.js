@@ -11,13 +11,10 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
 
         this.gizmos = new Gizmos(scene);
 
-        this.setDepth(2);
-        this.setScale(1);
-
         this.aimMoveSpeed = 2;         // pixels per frame
         this.rocketForce = 400;         // pixels per frame
         this.rocketRotationForce = 20;
-        this.explode_delay = 2000;
+        this.explode_delay = 4000;
         this.reset_delay = 1000;
 
         //this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
@@ -109,8 +106,6 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
 
         // Set initial state
         this.states.IDLE.enter();
-            
-
     }
 
     update() {
@@ -125,7 +120,10 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
         this.scene.time.addEvent({
             delay: this.explode_delay,
             callback: () => {
-                this.states.EXPLODE.enter();
+                if (this.currentState == this.states.FIRE)
+                {
+                    this.states.EXPLODE.enter();
+                }
             },
             loop: false
         });

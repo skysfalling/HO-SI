@@ -1,38 +1,42 @@
 class SkyChart {
     constructor(scene, x, y, width, height, gridSize = 64) {
         this.scene = scene;
-        this.graphics = scene.add.graphics();
-        this.graphics.setDepth(2);
-        this.gizmos = new Gizmos(scene, this.graphics);
+        this.gizmos = new Gizmos(scene);
 
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-
-        this.showPoints = true;
-        this.showLines = true;
-        this.showPointIndex = true;
         
+        this.center = {
+            x: this.x + width / 2,
+            y: this.y + height / 2
+        }
+
         // #region << CREATE SPAWN POINT GRID >>
-        this.rect = new Phaser.Geom.Rectangle(x - width / 2, y - height / 2, width, height);
+        this.rect = this.gizmos.createRect(this.x, this.y, width, height);
         this.points = this.createRectPoints(this.rect, gridSize);
 
         if (gizmosActive)
         {
+            // draw center point
+            //this.gizmos.createText(this.x, this.y, "skychart");
+
+            // draw points
             this.drawRectGridPoints(this.points);
 
+            // draw index text
             this.createPointIndexText(this.points.top, 0, -20);
             this.createPointIndexText(this.points.bottom, 0, 20);
             this.createPointIndexText(this.points.right, 20, 0);
-            this.createPointIndexText(this.points.left, -20, 0);
+            this.createPointIndexText(this.points.left, -20, 0); 
         }
+
+        
     }
 
     createRectPoints(rect, gridSize = 64) 
-    {
-        //const points = Phaser.Geom.Rectangle.GetPoints(rect, gridSize);
-        
+    {        
         const rectPoints = {
             allPoints: [],
             top: [],

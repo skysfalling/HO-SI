@@ -6,8 +6,8 @@ class Loading extends Phaser.Scene {
     init (data){
         this.prevScene = data.prevScene;
         this.nextScene = data.nextScene;
-        this.hamsterShipX = data.hamsterShipX;
-        this.hamsterShipY = data.hamsterShipY;
+        this.startPosX = data.hamsterShipX;
+        this.startPosY = data.hamsterShipY;
     }       
 
     preload(){
@@ -17,25 +17,27 @@ class Loading extends Phaser.Scene {
         this.load.image('cyan_beam', './assets/hyperspace/cyanfield.png');
         //#endregion
 
-        this.loadHamsterShip = new HamsterShip(this, this.hamsterShipX, this.hamsterShipY - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
+        this.loadHamsterShip = new HamsterShip(this, this.startPosX, this.startPosY, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
     }
 
     create(){
         
+        this.cameras.main.fadeIn(500, 0, 0, 0);
+
         this.blueBeam = this.add.tileSprite(game.config.x, game.config.y, game.config.height, game.config.width, 'blue_beam').setOrigin(0,0).setScale(2);
         this.whiteBeam = this.add.tileSprite(game.config.x, game.config.y, game.config.height, game.config.width, 'white_beam').setOrigin(0,0).setScale(2);
         this.cyanBeam = this.add.tileSprite(game.config.x, game.config.y, game.config.height, game.config.width, 'cyan_beam').setOrigin(0,0).setScale(2);
         this.slow = true;
 
-        //#region << DELAYED CALLS THAT SHIFT THROUGH SCENES >>
+        this.cameras.main.fadeIn(500, 0, 0, 0);
+
         this.time.delayedCall(2000, () => {
             this.slow = false;
             this.scene.setVisible(false, this.prevScene);
             this.scene.stop(this.prevScene)
-
         }, null, this);
         
-        this.time.delayedCall(5000, () => {
+        this.time.delayedCall(4000, () => {
             this.slow = true;
             this.scene.launch(this.nextScene, {
                 hampsterShipX: this.loadHamsterShip.x,
@@ -43,14 +45,15 @@ class Loading extends Phaser.Scene {
             });
             this.loadHamsterShip.setVisible(false);
             this.loadHamsterShip.rocket.setVisible(false);
+        }, null, this);
 
-
+        this.time.delayedCall(7000, () => {
+            this.cameras.main.fadeOut(2000, 0, 0, 0);
         }, null, this);
 
         this.time.delayedCall(7000, () => {
             this.scene.setVisible(false, "loadingScene");
             this.scene.stop("loadingScene");
-
         }, null, this);
         //#endregion
 

@@ -73,7 +73,7 @@ class Editor extends Phaser.Scene {
       this.graphics.clear();
       // draw world bounds
       console.log("World Bounds: ", this.world);
-      this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width - format.margin, this.world.height - format.margin, 0);
+      this.gizmos.createRect(this.world.center.x, this.world.center.y, this.world.width - format.margin, this.world.height - format.margin, 0);
       //#endregion
 
       // define keys

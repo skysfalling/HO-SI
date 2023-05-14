@@ -87,10 +87,10 @@ class GizmoTesting extends Phaser.Scene {
         {
             //console.log("show rect " + this.Gizmos.showRectGizmos);
             // >> RECT LINE GIZMO :: [ x , y, width, height, rotation , color ]
-            this.Gizmos.drawRect(screen.center.x, screen.center.y, 200, 200, this.infiniteRot, color_pal.toInt("green"));
+            this.Gizmos.createRect(screen.center.x, screen.center.y, 200, 200, this.infiniteRot, color_pal.toInt("green"));
 
             // >> RECT FILL GIZMO :: [ x , y, width, height, rotation , color ]
-            this.Gizmos.drawRectFill(screen.center.x, screen.center.y, 100, 100, -this.infiniteRot, color_pal.toInt("pink"));
+            this.Gizmos.createRectFill(screen.center.x, screen.center.y, 100, 100, -this.infiniteRot, color_pal.toInt("pink"));
         }
 
         if (this.Gizmos.showCircleGizmos == true)
@@ -120,7 +120,6 @@ class GizmoTesting extends Phaser.Scene {
             // create() text first, then call this function
             this.text.setVisible(true);
             this.Gizmos.updateText(this.text, this.infiniteRot + screen.center.x / 3, screen.center.y, "hello <3", "40px");
-            this.text.depth = 2;
         } else { this.text.setVisible(false);}
 
 

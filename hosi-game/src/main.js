@@ -15,7 +15,9 @@ HAMSTER ORIGINS : SNAKE INVADERS
 ================================================================
 
 */
-let config = {
+
+//#region [[ GAME CONFIG ]] ======================================================
+let game_config = {
     type: Phaser.CANVAS,
     width: 64 * 9,
     height: 64 * 16 ,
@@ -31,31 +33,36 @@ let config = {
     pixelArt: true,
     fps: 60
 }
-const game = new Phaser.Game(config);
-let gizmosActive = true;
+const game = new Phaser.Game(game_config);
+
+// debugging
+let gizmosActive = false;
 let editorActive = false;
 
 // reserve keyboard variables
-let keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
+let keyE, keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, keyENTER;
+
+// instances
 let prevScene;
 let soundManager;
 //#region [[]] ==============================================================
 let waves;
 
+//#endregion
+
+//#region [[ WAVE ALGORITHM ]] ==============================================================
 let waveAlgo={
   level: 0,
   enemyCounts: {
     
   },
 }
-
-//#engregion
+//#endregion
 
 // #region [[ FORMATTING ]] =================================================
 
+// screen
 let scaleRatio = window.devicePixelRatio / 3;
-
-// screen points
 let screen = {
   center: { 
     x: game.config.width/2, 
@@ -97,26 +104,34 @@ let screen = {
     y: game.config.height/2
   },
 }
-
 let format = {
   margin: 50
 }
-
 // border size
 let borderUISize = 20;
 let borderPadding = 10;
+
+let depthLayers = {
+  skybox: 0,
+  gizmos: 1,
+  background: 1,
+  playArea: 2,
+  foreground: 3,
+  ui: 4 
+}
 
 //#endregion
 
 //#region [[ CUSTOM COLORS ]] =============================================================
 let color_pal = {
-  pink: "#F6518A",
+  red: "#eb2646",
   orange: "#d45404",
   yellow: "#f9c22b",
-  blue: "#4C86A8", 
   green: "#62C25B",
-  purple: "#a884f3",
   teal: "#0eaf9b",
+  blue: "#4C86A8", 
+  purple: "#a884f3",
+  pink: "#F6518A",
   white: "#FFFFFF",
   grey: "#3e3546",
   black: "#101119",
