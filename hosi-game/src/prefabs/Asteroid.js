@@ -1,92 +1,79 @@
 class Asteroid extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, group, spawnpoint, texture = 'asteroid'){
-        super(scene, spawnpoint, texture);
+    constructor(scene, group, spawnpoint, endpoint, velocity, texture = 'asteroid'){
+        super(scene, spawnpoint, endpoint, velocity, texture);
         this.soundManager = SoundManager.getInstance(this);
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
         scene.physics.add.existing(this); // add to physics
 
+        this.group = group;
+        this.group.add(this);
+
         this.spawnpoint = spawnpoint;
+        this.endpoint = endpoint;
         this.x = spawnpoint.x;
         this.y = spawnpoint.y;
-        this.endpoint;
+
+        // set velocity
+        this.body.velocity.x = velocity.x;
+        this.body.velocity.y = velocity.y;
 
         // asteroid rotation
         this.rotationForce = 100;
         this.setAngle(0);
-        this.body.setAngularVelocity(this.rotationForce); 
-        this.body.setAllowGravity(false);
 
-        this.group = group;
-
+        // set colliders
         this.body.setSize(64, 64); // sets collider size
         this.body.setOffset(0, 0); // makes image center
 
         // Set the texture for the sprite
         this.setTexture(texture);
-
     }
 }
 
 class AsteroidGroup extends Phaser.Physics.Arcade.Group
 {
-    constructor(scene, spawner, spawnpoints, endpoints, defaultVelocity = {x: 0, y: 100}, texture = 'asteroid')
-    {
+    constructor(scene, spawner, spawnpoints, endpoints, velocity_duration = 5, maxDelay = 1000, texture = 'asteroid'){
         super(scene.physics.world, scene);
         this.scene = scene;
         this.spawner = spawner;
         this.texture = texture;
         scene.physics.add.existing(this);
 
-        this.defaultVelocity = {x: 0, y: 100};
-
         this.spawnpoints = spawnpoints;
         this.endpoints = endpoints;
 
-        //console.log("new asteroid group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.endpoints));
-
+        this.maxDelay = maxDelay;
+        this.velocity_duration = velocity_duration;
     }
 
-    spawnNew (spawnpoint, velocity = this.defaultVelocity)
+    spawnNewRandom ()
     {
-        // create new asteroid
-        const asteroid = new Asteroid(this.scene, this, spawnpoint, this.texture);
-        this.add(asteroid);
+        // << DELAY NEW SPAWN >>
+        // Delayed call to set spawn velocity
+        const delay = Phaser.Math.Between(100, this.maxDelay);
+        this.scene.time.delayedCall(delay, () => {
+        
+            // get random spawnpoint
+            let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
 
-        // asteroid velocity
-        asteroid.body.velocity.x = velocity.x;
-        asteroid.body.velocity.y = velocity.y;
-    }
-
-    spawnNewRandom (velocity = this.defaultVelocity)
-    {
-        // get random spawnpoint
-        let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
-
-        // create new asteroid
-        const asteroid = new Asteroid(this.scene, this, spawnpoint, this.texture);
-        this.add(asteroid);
-
-        // asteroid velocity, based on random endpoint
-        if (this.endpoints.length > 0)
-        {
             // get random point from the second list
             let endpoint = this.spawner.getRandomPoint(this.endpoints);
-            asteroid.endpoint = endpoint;
 
-            velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 4);
+            // calculate the necessary velocity
+            let velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, this.velocity_duration);
 
-            //console.log("new random asteroid: " + JSON.stringify(spawnpoint) + " -> " + JSON.stringify(endpoint));
-            //console.log(" ++ new random asteroid velocity: " + JSON.stringify(velocity));
-            
-        }
+            // asteroid velocity
+            const asteroid = new Asteroid(this.scene, this, spawnpoint, endpoint, this.texture);
+            asteroid.body.velocity.x = velocity.x;
+            asteroid.body.velocity.y = velocity.y;
 
-        // asteroid velocity
-        asteroid.body.velocity.x = velocity.x;
-        asteroid.body.velocity.y = velocity.y;
+        }, [], this);
     }
 
     reset(asteroid){
+
+        //<< RESET ASTEROID >>
         asteroid.setActive(false);
         asteroid.setVisible(false);
         asteroid.body.velocity.x = 0;
@@ -108,13 +95,10 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
 
         // << DELAY NEW SPAWN >>
         // Delayed call to set spawn velocity
-        const delay = 2000; // Delay in milliseconds
+        const delay = Phaser.Math.Between(100, this.maxDelay);
         this.scene.time.delayedCall(delay, () => {
         //<< SET SPAWN VELOCITY >>
-
-
-            let velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, 5);
-
+            let velocity = this.spawner.calculateVelocity(spawnpoint, endpoint, this.velocity_duration);
             asteroid.body.velocity.x = velocity.x;
             asteroid.body.velocity.y = velocity.y;
             asteroid.setActive(true);

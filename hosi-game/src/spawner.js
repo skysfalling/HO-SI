@@ -46,9 +46,9 @@ class Spawner {
 
         this.closeSpawnArea = this.gizmos.createRectFill(
             this.skychart.x, 
-            this.skychart.y, 
+            this.skychart.y * 0.5, 
             this.world.width * 0.9, 
-            400,
+            200,
             color_pal.toInt("green"),
             10, 
             1
@@ -87,11 +87,10 @@ class Spawner {
     create(){
 
         // Create groups
-        this.vertResetAsteroids = this.createAsteroids(this.top_spawnpoints, this.bot_spawnpoints, 5);
+        this.vertResetAsteroids = this.createAsteroids(this.top_spawnpoints, this.bot_spawnpoints);
         this.left_ResetAsteroids = this.createAsteroids(this.left_spawnpoints, this.right_spawnpoints, 2);
-        this.right_ResetAsteroids = this.createAsteroids(this.right_spawnpoints, this.left_spawnpoints, 0);
-
-        this.snakeshipGroup = this.createSnakeshipGroup(this.top_spawnpoints, this.closeSpawnArea);
+        this.right_ResetAsteroids = this.createAsteroids(this.right_spawnpoints, this.left_spawnpoints, 4);
+        this.snakeshipGroup = this.createSnakeshipGroup(this.top_spawnpoints, this.closeSpawnArea, 3);
 
         // draw vert range            
         this.gizmos.drawLine(this.top_spawnpoints[0], this.bot_spawnpoints[0], color_pal.toInt("pink"), 5, 0.1);
@@ -105,15 +104,6 @@ class Spawner {
 
     update(time, delta) {
 
-        if (this.vertResetAsteroids){
-            this.vertResetAsteroids.getChildren().forEach(asteroid => {
-                if (asteroid.y > this.bottomResetBound){
-                    this.vertResetAsteroids.reset(asteroid);
-                }
-            });
-        }
-
-        // VERTICAL ASTEROIDS RESET
         if (this.vertResetAsteroids){
             this.vertResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.y > this.bottomResetBound){
@@ -154,10 +144,10 @@ class Spawner {
     // ==============================
 
     // << ASTEROID GROUP >> ==============================================
-    createAsteroids(spawnpoints, endpoints, count = 1){
+    createAsteroids(spawnpoints, endpoints, count = 1, velocity_duration = 5, maxDelay = 5000){
 
         // create asteroid group with these points ^^^
-        const asteroids = new AsteroidGroup(this.scene, this, spawnpoints, endpoints);
+        const asteroids = new AsteroidGroup(this.scene, this, spawnpoints, endpoints, velocity_duration, maxDelay, 'asteroid');
 
         for (let i = 0; i < count; i++)
         {

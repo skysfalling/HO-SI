@@ -221,7 +221,6 @@ class Play extends Phaser.Scene {
         //#endregion
         
         //#region [[ TRIGGERS ]] >>
-
         // set all enemy targets
         this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.left_ResetAsteroids, this.spawner.right_ResetAsteroids, this.spawner.snakeshipGroup];
         this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.left_ResetAsteroids, this.spawner.right_ResetAsteroids];
@@ -248,7 +247,6 @@ class Play extends Phaser.Scene {
                 this.spawner.resetSpawnObject(enemy);
             }
         });
-
         //#endregion
 
         //#region << HTML REFERENCES >>
