@@ -4,7 +4,6 @@ class SoundManager {
       this.sounds = {};
       this.sfx = {};
       this.currentMusic = null;
-
     }
   
     static getInstance(scene) {
@@ -82,9 +81,11 @@ class SoundManager {
       if(this.currentMusic){
         this.currentMusic.volume=x;
       }
-      for(i in this.sfx){
-        if(i){
-          i.volume= x
+      if(this.sfx){
+        for(let i in this.sfx){
+          if(this.sfx.hasOwnProperty(i)){
+            this.sfx[i].volume= x
+          }
         }
       }
     }

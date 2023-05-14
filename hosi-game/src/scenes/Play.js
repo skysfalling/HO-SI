@@ -205,12 +205,14 @@ class Play extends Phaser.Scene {
         this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.enemyTargets, this.onOverlap, () => {
             //console.log("asteroid overlap");
             this.hamsterShip.primary_fire();
+            //this.soundManager.play('sfx_primaryFire');
         });
 
         // primary fire vs. enemies
         this.physics.add.overlap(this.enemyTargets, this.hamsterShip.bullets, (enemy, bullet) => {
             this.hamsterShip.bullets.remove(bullet, true, true);
             this.spawner.resetSpawnObject(enemy);
+            this.soundManager.playExplosion();
         });
 
         // rocket vs. enemies
@@ -221,6 +223,7 @@ class Play extends Phaser.Scene {
                 rocket.states.EXPLODE.enter();
                 this.spawner.resetSpawnObject(enemy);
             }
+            this.soundManager.playExplosion();
         });
 
         //this is stupid -t
@@ -234,18 +237,6 @@ class Play extends Phaser.Scene {
                     //this.slow = false;
                     this.scene.start('menuScene');
                     this.soundManager.stopCurrentMusic();
-                    this.scene.stop();
-                }, null, this);
-            });
-
-            this.physics.add.overlap(this.hamsterShip, this.spawner.snakeshipGroup.bulletGroup, () => {
-                this.gameOver = true;
-                this.teeext = this.add.text(this.hamsterShip.cameraTarget.x, this.hamsterShip.cameraTarget.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
-                console.log(this.teeext.text);
-                
-                this.time.delayedCall(1000, () => {
-                    //this.slow = false;
-                    this.scene.start('menuScene');
                     this.scene.stop();
                 }, null, this);
             });

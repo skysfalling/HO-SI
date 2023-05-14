@@ -142,6 +142,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
             // dodge
             if (this.dodgeKey.isDown && this.currentState == this.states.MOVE && !this.dodgeUsed) {
               this.states.DODGE.enter();
+              this.scene.soundManager.play('sfx_dodge');
               this.dodgeUsed = true;
             }
 
@@ -296,6 +297,8 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
 
 
     this.bullets.fire(this.scene, this.x, this.y, this.bulletVelocity);
+    
+    this.scene.soundManager.play('sfx_primaryFire');
   }
 
 }

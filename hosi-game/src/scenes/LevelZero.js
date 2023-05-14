@@ -118,6 +118,7 @@ class LevelZero extends Phaser.Scene {
                     // [[ UPDATE GAME OBJECTS]]
                     if(this.hitcount >= 3){
                         this.levelState.TUTORIAL_CONTINUE.enter();
+                        this.soundManager.play('sfx_takeoff');
                         this.tutorialRocket.tutorialOver = true;
 
                     }
@@ -171,6 +172,8 @@ class LevelZero extends Phaser.Scene {
                     }, null, this);
 
                     this.time.delayedCall(1200, () => {
+                        this.soundManager.stopCurrentMusic();
+                        this.soundManager.play('sfx_hyperdrive');
                         this.scene.launch("loadingScene", {
                             prevScene: "levelZeroScene",
                             nextScene: 'playScene',
@@ -443,9 +446,9 @@ class LevelZero extends Phaser.Scene {
             if (this.hitcount >= 3) {
                 this.tutorialRocket.tutorialOver = true;
             }
-
             this.tutorialRocket.states.EXPLODE.enter();
             this.spawner.resetSpawnObject(enemy);
+            this.soundManager.playExplosion();
         });
         //#endregion
 
@@ -495,7 +498,7 @@ class LevelZero extends Phaser.Scene {
 
         //this.initKeys(); //STUPID KEY RE ASSIGNING
         if (Phaser.Input.Keyboard.JustDown(keyESC)) {
-            this.scene.launch("pauseScene", { prevScene: "levelZeroScene", gameScene: this });
+            this.scene.launch("pauseScene", { prevScene: "levelZeroScene", soundManager: this.soundManager});
         
             // Pause the current scene
             this.scene.pause();
@@ -510,21 +513,6 @@ class LevelZero extends Phaser.Scene {
 
         //#endregion
         
-        if(this.hitcount >= 3 && !this.loading){
-            // change scenes / move onto level 0.5
-            // we want to add animation here about hamster getting in the ship and launching
-            // so make ship appear
-
-            // update controls so the player can freely move
-            // delete tutorial rocket bring out rocket attached to hamster
-            //this.tutorialRocket.update();
-
-            //this.tutorialRocket.setVisible(false);
-            /*
-
-            */
-
-        }
     }
 
     editorUpdate(){
