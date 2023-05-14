@@ -13,6 +13,7 @@ class Play extends Phaser.Scene {
         
         this.gameOver = false;
         //this.level = 1;
+        this.soundManager = new SoundManager(this);
 
         this.hamsterShip;
 
@@ -220,6 +221,7 @@ class Play extends Phaser.Scene {
         keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
         //#endregion
         
+        this.soundManager.level1Music('level1v1');
         
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
@@ -273,6 +275,7 @@ class Play extends Phaser.Scene {
                 this.time.delayedCall(1000, () => {
                     //this.slow = false;
                     this.scene.start('menuScene');
+                    this.soundManager.stopCurrentMusic();
                     this.scene.stop();
                 }, null, this);
             });

@@ -18,10 +18,35 @@ class SoundManager {
   
     loadAllSounds() {
       console.log("Loading all Sounds");
+      //SFX
       this.scene.load.audio('sfx_select', './assets/sounds/blip_select12.wav');
       this.scene.load.audio('sfx_explosion', './assets/sounds/explosion38.wav');
       this.scene.load.audio('sfx_rocket', './assets/sounds/rocket_shot.wav');
-  
+      //MUSIC
+      
+      //JUST CHORDS
+      this.scene.load.audio('just_chords', './assets/sounds/music/just_chords.mp3');
+      //LEVEL 1v1
+      this.scene.load.audio('level1v1', './assets/sounds/music/level1v1.mp3');
+      //LEVEL 1v2
+      this.scene.load.audio('level1v2', './assets/sounds/music/level1v2.mp3');
+      //LEVEL 0.5
+      this.scene.load.audio('level05', './assets/sounds/music/level05.mp3');
+      /*
+      // JUST CHORDS // SIMPLER CHORDS, KICK DRUM
+      this.scene.load.audio('just_chords', './assets/sounds/music/just_chords.wav');
+      // MAIN LINE LEVEL 1 //SIMPLER CHORDS, SIMPLE MELODY, HARMONIES,KICK DRUM
+      this.scene.load.audio('main_line_L1', './assets/sounds/music/main_line_L1.wav');
+      // MAIN LINE LEVEL 2 //REG CHORDS, REG MELODY, SIMPLE COUNTER MELODY, HARMONIES, EVENTUAL HIHATS, KICK DRUM
+      this.scene.load.audio('main_line_L2', './assets/sounds/music/main_line_L2.wav');
+      // MAIN LINE LEVEL 3 //REG CHORDS, REG MELODY, REG COUNTER MELODY, HARMONIES, HIHATS, KICK DRUM
+      this.scene.load.audio('main_line_L3', './assets/sounds/music/main_line_L3.wav');
+      // VARIATION 1 // REG CHORDS, COUNTER & HARMONY, HIHATS & KICK DRUM
+      this.scene.load.audio('var_1', './assets/sounds/music/var_1.wav');
+      // VARIATION 2 // REG CHORDS, COUNTER & HARMONY, HIHATS & KICK DRUM
+      this.scene.load.audio('var_2', './assets/sounds/music/var_2.wav');
+      */
+
       // Register a callback for when all the sound files are loaded
       this.scene.load.on('complete', () => {
         this.addSoundsToCache();
@@ -30,13 +55,82 @@ class SoundManager {
       this.scene.load.start();
     }
   
+    //LEVEL 0
+      /*
+        JUST CHORDS      
+      */
+    //LEVEL 0.5
+      /*
+        MAIN LINE LEVEL 1
+        VARIATION 1
+        VARIATION 2
+        MAIN LINE LEVEL 2
+        VARIATION 1
+      */
+    //LEVEL 1 --> ONWARDS
+      /*
+        MAIN LINE LEVEL 1 
+        VARIATION 1
+        MAIN LINE LEVEL 2
+        VARIATION 1
+        VARIATION 2
+        MAIN LINE LEVEL 3
+        VARIATION 1
+        AFTER THAT RANDOM:
+        SAME, OR CUT OUR THE FIRST 2
+      */
+    
+    level0Music(){
+      this.playMusic('just_chords', {loop: true});
+    }
+    stopLevel0Music(){
+      this.stop;
+    }
+    level05Music(){
+      this.playMusic('level05', {loop: true});
+    }
+    level1Music(key){
+      if (this.currentMusic && this.currentMusic.isPlaying) {
+        this.currentMusic.once('complete', () => {
+          if (!this.sounds[key]) {
+            this.sounds[key] = this.scene.sound.add(key, config);
+          }
+          this.currentMusic = this.sounds[key];
+          this.currentMusic.play();
+          console.log("Playing " + key + " " + this.currentMusic.isPlaying);
+          this.currentMusic.once('complete', () => { 
+            if(Math.round(Math.random())){ 
+              this.level05Music('level1v1');
+            }else{
+              this.level05Music('level1v2');
+            }
+          });
+        });
+        this.currentMusic.stop();
+      }else {
+        if (!this.sounds[key]) {
+          this.sounds[key] = this.scene.sound.add(key, s_config);
+        }
+        this.currentMusic = this.sounds[key];
+        this.currentMusic.play();
+        console.log("Playing " + key + " " + this.currentMusic.isPlaying);
+        this.currentMusic.once('complete', () => {
+          if(Math.round(Math.random())){ 
+            this.level05Music('level1v1');
+          }else{
+            this.level05Music('level1v2');
+          }
+        });
+      }
+    }
+
     addSoundsToCache() {
       console.log("Adding sounds to cache");
       this.loadSound('sfx_select');
       this.loadSound('sfx_explosion');
       this.loadSound('sfx_rocket');
     }
-  
+    
     playMusic(key, config) {
       if (this.currentMusic && this.currentMusic.isPlaying) {
         this.currentMusic.once('complete', () => {
@@ -55,8 +149,14 @@ class SoundManager {
       this.currentMusic = this.sounds[key];
       this.currentMusic.play();
       console.log("Playing " + key + " " + this.currentMusic.isPlaying);
+      
     }
-  
+    stopCurrentMusic() {
+      if (this.currentMusic && this.currentMusic.isPlaying) {
+        this.currentMusic.stop();
+      }
+    }
+
     play(key, config) {
       const sound = this.scene.sound.add(key, config);
       sound.play();
@@ -65,7 +165,12 @@ class SoundManager {
   }
   
   
-  
+  let s_config = {
+    loop: false,
+  }
+
+
+
 
 
   /*

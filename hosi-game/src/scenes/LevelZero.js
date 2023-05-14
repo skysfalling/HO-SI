@@ -1,3 +1,5 @@
+//const { Sound } = require("phaser");
+
 class LevelZero extends Phaser.Scene {
     constructor() {
         super("levelZeroScene");
@@ -11,6 +13,8 @@ class LevelZero extends Phaser.Scene {
         this.gizmos = new Gizmos(this);
         this.showGizmos = true;
         this.loading=false;
+
+        this.soundManager = new SoundManager(this);
 
         this.level = 1;
         this.defaultShipSpeed = 100;
@@ -94,6 +98,8 @@ class LevelZero extends Phaser.Scene {
             frameRate: 10,
             repeat: -1
         });
+
+        this.soundManager.level0Music();
 
         //#endregion
         
@@ -423,8 +429,10 @@ class LevelZero extends Phaser.Scene {
                 prevScene: "levelZeroScene",
                 nextScene: 'playScene',
                 hamsterShipX: this.hamsterShip.x,
-                hamsterShipY: this.hamsterShip.y                
+                hamsterShipY: this.hamsterShip.y             
             });
+            this.soundManager.stopCurrentMusic();
+
             this.scene.pause();
             
 
