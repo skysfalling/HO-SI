@@ -11,9 +11,6 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
 
         this.gizmos = new Gizmos(scene);
 
-        this.setDepth(2);
-        this.setScale(1);
-
         this.aimMoveSpeed = 2;         // pixels per frame
         this.rocketForce = 400;         // pixels per frame
         this.rocketRotationForce = 20;

@@ -29,7 +29,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
     scene.time.delayedCall(
       this.destroyDelay, 
       () => {
-        //this.destroy();
+        this.destroy();
       }, 
       [], this);
   }

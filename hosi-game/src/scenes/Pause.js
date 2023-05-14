@@ -21,10 +21,10 @@ class Pause extends Phaser.Scene {
         //#region [[PAUSE STATE]]
 
         let volPercent=1;
-        this.title=this.add.text(screen.topMid.x,screen.center.y-50, 'PAUSE MENU', defaultTextStyle,{depth: 10, backgroundColor: color_pal.black }).setOrigin(0.5);
-        this.resText=this.add.text(screen.topMid.x,screen.center.y+40, 'RESUME', defaultTextStyle,{depth: 10, backgroundColor: color_pal.black}).setOrigin(0.5);
-        this.volSlider=this.add.text(screen.topMid.x,screen.center.y+100, '----o', defaultTextStyle, {depth: 10, backgroundColor: color_pal.black}).setOrigin(0.5);
-        this.volText=this.add.text(screen.topMid.x,screen.center.y+80, 'VOLUME:', defaultTextStyle, {depth: 10, backgroundColor: color_pal.black}).setOrigin(0.5);
+        this.title=this.add.text(screen.topMid.x,screen.center.y-50, 'PAUSE MENU', defaultTextStyle,{depth: depthLayers.ui, backgroundColor: color_pal.black }).setOrigin(0.5);
+        this.resText=this.add.text(screen.topMid.x,screen.center.y+40, 'RESUME', defaultTextStyle,{depth: depthLayers.ui, backgroundColor: color_pal.black}).setOrigin(0.5);
+        this.volSlider=this.add.text(screen.topMid.x,screen.center.y+100, '----o', defaultTextStyle, {depth: depthLayers.ui, backgroundColor: color_pal.black}).setOrigin(0.5);
+        this.volText=this.add.text(screen.topMid.x,screen.center.y+80, 'VOLUME:', defaultTextStyle, {depth: depthLayers.ui, backgroundColor: color_pal.black}).setOrigin(0.5);
         this.volSliderTextShit(volPercent);
         this.restartText=this.add.text(screen.topMid.x,screen.center.y+140, 'RESTART', defaultTextStyle, {depth: 10}).setOrigin(0.5);
 

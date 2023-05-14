@@ -8,12 +8,11 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
 
         this.soundManager = SoundManager.getInstance(this); // get singleton instance
 
+        this.setDepth(depthLayers.playArea);
         this.gizmos = new Gizmos(scene); // gizmos instance
-        this.gizmos.graphics.setDepth(2);
-
+        this.gizmos.graphics.setDepth(depthLayers.playArea);
+        
         this.group = group; // store group
-        this.setDepth(2);
-
         this.body.setSize(64, 64); // sets collider size
         this.body.setOffset(0, 0); // makes image center
 
@@ -127,8 +126,6 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
                 // move ship
                 this.x = spawnpoint.x;
                 this.y = spawnpoint.y;
-
-
                 //#endregion
 
                 // << KILL LOOPS >>
@@ -203,6 +200,11 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         this.posTargetRect = posTargetRect;
 
         this.debugColor = color_pal.toInt("green");
+        if (gizmosActive)
+        {
+          this.gizmos.graphics.clear();
+          this.gizmos.drawExistingRectFill(this.posTargetRect, this.debugColor, 5, 0.5);
+        }
 
         console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.posTargetRect));
 
@@ -210,14 +212,7 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
     }
 
     update(){
-      if (gizmosActive && this.posTargetRect)
-      {
-        this.gizmos.graphics.clear();
-        this.gizmos.graphics.lineStyle(5, this.debugColor, 1); // Set the line style with color and alpha
-        this.gizmos.graphics.fillStyle(this.debugColor, 0.05); // Set the fill style with color and alpha
-        this.gizmos.graphics.fillRectShape(this.posTargetRect); // Draw the filled rectangle
-        this.gizmos.graphics.strokeRectShape(this.posTargetRect);
-      }
+
     }
 
     spawnNewRandom() {

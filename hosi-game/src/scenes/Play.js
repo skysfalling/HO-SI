@@ -2,14 +2,16 @@ class Play extends Phaser.Scene {
     constructor() {
         super("playScene");
     }
+    
     init(data){
         this.soundManager = data.soundManager;
     }
 
     preload() {
         this.physics.add.existing(this);
-        this.scene_graphics = this.add.graphics();
-        this.gizmos = new Gizmos(this, this.add.graphics());
+        this.gizmos = new Gizmos(this);
+
+        this.graphics = this.add.graphics().setDepth(depthLayers.playArea);
         
         this.level = 1;
 
@@ -45,8 +47,6 @@ class Play extends Phaser.Scene {
 
         //#region [[ SCENE SETUP]]
 
-
-
             //#region << FORMAT VALUES >>
             this.grid = {
                 cellSize: 64, // 64 pixels
@@ -63,53 +63,39 @@ class Play extends Phaser.Scene {
             this.mainCamera.setBackgroundColor('#0000ff');
 
             //#region << WORLD BOUNDS >>
+            const worldSize = 9 * this.grid.cellSize;
+            const offset = 4 * this.grid.cellSize;
+            const camMargin = this.uiFormat.camMargin;
+            
             this.world = {
-                offset: 3 * this.grid.cellSize,
-                width: 9 * this.grid.cellSize,
-                height: 9 * this.grid.cellSize,
+                offset,
+                width: worldSize,
+                height: worldSize,
                 center: {
-                x: null,
-                y: null,
+                    x: (worldSize / 2) + offset,
+                    y: (worldSize / 2) + offset
                 },
                 bounds: {
-                    left: null,
-                    right: null,
-                    top: null,
-                    bottom: null,
+                    left: offset,
+                    right: offset + worldSize,
+                    top: offset,
+                    bottom: offset + worldSize
                 },
                 cam_bounds: {
-                    left: null,
-                    right: null,
-                    top: null,
-                    bottom: null,
-                    width: null,
-                    height: null
-                },
+                    left: offset + camMargin,
+                    right: offset + worldSize - camMargin,
+                    top: offset + camMargin,
+                    bottom: offset + worldSize - camMargin,
+                    width: worldSize - (2 * camMargin),
+                    height: worldSize - (2 * camMargin)
+                }
             };
-            this.world.center.x = (this.world.width / 2) + this.world.offset;
-            this.world.center.y = (this.world.height / 2) + this.world.offset;
-
-            // set bounds
-            this.world.bounds.left = this.world.offset;
-            this.world.bounds.right = this.world.offset + this.world.width;
-            this.world.bounds.top = this.world.offset;
-            this.world.bounds.bottom = this.world.offset + this.world.height;
-
-            // set cam bounds
-            this.world.cam_bounds.left = this.world.offset + this.uiFormat.camMargin;
-            this.world.cam_bounds.right = (this.world.offset + this.world.width) - this.uiFormat.camMargin;
-            this.world.cam_bounds.top = this.world.offset + this.uiFormat.camMargin;
-            this.world.cam_bounds.bottom = (this.world.offset + this.world.height) - this.uiFormat.camMargin;
-
-            this.world.cam_bounds.width = this.world.cam_bounds.right - this.world.cam_bounds.left;
-            this.world.cam_bounds.height = this.world.cam_bounds.bottom - this.world.cam_bounds.top;
-
 
             // set the world bounds
             this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
             //#endregion
         
-            //#region << SKYCHART >>
+            //#region << SPAWNER >>
             this.spawner = new Spawner(this);
             this.skychart = this.spawner.skychart;
 
@@ -207,6 +193,9 @@ class Play extends Phaser.Scene {
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
+        // editor control
+        keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+
         // Define the D dodge key control
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
@@ -218,25 +207,24 @@ class Play extends Phaser.Scene {
         keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
         //#endregion
         
-        
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
         this.mainCamera.scrollY = this.world.center.y;
 
         //#region << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width*4, this.world.height*4, 'starfield').setOrigin(0.5, 0.5);
+        this.starfield.depth = -10;
         //#endregion
 
         //#region << PLAYER SHIP >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
-        this.hamsterShip.bullets = new BulletGroup(this); // create bullet group       
         //#endregion
         
         //#region [[ TRIGGERS ]] >>
-        
+
         // set all enemy targets
-        this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids, this.spawner.snakeshipGroup];
-        this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.horzResetAsteroids];
+        this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.left_ResetAsteroids, this.spawner.right_ResetAsteroids, this.spawner.snakeshipGroup];
+        this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.left_ResetAsteroids, this.spawner.right_ResetAsteroids];
         this.enemyShips = [this.spawner.snakeshipGroup];
 
         // auto primary fire trigger
@@ -245,19 +233,19 @@ class Play extends Phaser.Scene {
             this.hamsterShip.primary_fire();
         });
 
-        // primary fire vs. asteroids
+        // primary fire vs. enemies
         this.physics.add.overlap(this.enemyTargets, this.hamsterShip.bullets, (enemy, bullet) => {
             this.hamsterShip.bullets.remove(bullet, true, true);
-            this.spawner.resetSpawnObject(enemy, true);
+            this.spawner.resetSpawnObject(enemy);
         });
 
-        // handle collision between rocket and asteroid
-        this.physics.add.overlap(this.hamsterShip.rocket, this.enemyTargets, (rocket, asteroid) => {
+        // rocket vs. enemies
+        this.physics.add.overlap(this.hamsterShip.rocket, this.enemyTargets, (rocket, enemy) => {
             //console.log("rocket hit asteroid");
             if (rocket.currentState.name == "fire")
             {
                 rocket.states.EXPLODE.enter();
-                this.spawner.resetSpawnObject(asteroid, true);
+                this.spawner.resetSpawnObject(enemy);
             }
         });
 
@@ -296,15 +284,12 @@ class Play extends Phaser.Scene {
         // show center point
         this.gizmos.createText(this.world.center.x, this.world.center.y, "world center");
 
-        // << DRAW SCREEN BOUNDS >> ( white )
-        //this.gizmos.drawRect(this.world.center.x, this.world.center.y, screen.width, screen.height, 0, color_pal.toInt("white"), 1);
-
         // << DRAW WORLD BOUNDS >> ( bold white )
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, 0, color_pal.toInt("white"), 5, 1);
+        this.gizmos.createRect(this.world.center.x, this.world.center.y, this.world.width, this.world.height, color_pal.toInt("white"), 5, 0.5);
 
         // << DRAW CAMERA BOUNDS >> ( blue )
         //console.log("cam bounds: " + this.world.cam_bounds.width + "x" + this.world.cam_bounds.height);
-        this.gizmos.drawRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, 360, color_pal.toInt("blue"), 2);
+        this.gizmos.createRect(this.world.center.x, this.world.center.y, this.world.cam_bounds.width, this.world.cam_bounds.height, color_pal.toInt("blue"), 2);
     }
 
     // ================================================================================= // *~

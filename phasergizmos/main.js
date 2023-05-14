@@ -13,7 +13,7 @@ let config = {
     scene: [ GizmoTesting ],
     pixelArt: true
 }
-const game = new Phaser.Game(config);
+const game = new Phaser.Game(game_config);
 
 let screen = {
     center: { 

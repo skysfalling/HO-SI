@@ -9,7 +9,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.scene = scene;
     this.physics = scene.physics;
 
-    this.setDepth(1);
+    this.setDepth(depthLayers.playArea);
     this.setScale(2); //64px
     this.body.collideWorldBounds = true;
 
@@ -30,10 +30,6 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
     this.cameraTarget = new Phaser.Math.Vector2(this.x, this.y);
-
-    this.primaryActive = true;
-    this.bullets;
-    this.ss_bullet = ss_bullet;
 
     //#region [[ INPUTS ]] ====================================================================
     // Define the arrow key movement controls
@@ -67,11 +63,15 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
 
     // primary fire
     this.primaryFireCheckLength = 500;
-    this.primaryFireCheckWidth = 200;
+    this.primaryFireCheckWidth = this.width * 4;
 
     this.primaryFireDelay = 300;
     this.primarylastFired = 0;
 
+    this.primaryActive = true;
+    this.bullets = new BulletGroup(scene); // create bullet group    
+    this.bullets.destroyDelay = 100;   
+    this.ss_bullet = ss_bullet;
     this.bulletVelocity = {x: 0, y: -500}
 
     // rocket fire
@@ -217,7 +217,6 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     this.physics.add.existing(this.primaryFireTrigger);
     this.primaryFireTrigger.body.setCollideWorldBounds(false); // Disable world bounds collision if needed
     this.primaryFireTrigger.body.setImmovable(true); // Set the body to be immovable
-    this
     
     // << ROCKET FIRE >>
     this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
@@ -258,21 +257,18 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
       this.cameraTarget.y = Phaser.Math.Clamp(this.cameraTarget.y, this.scene.world.cam_bounds.top, this.scene.world.cam_bounds.bottom);
 
     }
-
     //#endregion
     
     //#region << GIZMOS >>
-    if (gizmosActive)
-    {
-      this.gizmos.graphics.clear();
-      this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
-      this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
-      this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
-      this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
-    
-      this.gizmos.drawRect(this.primaryFireTrigger.x, this.primaryFireTrigger.y - this.primaryFireTrigger.height/2, this.primaryFireTrigger.width, this.primaryFireTrigger.height)
-      
-    }
+    this.gizmos.graphics.clear();
+    this.gizmos.updateText(this.stateText, this.x, this.y + this.height + 10, this.currentState.name)
+    this.gizmos.updateText(this.posText, this.x, this.y - this.height, Math.floor(this.x) + " " + Math.floor(this.y));
+    this.gizmos.updateText(this.rocketText, this.rocket.x, this.rocket.y + this.rocket.height, this.rocket.currentState.name, color_pal.green);
+    this.gizmos.updateText(this.camTargetText, this.cameraTarget.x, this.cameraTarget.y, "cam-tgt", color_pal.blue);
+  
+    let currentPos = {x: this.x, y: this.y};
+    let primaryFireEndpoint = {x: this.x, y: this.y - this.primaryFireCheckLength}
+    this.gizmos.createLineRange(currentPos, primaryFireEndpoint, this.primaryFireCheckWidth, color_pal.toInt("red"), color_pal.toInt("white"));
     //#endregion
 
     // check for dodge
