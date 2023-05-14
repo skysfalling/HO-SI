@@ -18,11 +18,17 @@ class SoundManager {
   
     loadAllSounds() {
       console.log("Loading all Sounds");
-      //SFX
-      this.scene.load.audio('sfx_select', './assets/sounds/blip_select12.wav');
-      this.scene.load.audio('sfx_explosion', './assets/sounds/explosion38.wav');
-      this.scene.load.audio('sfx_rocket', './assets/sounds/rocket_shot.wav');
-      //MUSIC
+      //#region /////////////////// LOADING SFX ///////////////////
+      this.scene.load.audio('sfx_select', './assets/sounds/sfx/blipSelect.wav');
+      this.scene.load.audio('sfx_explosion', './assets/sounds/sfx/explosion.wav');
+      this.scene.load.audio('sfx_rocket', './assets/sounds/sfx/rocket_shot.wav');
+      this.scene.load.audio('sfx_dodge', './assets/sounds/sfx/dodge.wav');
+      this.scene.load.audio('sfx_primaryFire', './assets/sounds/sfx/playerShoot.wav');
+      this.scene.load.audio('sfx_takeoff', './assets/sounds/sfx/takeoff.wav');
+      
+      //#endregion
+
+      //#region /////////////////// LOADING MUSIC ///////////////////
       
       //JUST CHORDS
       this.scene.load.audio('just_chords', './assets/sounds/music/just_chords.mp3');
@@ -46,12 +52,12 @@ class SoundManager {
       // VARIATION 2 // REG CHORDS, COUNTER & HARMONY, HIHATS & KICK DRUM
       this.scene.load.audio('var_2', './assets/sounds/music/var_2.wav');
       */
-
+      //#endregion MUSIC
+      
       // Register a callback for when all the sound files are loaded
       this.scene.load.on('complete', () => {
         this.addSoundsToCache();
       });
-  
       this.scene.load.start();
     }
   
