@@ -14,18 +14,15 @@ class LevelZero extends Phaser.Scene {
 
         this.level = 1;
         this.defaultShipSpeed = 100;
-        /*
+        
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        */
-
+        
         //#region << SPRITES >>
         // load backgrounds/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
-        //this.load.image('starfield', './assets/starfield.png');
         this.load.image('takeoff', './assets/takeoff.png');
 
         // load spritesheet
@@ -36,7 +33,7 @@ class LevelZero extends Phaser.Scene {
         this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
     
         // << ENEMY SPACESHIPS >>
-        this.load.image('greenSnake1', './assets/greenSnakeShip0.png');
+        this.load.image('greenSnakeShip', './assets/greenSnakeShip0.png');
         // << BULLETS >>
         this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
 
@@ -44,16 +41,59 @@ class LevelZero extends Phaser.Scene {
         this.load.spritesheet('rocket_fire', './assets/rocket.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 1});
         this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
-        // << ASTEROIDS >>
-        this.load.image('asteroid', './assets/asteroids/asteriod.png');
-
         // << BUNKER >>
         this.load.image('bunker', './assets/bunker.png');
 
-        // << TEXTURE ATLAS >>
-        this.load.atlas('hosi_atlas', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
+        // << SNAKESHIPS >>
+        this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
         //#endregion 
+
+            //#region << WORLD BOUNDS >>
+            //#region << FORMAT VALUES >>
+            this.grid = {
+                cellSize: 64, // 64 pixels
+            };
+
+            this.uiFormat = {
+                camMargin : this.grid.cellSize * 2
+            }
+
+            const worldSize = 9 * this.grid.cellSize;
+            const offset = {x: 4 * this.grid.cellSize, y: 4 * this.grid.cellSize};
+            const camMargin = this.uiFormat.camMargin;
+            
+            this.world = {
+                width: worldSize,
+                height: worldSize * 1.5,
+                x: offset.x,
+                y: offset.y,
+                center: {
+                    x: (worldSize / 2) + offset.x,
+                    y: (worldSize / 2) + offset.y
+                },
+                bounds: {
+                    left: offset.x,
+                    right: offset.x + worldSize,
+                    top: offset.y * 1.5,
+                    bottom: offset.y + worldSize
+                },
+                cam_bounds: {
+                    left: offset.x + camMargin,
+                    right: offset.x + worldSize - camMargin,
+                    top: offset.y + camMargin,
+                    bottom: offset.y + worldSize - camMargin,
+                    width: worldSize - (2 * camMargin),
+                    height: worldSize - (2 * camMargin)
+                }
+            };
+
+            this.spawner = new Spawner(this);
+            this.skychart = this.spawner.skychart;
+
+            // set the world bounds
+            this.physics.world.setBounds(this.world.x, this.world.y, this.world.width, this.world.height);
+            //#endregion
 
         // refernece to HTML Webpage for debugger buttons and things
         const canvas = document.getElementById('game-container');   
@@ -61,6 +101,8 @@ class LevelZero extends Phaser.Scene {
 
     create() {
         console.log("create Level0");
+
+        this.spawner.create();
 
         //#region << ENEMY SNAKESHIPS >>
         this.anims.create({
@@ -99,20 +141,18 @@ class LevelZero extends Phaser.Scene {
         //#endregion
         
         //#region << SPACE BACKGROUNDS >>
-        this.takeoff = this.add.tileSprite(0,-1900,0,0, 'takeoff').setOrigin(0,0); // haha sorry it's a lil hard coded
+        this.takeoffBackground = this.add.tileSprite(0,-1900,0,0, 'takeoff').setOrigin(0,0); // haha sorry it's a lil hard coded
 
-        this.bunker = this.add.sprite(game.config.width/2, game.config.height - borderUISize - borderPadding, 'bunker');
+        this.bunker = this.add.sprite(game.config.width/2, screen.botMid.y - format.margin - 20, 'bunker');
 
         //#endregion
         
         //#region << ROCKET AND SPACESHIPS >>
         // add Rocket (p1)
+        this.startRocket = new TutorialRocket(this, game.config.width/2, game.config.height  - 200, 'rocket_fire');
 
-        this.p1Rocket = new Rocket(this, this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket_fire').setOrigin(0.5).setVisible(false);
-        this.tutorialRocket = new TutorialRocket(this, game.config.width/2, game.config.height -100, 'rocket_fire').setOrigin(0.5);
-        this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
-        this.hamsterShip.rocket.setVisible(false);  // make rocket attached to ship invisibile
-
+        //this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
+        //this.hamsterShip.rocket.setVisible(false);
         //#endregion
 
         //#region << DEFINE KEYS >>
@@ -279,23 +319,13 @@ class LevelZero extends Phaser.Scene {
             //#endregion
         //#endregion
 
-        //#region  << GAME UI >>
-        // initialize score
-        this.p1Score = 0;
-
-        // score value
-        this.scoreValueText = this.add.text(screen.topLeft.x + (format.margin * 3), screen.topLeft.y + format.margin, 'Score', headerConfig).setOrigin(0.5,0.5);
-        
+        //#region  << GAME UI >>        
         // time passed --> unsure if we want this shown
         this.timePassedText = this.add.text(screen.topRight.x - (format.margin * 3), screen.topRight.y + format.margin, 'Time', headerConfig).setOrigin(0.5,0.5);
 
         // title
         headerConfig.fixedWidth = 0;
         this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + format.margin, "Rocket Patrol", headerConfig).setOrigin(0.5,0.5);
-        
-        // fps / delta text
-        this.fpsText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin, "FPS: ");
-        this.deltaText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin * 1.5, "Delta: ");
 
         // level text
         this.levelText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin * 1.6, "LVL: 0");
@@ -345,7 +375,9 @@ class LevelZero extends Phaser.Scene {
         // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
         this.gizmos.graphics.clear();
 
-        this.initKeys(); //STUPID KEY RE ASSIGNING
+        //this.initKeys(); //STUPID KEY RE ASSIGNING
+
+        this.startRocket.update();
 
         if (Phaser.Input.Keyboard.JustDown(keyESC)) {
             this.scene.launch("pauseScene", { prevScene: "levelZeroScene", gameScene: this });
@@ -356,33 +388,25 @@ class LevelZero extends Phaser.Scene {
             // Disable input listeners in the game scene
             this.input.keyboard.enabled = false;
         }
-          
-          
 
         // update time
         this.timePassedText.setText(`${this.curTime}`);
-        this.levelText.setText(`LVL: ${this.level}`);
-
-        // Update profiler
-        this.gizmos.updateText(this.fpsText, screen.topRight.x - format.margin, screen.topMid.y + format.margin, "FPS: " + Math.round(this.game.loop.actualFps));
-        this.gizmos.updateText(this.deltaText, screen.topRight.x - format.margin, screen.topMid.y + format.margin * 1.5, "Delta: " + Math.round(this.game.loop.delta));
+        //this.levelText.setText(`LVL: ${this.level}`);
 
         //#endregion
 
-        //this.starfield.tilePositionX;  // update tile sprite
-
         // [[ UPDATE GAME OBJECTS]]
         if(this.hitcount < 3){
-            this.tutorialRocket.update();             // update tutorial rocket 
+            this.startRocket.update();             // update tutorial rocket 
         }
 
         this.bunker.update();
         
 
         // << CHECK PLAYER OUT OF BOUNDS >>
-        if (this.checkWorldBounds(this.p1Rocket)) {
-            this.tutorialRocket.reset();
-            this.tutorialRocket.setPosition(20,20);
+        if (this.checkWorldBounds(this.startRocket)) {
+            this.startRocket.reset();
+            this.startRocket.setPosition(20,20);
         }
 
 
@@ -393,11 +417,11 @@ class LevelZero extends Phaser.Scene {
 
             // update controls so the player can freely move
             // delete tutorial rocket bring out rocket attached to hamster
-            //this.p1Rocket.update();
+            this.startRocket.update();
             //this.hamsterShip.update();
             //this.hamsterShip.visible = true;
-            this.takeoff.tilePositionY --;
-            this.tutorialRocket.setVisible(false);
+            this.takeoffBackground.tilePositionY --;
+            this.startRocket.setVisible(false);
             /*
             this.scene.launch("loadingScene", {
                 prevScene: "levelZeroScene",

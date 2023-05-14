@@ -94,49 +94,15 @@ class Play extends Phaser.Scene {
                 }
             };
 
-
-            //#endregion
-        
-            //#region << SPAWNER >>
             this.spawner = new Spawner(this);
             this.skychart = this.spawner.skychart;
 
             // set the world bounds
             this.physics.world.setBounds(this.world.x, this.world.y, this.world.width, this.world.height);
-
             //#endregion
+
         //#endregion
 
-        // #region [[ GUI ]] ==============================================================
-        const cam = this.mainCamera;
-        this.gui = new dat.GUI();
-
-        const mouseGUI = this.gui.addFolder('Pointer');
-        mouseGUI.add(this.input, 'x').listen();
-        mouseGUI.add(this.input, 'y').listen();
-        mouseGUI.open();
-
-        const help = {
-            line1: 'Arrow Keys to move',
-            line2: 'Z & X to zoom in/out',
-        }
-
-        const cameraGUI = this.gui.addFolder('Camera Stats');
-        //cameraGUI.add(cam, 'x').listen();
-        //cameraGUI.add(cam, 'y').listen();
-        cameraGUI.add(cam, 'scrollX').listen();
-        cameraGUI.add(cam, 'scrollY').listen();
-        cameraGUI.add(cam, 'zoom', 0.1, 2).step(0.1).listen();
-        cameraGUI.open();
-        
-        const cameraMove = this.gui.addFolder('Camera Movement');
-        cameraMove.add(help, 'line1');
-        cameraMove.add(help, 'line2');
-        cameraMove.open();
-
-        this.gui.domElement.style.display = "none";
-        //#endregion
-        
         // #region [[ LEVEL STATES ]] ===============================
         this.levelState = {
             START: {

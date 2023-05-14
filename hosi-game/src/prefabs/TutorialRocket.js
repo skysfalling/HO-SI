@@ -1,65 +1,152 @@
-// Simple Rocket prefab
-class TutorialRocket extends Phaser.GameObjects.Sprite{
-    constructor(scene, x,y, texture, frame){
-        super(scene, x,y,texture,frame);
+// Rocket prefab
+class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, texture) {
+        super(scene, x, y, texture);
         this.soundManager = SoundManager.getInstance(this);
-        // add object to exisiting scene
+        this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
-        this.isFiring = false;      // track rockets firing status
-        this.moveSpeed = 2;         // pixels per frame
-        //this.sfxRocket = scene.sound.add('sfx_rocket');
+        this.scene.physics.add.existing(this) // add to physics
+        this.body.setCollideWorldBounds(false);
+        this.gizmos = new Gizmos(scene);
 
-        scene.physics.add.existing(this);  // add to physics scene
+        this.startPos = {x: x, y: y};
+
+        this.aimMoveSpeed = 2;         // pixels per frame
+        this.rocketForce = 400;         // pixels per frame
         this.rocketRotationForce = 20;
-    }
+        this.explode_delay = 2000;
+        this.reset_delay = 1000;
 
-    update(){
-         // left/right movement
-         if(!this.isFiring) {
-            if(keyLEFT.isDown) {
-                //this.rotation--;    // i def need to do a physics thing there ugh
-            } else if (keyRIGHT.isDown) {
-                //this.rotation++;
-            }
-        }
-        // fire button
-        if(Phaser.Input.Keyboard.JustDown(keyF) && !this.isFiring) {
-            this.isFiring = true;
-            this.soundManager.play('sfx_rocket');
-        }
-        // if fired, move up
-        if(this.isFiring && this.y >= borderUISize * 3 + borderPadding) {
-            if(keyLEFT.isDown && this.x >= borderUISize + this.width) {
-                this.x -= this.moveSpeed;
-            } else if (keyRIGHT.isDown && this.x <= game.config.width - borderUISize - this.width) {
-                this.x += this.moveSpeed;
-            }
-            this.y -= this.moveSpeed;
+        this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
+        
+        // rocket fly animation config
+        this.anims.create({
+            key: 'fire',
+            frames: this.anims.generateFrameNumbers('rocket_fire', { 
+                start: 0, 
+                end: 1, 
+                first: 0
+            }),
+            frameRate: 8,
+            repeat: -1
+        });
+        
+        // explode animation
+        this.anims.create({
+            key: 'explode',
+            frames: this.anims.generateFrameNumbers('explosion', { 
+                start: 0, 
+                end: 9, 
+                first: 0
+            }),
+            frameRate: 8,
+            repeat: -1
+        });
 
-            if (this.body && this.body.velocity) {
-                this.scene.physics.velocityFromAngle(this.angle - 90, this.rocketForce, this.body.velocity); 
-    
-                // Aim the rocket based on user input
-                if (keyLEFT.isDown) {
-                    this.body.setAngularVelocity(this.body.angularVelocity - this.rocketRotationForce);
-                } else if (keyRIGHT.isDown) {
-                    this.body.setAngularVelocity(this.body.angularVelocity + this.rocketRotationForce);
-                } else {
-                    this.body.setAngularVelocity(Phaser.Math.Linear(this.body.angularVelocity, 0, 0.1));
+        // Initialize state machine
+        this.states = {
+            FIRE: {
+                name: "fire",
+                enter: () => {
+                    this.body.setVelocityY(-100);
+                    this.soundManager.play('sfx_rocket',{volume: 0.1});
+                    this.currentState = this.states.FIRE;
+                    this.anims.play('fire');
+
+                    this.timed_explosion();
+                },
+                update: () => {
+                    // Move the rocket
+                    if (this.body && this.body.velocity) {
+                        this.scene.physics.velocityFromAngle(this.angle - 90, this.rocketForce, this.body.velocity); 
+
+                        // Aim the rocket based on user input
+                        if (keyLEFT.isDown) {
+                            this.body.setAngularVelocity(this.body.angularVelocity - this.rocketRotationForce);
+                        } else if (keyRIGHT.isDown) {
+                            this.body.setAngularVelocity(this.body.angularVelocity + this.rocketRotationForce);
+                        } else {
+                            this.body.setAngularVelocity(Phaser.Math.Linear(this.body.angularVelocity, 0, 0.1));
+                        }
+                      }
                 }
-              }
-        }
+            },
+            IDLE: {
+                name: "idle",
+                enter: () => {
+                    this.currentState = this.states.IDLE;
+                    this.anims.play('fire');
+                    this.setPosition(this.startPos.x , this.startPos.y);
+                },
+                update: () => {
+                    if(keyF.isDown) {
+                        this.states.FIRE.enter();
+                    }
+                }
+            },
+            EXPLODE: {
+                name: "explode",
+                enter: () => {
+                    this.currentState = this.states.EXPLODE;
+                    this.anims.play('explode');
+                    this.body.stop();
+                    this.setRotation(0);
+                    this.scene.time.addEvent({
+                        delay: this.reset_delay,
+                        callback: () => {
+                            this.reset();
+                        },
+                        loop: false
+                    });
 
-       
-        // reset on miss
-        if(this.y <= borderUISize * 3 + borderPadding) {
-            this.reset();
-        }
+                    console.log('rocket-explode');
+                },
+                update: () =>{}
+            }
+        };
+        this.states.IDLE.enter();
+        
+        this.stateText = this.gizmos.createText(this.x, this.y, this.currentState.name, color_pal.white);
+
     }
 
-    reset(){
-        this.isFiring = false;
-        this.y = game.config.height - 100;
-        this.x = game.config.width/2;
+    update() {
+        // avoid 'half' pixels
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+
+        if (this.currentState)
+        {
+            this.currentState.update();
+        }
+
+        this.gizmos.updateText(this.stateText, this.x, this.y + this.height, this.currentState.name, color_pal.white);
+    }
+
+    timed_explosion(){
+        this.scene.time.addEvent({
+            delay: this.explode_delay,
+            callback: () => {
+                this.states.EXPLODE.enter();
+            },
+            loop: false
+        });
+    }
+
+    reset() {
+        this.setActive(false);
+        this.setVisible(false);
+        this.scene.time.addEvent({
+            delay: this.reset_delay,
+            callback: () => {
+                this.scene.children.add(this);
+                this.setActive(true);
+                this.setVisible(true);
+                this.x = this.startPos.x;
+                this.y = this.startPos.y;
+                this.states.IDLE.enter();
+            },
+            loop: false
+        });
     }
 }
