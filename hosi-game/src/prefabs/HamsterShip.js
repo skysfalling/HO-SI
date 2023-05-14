@@ -29,7 +29,7 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
 
     // Create the camera target variable
     this.mainCamera = scene.cameras.main;
-    this.cameraTarget = new Phaser.Math.Vector2(this.x, this.y);
+    this.cameraTarget = new Phaser.Math.Vector2(this.x - this.width, this.y);
 
     //#region [[ INPUTS ]] ====================================================================
     // Define the arrow key movement controls
@@ -81,149 +81,150 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
 
     //#endregion
 
-  //#region [[ ANIMATIONS ]] ===================================================================
-    // spaceship fly animation config
-    this.anims.create({
-        key: 'fly',
-        frames: this.anims.generateFrameNumbers(ss_fly, { 
-            start: 0, 
-            end: 2, 
-            first: 0
-        }),
-        frameRate: 8,
-        repeat: -1
-    });
-
-    // spaceship dodge animation config
-    this.anims.create({
-          key: 'dodge',
-          frames: this.anims.generateFrameNumbers(ss_dodge, { 
+    //#region [[ ANIMATIONS ]] ===================================================================
+      // spaceship fly animation config
+      this.anims.create({
+          key: 'fly',
+          frames: this.anims.generateFrameNumbers(ss_fly, { 
               start: 0, 
-              end: 5, 
+              end: 2, 
               first: 0
           }),
-          frameRate: 16,
-          repeat: 0
+          frameRate: 8,
+          repeat: -1
       });
 
-    this.anims.play('fly');   
-  //#endregion
+      // spaceship dodge animation config
+      this.anims.create({
+            key: 'dodge',
+            frames: this.anims.generateFrameNumbers(ss_dodge, { 
+                start: 0, 
+                end: 5, 
+                first: 0
+            }),
+            frameRate: 16,
+            repeat: 0
+        });
 
-  //#region [[ STATES ]] ===================================================================
+      this.anims.play('fly');   
+    //#endregion
 
-    this.states = {
-      MOVE: {
-        name: "move",
-        enter: ()=> {
-          this.currentState = this.states.MOVE;
-          this.anims.play('fly');
-          this.setAlpha(1);
+    //#region [[ STATES ]] ===================================================================
+
+      this.states = {
+        MOVE: {
+          name: "move",
+          enter: ()=> {
+            this.currentState = this.states.MOVE;
+            this.anims.play('fly');
+            this.setAlpha(1);
+          },
+          update: () => {
+
+            // horizontal movement
+            if (this.moveLeft.isDown) {
+              this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, -this.moveSpeed, 0.1));
+            } else if (this.moveRight.isDown) {
+              this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.1));
+            } else {
+              this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 0.1));
+            }
+
+            // vertical movement
+            if (this.moveUp.isDown) {
+              this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, -this.moveSpeed, 0.1));
+            } else if (this.moveDown.isDown) {
+              this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, this.moveSpeed, 0.1));
+            } else {
+              this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 0.1));
+            }
+
+            // dodge
+            if (this.dodgeKey.isDown && this.currentState == this.states.MOVE && !this.dodgeUsed) {
+              this.states.DODGE.enter();
+              this.dodgeUsed = true;
+            }
+
+            // fire rocket
+            if (this.rocketKey.isDown && this.currentState === this.states.MOVE && this.rocket.currentState.name === "idle") {
+              this.states.ROCKET_FIRE.enter();
+            }
+
+          },
         },
-        update: () => {
+        DODGE: {
+          name: "dodge",
+          enter: ()=> {
+            this.currentState = this.states.DODGE;
+            this.setAlpha(1);
 
-          // horizontal movement
-          if (this.moveLeft.isDown) {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, -this.moveSpeed, 0.1));
-          } else if (this.moveRight.isDown) {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, this.moveSpeed, 0.1));
-          } else {
-            this.body.setVelocityX(Phaser.Math.Linear(this.body.velocity.x, 0, 0.1));
-          }
+            this.dodgeDirection = new Phaser.Math.Vector2(0, 0);
+            if (this.moveLeft.isDown) {
+              this.dodgeDirection = new Phaser.Math.Vector2(-1, 0);
+            } else if (this.moveRight.isDown) {
+              this.dodgeDirection = new Phaser.Math.Vector2(1, 0);
+            } else if (this.moveUp.isDown) {
+              this.dodgeDirection = new Phaser.Math.Vector2(0, -1);
+            } else if (this.moveDown.isDown) {
+              this.dodgeDirection = new Phaser.Math.Vector2(0, 1);
+            }
+            
+            this.dodgeDirection.normalize();
+            this.body.setVelocity(this.dodgeDirection.x * this.dodgeForce, this.dodgeDirection.y * this.dodgeForce);
 
-          // vertical movement
-          if (this.moveUp.isDown) {
-            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, -this.moveSpeed, 0.1));
-          } else if (this.moveDown.isDown) {
-            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, this.moveSpeed, 0.1));
-          } else {
-            this.body.setVelocityY(Phaser.Math.Linear(this.body.velocity.y, 0, 0.1));
-          }
+            this.anims.play('dodge');
 
-          // dodge
-          if (this.dodgeKey.isDown && this.currentState == this.states.MOVE && !this.dodgeUsed) {
-            this.states.DODGE.enter();
-            this.dodgeUsed = true;
-          }
-
-          // fire rocket
-          if (this.rocketKey.isDown && this.currentState === this.states.MOVE && this.rocket.currentState.name === "idle") {
-            this.states.ROCKET_FIRE.enter();
-          }
-
+            // dodge duration
+            scene.time.addEvent({
+              delay: this.dodgeDuration,
+              callback: () => {
+                this.states.MOVE.enter();
+              },
+              loop: false
+            });          
+          },
+          update: () => {}
         },
-      },
-      DODGE: {
-        name: "dodge",
-        enter: ()=> {
-          this.currentState = this.states.DODGE;
-          this.setAlpha(1);
-
-          this.dodgeDirection = new Phaser.Math.Vector2(0, 0);
-          if (this.moveLeft.isDown) {
-            this.dodgeDirection = new Phaser.Math.Vector2(-1, 0);
-          } else if (this.moveRight.isDown) {
-            this.dodgeDirection = new Phaser.Math.Vector2(1, 0);
-          } else if (this.moveUp.isDown) {
-            this.dodgeDirection = new Phaser.Math.Vector2(0, -1);
-          } else if (this.moveDown.isDown) {
-            this.dodgeDirection = new Phaser.Math.Vector2(0, 1);
+        ROCKET_FIRE: {
+          name: "rocket_fire",
+          enter: ()=> {
+            this.currentState = this.states.ROCKET_FIRE;
+            this.body.setVelocity(0, 0);
+            this.rocket.states.FIRE.enter();
+            this.setAlpha(0.5);
+          },
+          update: () => {
           }
-          
-          this.dodgeDirection.normalize();
-          this.body.setVelocity(this.dodgeDirection.x * this.dodgeForce, this.dodgeDirection.y * this.dodgeForce);
-
-          this.anims.play('dodge');
-
-          // dodge duration
-          scene.time.addEvent({
-            delay: this.dodgeDuration,
-            callback: () => {
-              this.states.MOVE.enter();
-            },
-            loop: false
-          });          
         },
-        update: () => {}
-      },
-      ROCKET_FIRE: {
-        name: "rocket_fire",
-        enter: ()=> {
-          this.currentState = this.states.ROCKET_FIRE;
-          this.body.setVelocity(0, 0);
-          this.rocket.states.FIRE.enter();
-          this.setAlpha(0.5);
-        },
-        update: () => {
+        DISABLE: {
+          name: "disable",
+          enter: () => {
+            this.currentState = this.states.DISABLE;
+          },
+          update: () => {}
         }
-      },
-      DISABLE: {
-        name: "disable",
-        enter: () => {
-          this.currentState = this.states.DISABLE;
-        },
-        update: () => {}
       }
-    }
 
-    // set initial state
-    this.currentState = this.states.MOVE;
+      // set initial state
+      this.currentState = this.states.MOVE;
 
-  //#endregion
+    //#endregion
 
-  //#region [[ FIRE MODES ]] ===============================================================
+    //#region [[ FIRE MODES ]] ===============================================================
 
-    // << PRIMARY FIRE TRIGGER >>
-    this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.primaryFireCheckWidth, this.primaryFireCheckLength).setOrigin(0.5,1);
-    this.physics.add.existing(this.primaryFireTrigger);
-    this.primaryFireTrigger.body.setCollideWorldBounds(false); // Disable world bounds collision if needed
-    this.primaryFireTrigger.body.setImmovable(true); // Set the body to be immovable
+      // << PRIMARY FIRE TRIGGER >>
+      this.primaryFireTrigger = scene.add.rectangle(this.x, this.y, this.primaryFireCheckWidth, this.primaryFireCheckLength).setOrigin(0.5,1);
+      this.physics.add.existing(this.primaryFireTrigger);
+      this.primaryFireTrigger.body.setCollideWorldBounds(false); // Disable world bounds collision if needed
+      this.primaryFireTrigger.body.setImmovable(true); // Set the body to be immovable
+      
+      // << ROCKET FIRE >>
+      this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
+      this.physics.add.existing(this.rocket);
+
+    //#endregion
     
-    // << ROCKET FIRE >>
-    this.rocket = new Rocket(scene, this, this.x, this.y, 'rocket_fire').setOrigin(0.5);
-    this.physics.add.existing(this.rocket);
-
-  //#endregion
-  }
+}
   
   /* ========================================================================================
                       UPDATE
@@ -234,13 +235,12 @@ class HamsterShip extends Phaser.Physics.Arcade.Sprite {
     //#region << UPDATE CAMERA >>
     if (this.scene.currLevelState.name == "play")
     {
-
       // avoid 'half' pixels
       this.x = Math.floor(this.x);
       this.y = Math.floor(this.y);
 
       // Update the camera target position based on the player's position
-      this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x, this.y), 0.1);
+      this.cameraTarget.lerp(new Phaser.Math.Vector2(this.x - this.width, this.y), 0.5);
 
       // follow the midpoint between the rocket and ship with the main camera
       if (this.currentState.name == "rocket_fire") {

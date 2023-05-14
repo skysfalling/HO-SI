@@ -17,6 +17,8 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
         this.explode_delay = 3000;
         this.reset_delay = 500;
 
+        this.tutorialOver = false;
+
         this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
         
         // rocket fly animation config
@@ -40,7 +42,6 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
                 first: 0
             }),
             frameRate: 8,
-            repeat: -1
         });
 
         // Initialize state machine
@@ -138,6 +139,16 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
         this.scene.time.addEvent({
             delay: this.reset_delay,
             callback: () => {
+
+                if (this.tutorialOver == true) {
+                    this.destroy; 
+                    this.anims.stop('explode'); // Stop the explode animation
+                    this.setActive(false);
+                    this.setVisible(false);
+                    this.setPosition(this.startPos.x, this.startPos.y);
+                    return;
+                }
+
                 this.setActive(true);
                 this.setVisible(true);
                 this.states.IDLE.enter();

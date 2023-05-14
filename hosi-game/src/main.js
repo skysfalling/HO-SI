@@ -36,7 +36,7 @@ let game_config = {
 const game = new Phaser.Game(game_config);
 
 // debugging
-let gizmosActive = true;
+let gizmosActive = false;
 let editorActive = false;
 
 // reserve keyboard variables

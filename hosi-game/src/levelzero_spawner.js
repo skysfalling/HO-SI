@@ -8,7 +8,7 @@ class LevelZeroSpawner {
         this.spawnArea = {
             center: {
                 x: this.world.center.x,
-                y: this.world.center.y * 1.5
+                y: this.world.center.y
             },
             width: this.world.width * 1.2,
             height: this.world.height 
@@ -86,10 +86,10 @@ class LevelZeroSpawner {
     }
 
     // << STATIC PATH GROUP >> ==============================================
-    createStaticPathGroup(spawnpoints, endpoints, velocity_duration, maxDelay = 100, texture = 'greenSnake'){
+    createPlaneGroup(spawnpoints, endpoints, velocity_duration, maxDelay = 100, texture = 'greenSnake'){
 
-        const staticPathGroup = new AsteroidGroup(this.scene, this, spawnpoints, endpoints, velocity_duration, maxDelay, texture);
-        return staticPathGroup;
+        const planeGroup = new PlaneGroup(this.scene, this, spawnpoints, endpoints, velocity_duration, maxDelay, texture);
+        return planeGroup;
     }
 
     // ==============================

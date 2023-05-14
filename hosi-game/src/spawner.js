@@ -76,7 +76,6 @@ class Spawner {
             1
         );
         
-
         // << ALL SPAWN OBJECTS >>
         this.vertResetAsteroids;
         this.left_ResetAsteroids;

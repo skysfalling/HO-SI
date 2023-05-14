@@ -1,18 +1,18 @@
 class LevelZero extends Phaser.Scene {
     constructor() {
         super("levelZeroScene");
-        this.loading=false;
     }
+
     init(data){
         this.soundManager = data.soundManager;
     }
 
     preload() {
         this.gizmos = new Gizmos(this);
-        this.showGizmos = true;
         this.loading=false;
         this.level = 1;
         this.defaultShipSpeed = 100;
+
         
         //#region << SPRITES >>
         // load backgrounds/tile sprites
@@ -26,8 +26,7 @@ class LevelZero extends Phaser.Scene {
         this.load.spritesheet('spaceship_fly', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 2});
         this.load.spritesheet('spaceship_roll', './assets/hamster_ship/spaceship_fly_roll.png', {frameWidth: 32, frameHeight: 32, startFrame: 3, endFrame: 8});
     
-        // << ENEMY SPACESHIPS >>
-        this.load.image('greenSnakeShip', './assets/greenSnakeShip0.png');
+
         // << BULLETS >>
         this.load.spritesheet('primary_fire', './assets/bullets/bullet_fire.png', {frameWidth: 16, frameHeight: 16, startFrame: 0, endFrame: 3});
 
@@ -39,6 +38,7 @@ class LevelZero extends Phaser.Scene {
         this.load.image('bunker', './assets/bunker.png');
 
         // << SNAKESHIPS >>
+        
         this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
         //#endregion 
@@ -55,7 +55,7 @@ class LevelZero extends Phaser.Scene {
 
         //#region << WORLD BOUNDS >>
             const worldSize = 9 * this.grid.cellSize;
-            const offset = {x: 0 * this.grid.cellSize, y: 0 * this.grid.cellSize};
+            const offset = {x: 0 * this.grid.cellSize, y: 4 * this.grid.cellSize};
             const camMargin = this.uiFormat.camMargin;
             
             this.world = {
@@ -93,28 +93,90 @@ class LevelZero extends Phaser.Scene {
         // set the world bounds
         this.physics.world.setBounds(this.world.x, this.world.y, this.world.width, this.world.height);
 
+        this.worldRect = this.gizmos.createRect(this.world.x, this.world.y, this.world.width, this.world.height, color_pal.toInt("white"), 5, 1, {x: 0, y: 0});
+
+        this.tutorialRocketStartPos = {x: this.world.center.x, y: screen.height * 0.8};
+        this.hamsterShipStartPos = {x: this.world.center.x, y: this.world.center.y + 200};
+
+
         // #region [[ LEVEL STATES ]] ===============================
         this.levelState = {
-            START: {
-                name: 'start',
+            TUTORIAL_START: {
+                name: 'tutorial start',
                 enter: () => {
-                    this.currLevelState = this.levelState.START;
+                    this.currLevelState = this.levelState.TUTORIAL_START;
                 },
                 update: () => {
 
-                },
-            },
-            PLAY: {
-                name: 'play',
-                enter: () => {
-                    this.currLevelState = this.levelState.PLAY;
-                },
-                update: () => {
+                    this.tutorialRocket.update();
 
                     // [[ UPDATE GAME OBJECTS]]
-                    if(this.hitcount < 3){
-                        this.tutorialRocket.update();             // update tutorial rocket 
+                    if(this.hitcount >= 3){
+                        this.levelState.TUTORIAL_CONTINUE.enter();
+                        this.tutorialRocket.tutorialOver = true;
+
                     }
+                }
+            },
+            TUTORIAL_CONTINUE: {
+                name: 'tutorial continue',
+                enter: () => {
+                    this.currLevelState = this.levelState.TUTORIAL_CONTINUE;
+                    console.log("START LEVEL ZERO / 2 ::  " + this.currLevelState.name);
+
+                    this.hamsterShip.setPosition(this.tutorialRocketStartPos.x, this.tutorialRocketStartPos.y);
+                    this.hamsterShip.setActive(true);
+                    this.hamsterShip.setVisible(true);
+                    this.hamsterShip.rocket.setActive(true);
+                    this.hamsterShip.rocket.setVisible(true);
+
+                    this.time.addEvent({
+                        delay: 5000,
+                        callback: () => {
+                            this.levelState.LEVEL_EXIT.enter();
+                        },
+                        loop: false
+                    });
+                },
+                update: () => {
+                    this.hamsterShip.update();
+                    this.takeoffBackground.tilePositionY -= 2;
+                }
+            },
+            LEVEL_EXIT: {
+                name: 'level exit',
+                enter: () => {
+                    this.currLevelState = this.levelState.LEVEL_EXIT;
+
+                    this.hamsterShip.setActive(false);
+                    this.hamsterShip.rocket.setActive(false);
+                    this.hamsterShip.setVelocity(0);
+
+                    // Move the player to the start position
+                    this.tweens.add({
+                        targets: [this.hamsterShip, this.hamsterShip.rocket],
+                        x: this.hamsterShipStartPos.x,
+                        y: this.hamsterShipStartPos.y,
+                        duration: 1000,
+                        ease: 'Linear',
+                    });
+
+                    this.time.delayedCall(1000, () => {
+                        this.mainCamera.fadeOut(1000, 0, 0, 0);
+                    }, null, this);
+
+                    this.time.delayedCall(1200, () => {
+                        this.scene.launch("loadingScene", {
+                            prevScene: "levelZeroScene",
+                            nextScene: 'playScene',
+                            hamsterShipX: this.hamsterShipStartPos.x,
+                            hamsterShipY: this.hamsterShipStartPos.y                
+                        });
+                    }, null, this);
+
+                },
+                update: (time, delta) => {
+                    //this.editorUpdate(delta);
                 }
             },
             EDITOR: {
@@ -131,9 +193,9 @@ class LevelZero extends Phaser.Scene {
         if (editorActive) { 
             this.levelState.EDITOR.enter(); 
         }
-        else { this.levelState.PLAY.enter();}
+        else { this.levelState.TUTORIAL_START.enter();}
 
-        console.log("LEVEL ZERO ::  " + this.currLevelState.name);
+        console.log("START LEVEL ZERO ::  " + this.currLevelState.name);
 
         //#endregion
 
@@ -159,7 +221,7 @@ class LevelZero extends Phaser.Scene {
         //#endregion
 
         //#region << BACKGROUNDS >>
-        this.takeoffBackground = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width, 0, 'takeoff').setOrigin(0.5, 0.73).setDepth(depthLayers.skybox); 
+        this.takeoffBackground = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width, 0, 'takeoff').setOrigin(0.5, 0.8).setDepth(depthLayers.skybox); 
         this.bunker = this.add.sprite(game.config.width/2, screen.botMid.y - format.margin - 20, 'bunker');
         //#endregion
         
@@ -351,24 +413,33 @@ class LevelZero extends Phaser.Scene {
         //#endregion
 
         //#region << CREATE PLAYER ROCKET AND SPACESHIP >>
-        this.tutorialRocket = new TutorialRocket(this, this.world.center.x, screen.height - 200);
+        this.tutorialRocket = new TutorialRocket(this, this.tutorialRocketStartPos.x, this.tutorialRocketStartPos.y);
         this.tutorialRocket.setDepth(depthLayers.playArea);
         this.tutorialRocket.setScale(1.5);
-        //this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
-        //this.hamsterShip.rocket.setVisible(false);
+        
+        // Level 0.5 ship
+        this.hamsterShip = new HamsterShip(this, this.world.center.x, screen.height - 200, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
+        this.hamsterShip.setActive(false);
+        this.hamsterShip.rocket.setVisible(false);
+        this.hamsterShip.rocket.setActive(false);
         //#endregion
 
-        //#region << CREATE ENEMY GROUP >>
-        this.spawner.tutorialEnemyGroup = this.spawner.createStaticPathGroup(this.spawner.right_spawnpoints, this.spawner.left_spawnpoints, 4);
+        //#region << CREATE ENEMY GROUP && OVERLAP >>
+        this.spawner.tutorialEnemyGroup = this.spawner.createPlaneGroup(this.spawner.right_spawnpoints, this.spawner.left_spawnpoints, 4);
         this.spawner.tutorialEnemyGroup.spawnNew(1, 1);
         this.spawner.tutorialEnemyGroup.spawnNew(3, 3);
         this.spawner.tutorialEnemyGroup.spawnNew(5, 5);
 
         // rocket vs. enemies
         this.physics.add.overlap(this.tutorialRocket, this.spawner.tutorialEnemyGroup, (rocket, enemy) => {
-            console.log("rocket hit asteroid");
-            this.tutorialRocket.states.EXPLODE.enter();
+            this.hitcount++;
+            console.log(">> hitcount : " + this.hitcount);
 
+            if (this.hitcount >= 3) {
+                this.tutorialRocket.tutorialOver = true;
+            }
+
+            this.tutorialRocket.states.EXPLODE.enter();
             this.spawner.resetSpawnObject(enemy);
         });
         //#endregion
@@ -412,31 +483,8 @@ class LevelZero extends Phaser.Scene {
         // initalize total hit count
         this.hitcount = 0;
     }
-    
-    initKeys(){
-        console.log('running init')
-        //#region << DEFINE KEYS >>
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        //#endregion
-    }
 
-    resumeGameScene() {
-        // Enable keyboard input in the game scene
-        this.input.keyboard.enabled = true;
-      
-        // Resume the game scene
-        this.scene.resume(this.pauseScene);
-        this.scene.stop();
-    }
-    
     update(time, delta) {
-
-        // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
-        this.gizmos.graphics.clear();
 
         this.currLevelState.update(time, delta);
 
@@ -456,8 +504,6 @@ class LevelZero extends Phaser.Scene {
         //this.levelText.setText(`LVL: ${this.level}`);
 
         //#endregion
-
-        this.bunker.update();
         
         if(this.hitcount >= 3 && !this.loading){
             // change scenes / move onto level 0.5
@@ -467,18 +513,10 @@ class LevelZero extends Phaser.Scene {
             // update controls so the player can freely move
             // delete tutorial rocket bring out rocket attached to hamster
             //this.tutorialRocket.update();
-            //this.hamsterShip.update();
-            //this.hamsterShip.visible = true;
-            //this.takeoffBackground.tilePositionY --;
+
             //this.tutorialRocket.setVisible(false);
             /*
-            this.scene.launch("loadingScene", {
-                prevScene: "levelZeroScene",
-                nextScene: 'playScene',
-                hamsterShipX: this.hamsterShip.x,
-                hamsterShipY: this.hamsterShip.y                
-            });
-            this.scene.pause();
+
             */
 
         }
@@ -523,6 +561,26 @@ class LevelZero extends Phaser.Scene {
         // Keep camera within the bounds of the game world
         this.mainCamera.scrollX = Phaser.Math.Clamp(this.mainCamera.scrollX, 0, this.world.width);
         this.mainCamera.scrollY = Phaser.Math.Clamp(this.mainCamera.scrollY, 0, this.world.height);
+    }
+
+    initKeys(){
+        console.log('running init')
+        //#region << DEFINE KEYS >>
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        //#endregion
+    }
+
+    resumeGameScene() {
+        // Enable keyboard input in the game scene
+        this.input.keyboard.enabled = true;
+      
+        // Resume the game scene
+        this.scene.resume(this.pauseScene);
+        this.scene.stop();
     }
 
     checkWorldBounds(sprite) {

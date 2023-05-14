@@ -17,6 +17,7 @@ class Play extends Phaser.Scene {
         //this.level = 1;
 
         this.hamsterShip;
+        this.startPosition;
 
         //this.waves=Waves.getInstance(this, level, score);
         //#region [[ SPRITES ]]
@@ -62,11 +63,10 @@ class Play extends Phaser.Scene {
 
             // << CAMERA >>
             this.mainCamera = this.cameras.main;
-            this.mainCamera.setBackgroundColor('#0000ff');
 
             //#region << WORLD BOUNDS >>
             const worldSize = 9 * this.grid.cellSize;
-            const offset = {x: 4 * this.grid.cellSize, y: 4 * this.grid.cellSize};
+            const offset = {x: 0 * this.grid.cellSize, y: 4 * this.grid.cellSize};
             const camMargin = this.uiFormat.camMargin;
             
             this.world = {
@@ -178,8 +178,8 @@ class Play extends Phaser.Scene {
         //#endregion
 
         // set the mainCamera to world center
-        this.mainCamera.scrollX = this.world.center.x;
-        this.mainCamera.scrollY = this.world.center.y;
+        this.mainCamera.scrollX = this.world.x;
+        this.mainCamera.scrollY = this.world.y;
 
         //#region << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width*4, this.world.height*4, 'starfield').setOrigin(0.5, 0.5);
@@ -251,10 +251,10 @@ class Play extends Phaser.Scene {
         //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
-        enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
+        enableGizmosButton.innerHTML = "Gizmos: " + this.gizmos.visible;
         enableGizmosButton.addEventListener("click", () => { 
-            gizmosActive = !gizmosActive;
-            enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
+            this.gizmos.visible = !this.gizmos.visible;
+            enableGizmosButton.innerHTML = "Gizmos: " + this.gizmos.visible;
         }); 
 
         // toggle edit mode
@@ -347,7 +347,7 @@ class Play extends Phaser.Scene {
         //this.physics.world.wrap(this.asteroids);
 
         // << UPDATE CAMERA >>
-        this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height*0.25);
+        this.mainCamera.startFollow(this.hamsterShip.cameraTarget, false, 0.1, 0.1, 0, screen.height*0.25);
         // In the update loop, move the camera towards the camera target
         this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.hamsterShip.cameraTarget.x, 0.1);
         this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.hamsterShip.cameraTarget.y, 0.1);
