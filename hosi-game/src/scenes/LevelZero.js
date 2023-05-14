@@ -99,7 +99,7 @@ class LevelZero extends Phaser.Scene {
         //#endregion
         
         //#region << SPACE BACKGROUNDS >>
-        this.takeoff = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'takeoff').setOrigin(1, 1);
+        this.takeoff = this.add.tileSprite(0,-1900,0,0, 'takeoff').setOrigin(0,0); // haha sorry it's a lil hard coded
 
         this.bunker = this.add.sprite(game.config.width/2, game.config.height - borderUISize - borderPadding, 'bunker');
 
@@ -396,7 +396,9 @@ class LevelZero extends Phaser.Scene {
             //this.p1Rocket.update();
             //this.hamsterShip.update();
             //this.hamsterShip.visible = true;
+            this.takeoff.tilePositionY --;
             this.tutorialRocket.setVisible(false);
+            /*
             this.scene.launch("loadingScene", {
                 prevScene: "levelZeroScene",
                 nextScene: 'playScene',
@@ -404,7 +406,7 @@ class LevelZero extends Phaser.Scene {
                 hamsterShipY: this.hamsterShip.y                
             });
             this.scene.pause();
-            
+            */
 
         }
     }
