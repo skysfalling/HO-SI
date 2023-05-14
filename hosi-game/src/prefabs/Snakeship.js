@@ -1,6 +1,6 @@
 class Snakeship extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, group, spawnpoint, posTargetRect, texture = 'greenSnakeShip') {
-        super(scene, spawnpoint.x, spawnpoint.y, texture);
+    constructor(scene, group, spawnpoint, posTargetRect, bulletGroup, texture = 'greenSnakeShip') {
+        super(scene, spawnpoint, texture);
 
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
@@ -37,7 +37,7 @@ class Snakeship extends Phaser.Physics.Arcade.Sprite {
 
         // bullet values
         this.primaryFireDelay = 2000;
-        this.bullets = new BulletGroup(this.scene);
+        this.bullets = bulletGroup;
         this.bulletVelocity = {x: 0, y: 200};
 
         // Create animations
@@ -193,26 +193,22 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         scene.physics.add.existing(this);
 
         this.gizmos = new Gizmos(scene);
+        this.debugColor = color_pal.toInt("green");
 
         this.defaultVelocity = { x: 0, y: 100 };
 
         this.spawnpoints = spawnpoints;
         this.posTargetRect = posTargetRect;
 
-        this.debugColor = color_pal.toInt("green");
+        this.bulletGroup = new BulletGroup(scene); // create bullet group    
+
         if (gizmosActive)
         {
           this.gizmos.graphics.clear();
           this.gizmos.drawExistingRectFill(this.posTargetRect, this.debugColor, 5, 0.5);
         }
 
-        console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.posTargetRect));
-
-        this.scene.events.on('update', this.update, this);
-    }
-
-    update(){
-
+        // console.log("new snakeship group: " + JSON.stringify(this.spawnpoints) + " -> " + JSON.stringify(this.posTargetRect));
     }
 
     spawnNewRandom() {
@@ -220,7 +216,7 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         let spawnpoint = this.spawner.getRandomPoint(this.spawnpoints);
 
         // create new snakeship
-        const snakeship = new Snakeship(this.scene, this, spawnpoint, this.posTargetRect, this.texture);
+        const snakeship = new Snakeship(this.scene, this, spawnpoint, this.posTargetRect, this.bulletGroup, this.texture);
         this.add(snakeship);
         snakeship.spawner = this.spawner;
         snakeship.states.RESET.enter();

@@ -17,6 +17,8 @@ class Spawner {
         // << SKYCHART >>
         this.skychart = new SkyChart(this.scene, this.spawnArea.center.x, this.spawnArea.center.y, this.spawnArea.width, this.spawnArea.height);
 
+
+
         //#region << ENTITY RESET BOUNDS >>
         this.topResetBound = this.skychart.rect.top;
         this.bottomResetBound = this.skychart.rect.bottom;

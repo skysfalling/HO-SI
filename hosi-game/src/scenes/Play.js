@@ -66,43 +66,45 @@ class Play extends Phaser.Scene {
 
             //#region << WORLD BOUNDS >>
             const worldSize = 9 * this.grid.cellSize;
-            const offset = 4 * this.grid.cellSize;
+            const offset = {x: 4 * this.grid.cellSize, y: 4 * this.grid.cellSize};
             const camMargin = this.uiFormat.camMargin;
             
             this.world = {
-                offset,
                 width: worldSize,
-                height: worldSize,
+                height: worldSize * 1.5,
+                x: offset.x,
+                y: offset.y,
                 center: {
-                    x: (worldSize / 2) + offset,
-                    y: (worldSize / 2) + offset
+                    x: (worldSize / 2) + offset.x,
+                    y: (worldSize / 2) + offset.y
                 },
                 bounds: {
-                    left: offset,
-                    right: offset + worldSize,
-                    top: offset,
-                    bottom: offset + worldSize
+                    left: offset.x,
+                    right: offset.x + worldSize,
+                    top: offset.y * 1.5,
+                    bottom: offset.y + worldSize
                 },
                 cam_bounds: {
-                    left: offset + camMargin,
-                    right: offset + worldSize - camMargin,
-                    top: offset + camMargin,
-                    bottom: offset + worldSize - camMargin,
+                    left: offset.x + camMargin,
+                    right: offset.x + worldSize - camMargin,
+                    top: offset.y + camMargin,
+                    bottom: offset.y + worldSize - camMargin,
                     width: worldSize - (2 * camMargin),
                     height: worldSize - (2 * camMargin)
                 }
             };
 
-            // set the world bounds
-            this.physics.world.setBounds(this.world.offset,this.world.offset,this.world.width,this.world.height);
+
             //#endregion
         
             //#region << SPAWNER >>
             this.spawner = new Spawner(this);
             this.skychart = this.spawner.skychart;
 
+            // set the world bounds
+            this.physics.world.setBounds(this.world.x, this.world.y, this.world.width, this.world.height);
+
             //#endregion
-        
         //#endregion
 
         // #region [[ GUI ]] ==============================================================
@@ -263,6 +265,18 @@ class Play extends Phaser.Scene {
                     this.scene.stop();
                 }, null, this);
             });
+
+            this.physics.add.overlap(this.hamsterShip, this.spawner.snakeshipGroup.bulletGroup, () => {
+                this.gameOver = true;
+                this.teeext = this.add.text(this.hamsterShip.cameraTarget.x, this.hamsterShip.cameraTarget.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
+                console.log(this.teeext.text);
+                
+                this.time.delayedCall(1000, () => {
+                    //this.slow = false;
+                    this.scene.start('menuScene');
+                    this.scene.stop();
+                }, null, this);
+            });
         }
         //#endregion
 
@@ -365,7 +379,7 @@ class Play extends Phaser.Scene {
         //this.physics.world.wrap(this.asteroids);
 
         // << UPDATE CAMERA >>
-        this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height/3);
+        this.mainCamera.startFollow(this.hamsterShip.cameraTarget, true, 0.1, 0.1, 0, screen.height*0.25);
         // In the update loop, move the camera towards the camera target
         this.mainCamera.scrollX = Phaser.Math.Linear(this.mainCamera.scrollX, this.hamsterShip.cameraTarget.x, 0.1);
         this.mainCamera.scrollY = Phaser.Math.Linear(this.mainCamera.scrollY, this.hamsterShip.cameraTarget.y, 0.1);
