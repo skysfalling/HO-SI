@@ -7,6 +7,8 @@ class Menu extends Phaser.Scene {
         // load audio
         this.soundManager = SoundManager.getInstance(this);
         this.soundManager.loadAllSounds();
+
+        this.waves = Waves.getInstance(this, 1, 0);
         //console.log(this.soundManager);
 
 

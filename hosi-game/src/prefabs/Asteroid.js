@@ -46,6 +46,7 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         this.maxDelay = maxDelay;
         this.velocity_duration = velocity_duration;
     }
+    //new func (set up config) takes in var "config:" sets all vals
 
     spawnNewRandom ()
     {

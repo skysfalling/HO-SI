@@ -45,18 +45,15 @@ let keyE, keyD, keyF, keyZ, keyX, keyLEFT, keyRIGHT, keyUP, keyDOWN, keyESC, key
 // instances
 let prevScene;
 let soundManager;
+//#region [[]] ==============================================================
+let waves;
 
 //#endregion
 
 //#region [[ WAVE ALGORITHM ]] ==============================================================
 let waveAlgo={
-  enemyHealth: {
-    
-  },
-  enemySpawns: {
-    
-  },
-  enemyFrequency: {
+  level: 0,
+  enemyCounts: {
     
   },
 }

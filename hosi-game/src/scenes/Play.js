@@ -13,10 +13,12 @@ class Play extends Phaser.Scene {
 
         this.graphics = this.add.graphics().setDepth(depthLayers.playArea);
         
-        this.level = 1;
+        this.gameOver = false;
+        //this.level = 1;
 
         this.hamsterShip;
 
+        //this.waves=Waves.getInstance(this, level, score);
         //#region [[ SPRITES ]]
             // load images/tile sprites
             //this.load.image('spaceship', './assets/spaceship.png');
@@ -247,6 +249,21 @@ class Play extends Phaser.Scene {
                 this.spawner.resetSpawnObject(enemy);
             }
         });
+
+        //this is stupid -t
+        if(!this.gameOver){
+            this.physics.add.overlap(this.asteroids, this.hamsterShip, () => {
+                this.gameOver = true;
+                this.teeext = this.add.text(this.hamsterShip.cameraTarget.x, this.hamsterShip.cameraTarget.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
+                console.log(this.teeext.text);
+                
+                this.time.delayedCall(1000, () => {
+                    //this.slow = false;
+                    this.scene.start('menuScene');
+                    this.scene.stop();
+                }, null, this);
+            });
+        }
         //#endregion
 
         //#region << HTML REFERENCES >>
