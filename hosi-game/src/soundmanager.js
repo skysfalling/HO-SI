@@ -2,7 +2,9 @@ class SoundManager {
     constructor(scene) {
       this.scene = scene;
       this.sounds = {};
+      this.sfx = {};
       this.currentMusic = null;
+
     }
   
     static getInstance(scene) {
@@ -20,14 +22,16 @@ class SoundManager {
       console.log("Loading all Sounds");
       //#region /////////////////// LOADING SFX ///////////////////
       this.scene.load.audio('sfx_select', './assets/sounds/sfx/blipSelect.wav');
-      this.scene.load.audio('sfx_explosion', './assets/sounds/sfx/explosion.wav');
-      this.scene.load.audio('sfx_rocket', './assets/sounds/sfx/rocket_shot.wav');
       this.scene.load.audio('sfx_dodge', './assets/sounds/sfx/dodge.wav');
+      this.scene.load.audio('sfx_explosion', './assets/sounds/sfx/explosion.wav');
+      this.scene.load.audio('sfx_explosion1', './assets/sounds/sfx/explosion1.wav');
+      this.scene.load.audio('sfx_explosion2', './assets/sounds/sfx/explosion1.wav');
+      this.scene.load.audio('sfx_hyperdrive', './assets/sounds/sfx/hyperdrive.wav');
       this.scene.load.audio('sfx_primaryFire', './assets/sounds/sfx/playerShoot.wav');
+      this.scene.load.audio('sfx_rocket', './assets/sounds/sfx/rocket_shot.wav');
       this.scene.load.audio('sfx_takeoff', './assets/sounds/sfx/takeoff.wav');
-      
       //#endregion
-
+      
       //#region /////////////////// LOADING MUSIC ///////////////////
       
       //JUST CHORDS
@@ -60,7 +64,32 @@ class SoundManager {
       });
       this.scene.load.start();
     }
-  
+    addSoundsToCache() {
+      console.log("Adding sounds to cache");
+      this.loadSound('sfx_select');
+      this.loadSound('sfx_dodge');
+      this.loadSound('sfx_explosion');
+      this.loadSound('sfx_explosion1');
+      this.loadSound('sfx_explosion2');
+      this.loadSound('sfx_hyperdrive');
+      this.loadSound('sfx_primaryFire');
+      this.loadSound('sfx_rocket');
+      this.loadSound('sfx_takeoff');
+    }
+
+    setVolume(x){
+      s_config.volume=x;
+      if(this.currentMusic){
+        this.currentMusic.volume=x;
+      }
+      for(i in this.sfx){
+        if(i){
+          i.volume= x
+        }
+      }
+    }
+
+    //#region MUSIC KEY
     //LEVEL 0
       /*
         JUST CHORDS      
@@ -85,6 +114,7 @@ class SoundManager {
         AFTER THAT RANDOM:
         SAME, OR CUT OUR THE FIRST 2
       */
+    //#endregion
     
     level0Music(){
       this.playMusic('just_chords', {loop: true});
@@ -130,12 +160,21 @@ class SoundManager {
       }
     }
 
-    addSoundsToCache() {
-      console.log("Adding sounds to cache");
-      this.loadSound('sfx_select');
-      this.loadSound('sfx_explosion');
-      this.loadSound('sfx_rocket');
+    playExplosion(){
+      switch(Math.floor(Math.random()*3)){
+        case 0:
+          this.play('sfx_explosion');
+          break;
+        case 1:
+          this.play('sfx_explosion1');
+          break;
+        case 2:
+          this.play('sfx_explosion2');
+      }
     }
+
+
+
     
     playMusic(key, config) {
       if (this.currentMusic && this.currentMusic.isPlaying) {
@@ -164,15 +203,18 @@ class SoundManager {
     }
 
     play(key, config) {
-      const sound = this.scene.sound.add(key, config);
-      sound.play();
-      console.log("Playing " + key + " " + sound.isPlaying);
+      if(!this.sfx[key]){
+        this.sfx[key] = this.scene.sound.add(key, config);
+      }
+      this.sfx[key].play();
+      console.log("Playing " + key + " " + this.sfx[key].isPlaying);
     }
   }
   
-  
+
   let s_config = {
     loop: false,
+    volume: 1,
   }
 
 

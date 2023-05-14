@@ -8,6 +8,7 @@ class Pause extends Phaser.Scene {
     init (data)
     {
         this.prevScene = data.prevScene;
+        this.soundManager = data.soundManager;
     }
     preload(){
 
@@ -84,6 +85,7 @@ class Pause extends Phaser.Scene {
                         }else{
                             volPercent-=.25;
                             this.volSliderTextShit(volPercent);
+                            this.soundManager.setVolume(volPercent);
                         }
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyRIGHT)){
@@ -92,6 +94,7 @@ class Pause extends Phaser.Scene {
                         }else{
                             volPercent+=.25;
                             this.volSliderTextShit(volPercent);
+                            this.soundManager.setVolume(volPercent);
                         }
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){
@@ -126,6 +129,7 @@ class Pause extends Phaser.Scene {
                         console.log("going to menu scene");
                         this.scene.setVisible(false, this.prevScene);
                         console.log(this.prevScene + " " + this.scene.isVisible(this.prevScene));
+                        this.prevScene.soundManager.stopCurrentMusic();
                         this.scene.stop(this.prevScene);
                         this.scene.start('menuScene');
                         this.scene.setVisible(true, 'menuScene');

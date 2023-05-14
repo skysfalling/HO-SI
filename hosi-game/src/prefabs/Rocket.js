@@ -100,7 +100,7 @@ class Rocket extends Phaser.Physics.Arcade.Sprite {
                         },
                         loop: false
                     });
-
+                    this.scene.soundManager.playExplosion();
                     console.log('rocket-explode');
                 },
                 update: () =>{}

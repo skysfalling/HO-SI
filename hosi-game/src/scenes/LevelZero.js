@@ -351,7 +351,7 @@ class LevelZero extends Phaser.Scene {
         if(Phaser.Input.Keyboard.JustDown(keyESC)){
             this.input.keyboard.resetKeys();
             console.log("esc pressed");
-            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "levelZeroScene"});
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "levelZeroScene", soundManager: this.soundManager});
             //this.pauseScene.scene.main
             console.log("pause scene: " + this.pauseScene);
             this.scene.pause();
@@ -470,7 +470,8 @@ class LevelZero extends Phaser.Scene {
         this.scoreValueText.setText(this.p1Score.toString())
         this.addTime();
 
-        this.sound.play('sfx_explosion');
+        //this.sound.play('sfx_explosion');
+        this.soundManager.playExplosion;
     }
 
     checkWorldBounds(sprite) {

@@ -354,7 +354,7 @@ class Play extends Phaser.Scene {
         
         if(Phaser.Input.Keyboard.JustDown(keyESC)){
             this.input.keyboard.resetKeys();
-            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene"});
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene", soundManager: this.soundManager});
             //this.pauseScene.scene.main
             console.log("pause scene: " + this.pauseScene);
             this.scene.pause();
