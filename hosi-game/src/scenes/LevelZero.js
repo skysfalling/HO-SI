@@ -14,13 +14,13 @@ class LevelZero extends Phaser.Scene {
 
         this.level = 1;
         this.defaultShipSpeed = 100;
-
+        /*
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        
+        */
 
         //#region << SPRITES >>
         // load backgrounds/tile sprites
@@ -60,6 +60,7 @@ class LevelZero extends Phaser.Scene {
     }
 
     create() {
+        console.log("create Level0");
 
         //#region << ENEMY SNAKESHIPS >>
         this.anims.create({
@@ -324,7 +325,7 @@ class LevelZero extends Phaser.Scene {
         // initalize total hit count
         this.hitcount = 0;
     }
-    init(){
+    initKeys(){
         console.log('running init')
         //#region << DEFINE KEYS >>
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -333,23 +334,36 @@ class LevelZero extends Phaser.Scene {
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         //#endregion
-    }    
+    }
+
+    resumeGameScene() {
+        // Enable keyboard input in the game scene
+        this.input.keyboard.enabled = true;
+      
+        // Resume the game scene
+        this.scene.resume(this.pauseScene);
+        this.scene.stop();
+    }
+      
 
     update(time) {
 
         // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
         this.gizmos.graphics.clear();
 
-        this.init(); //STUPID KEY RE ASSIGNING
+        this.initKeys(); //STUPID KEY RE ASSIGNING
 
-        if(Phaser.Input.Keyboard.JustDown(keyESC)){
-            this.input.keyboard.resetKeys();
-            console.log("esc pressed");
-            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "levelZeroScene"});
-            //this.pauseScene.scene.main
-            console.log("pause scene: " + this.pauseScene);
+        if (Phaser.Input.Keyboard.JustDown(keyESC)) {
+            this.scene.launch("pauseScene", { prevScene: "levelZeroScene", gameScene: this });
+        
+            // Pause the current scene
             this.scene.pause();
+    
+            // Disable input listeners in the game scene
+            this.input.keyboard.enabled = false;
         }
+          
+          
 
         // update time
         this.timePassedText.setText(`${this.curTime}`);
