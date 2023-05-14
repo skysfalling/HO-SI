@@ -45,7 +45,7 @@ class LevelZero extends Phaser.Scene {
         this.load.spritesheet('explosion', './assets/fx/explosion.png', {frameWidth: 32, frameHeight: 32, startFrame: 0, endFrame: 13});
 
         // << ASTEROIDS >>
-        this.load.image('justAsteroid', './assets/asteroids/asteroid.png');
+        this.load.image('asteroid', './assets/asteroids/asteriod.png');
 
         // << BUNKER >>
         this.load.image('bunker', './assets/bunker.png');
@@ -113,12 +113,6 @@ class LevelZero extends Phaser.Scene {
         this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
         this.hamsterShip.rocket.setVisible(false);  // make rocket attached to ship invisibile
 
-        // add Spaceships (x3)
-        this.ship01 = new Spaceship(this, "ship1", game.config.width, game.config.height * 0.25, 'greenSnake1', 0, 10, this.defaultShipSpeed);        
-        this.ship02 = new Spaceship(this, "ship2", game.config.width, game.config.height * 0.50, 'greenSnake1', 0, 10, this.defaultShipSpeed);
-        this.ship03 = new Spaceship(this, "ship3", game.config.width, game.config.height * 0.75, 'greenSnake1', 0, 10, this.defaultShipSpeed);
-        this.fastShip = new Spaceship(this, "fastboi", game.config.width, game.config.height * 0.5, 'purpleSnakeShip0', 0, 10, (this.defaultShipSpeed*2), screen.height - (format.margin*4)/*, color_pal.toInt("green")*/);
-        this.fastShip.setScale(1);
         //#endregion
 
         //#region << DEFINE KEYS >>
@@ -381,10 +375,7 @@ class LevelZero extends Phaser.Scene {
         if(this.hitcount < 3){
             this.tutorialRocket.update();             // update tutorial rocket 
         }
-        this.ship01.update();               // update spaceship (x3)
-        this.ship02.update();
-        this.ship03.update();
-        this.fastShip.update();
+
         this.bunker.update();
         
 
@@ -394,33 +385,6 @@ class LevelZero extends Phaser.Scene {
             this.tutorialRocket.setPosition(20,20);
         }
 
-        //#region << ROCKET COLLISIONS >>
-        if (!this.ship01.dead && (this.checkCollision(this.tutorialRocket, this.ship01))) //|| (this.checkCollision(this.hamsterShip, this.ship01)))
-        {
-            this.hitcount++;
-            this.shipExplode(this.ship01);
-            this.tutorialRocket.setPosition(20,20);
-        }
-        if (!this.ship02.dead && this.checkCollision(this.tutorialRocket, this.ship02)) //|| (this.checkCollision(this.hamsterShip, this.ship02)))
-        {
-            this.hitcount++;
-            this.shipExplode(this.ship02);
-            this.tutorialRocket.reset();
-        }
-        if (!this.ship03.dead && this.checkCollision(this.tutorialRocket, this.ship03)) //|| (this.checkCollision(this.hamsterShip, this.ship03)))
-        {
-            this.hitcount++;
-            this.shipExplode(this.ship03);
-            this.tutorialRocket.reset();
-        }
-        /*
-        if (!this.fastShip.dead && this.checkCollision(this.tutorialRocket, this.fastShip))
-        {
-            this.hitcount++;
-            this.shipExplode(this.fastShip);
-            this.tutorialRocket.reset();
-        }*/
-        //#endregion
 
         if(this.hitcount >= 3 && !this.loading){
             // change scenes / move onto level 0.5
