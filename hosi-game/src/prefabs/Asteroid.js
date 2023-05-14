@@ -48,6 +48,26 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
     }
     //new func (set up config) takes in var "config:" sets all vals
 
+    spawnNew(spawnpointIndex, endpointIndex, velocity_duration = this.velocity_duration)
+    {
+        // << DELAY NEW SPAWN >>
+        // Delayed call to set spawn velocity
+        const delay = Phaser.Math.Between(100, this.maxDelay);
+        this.scene.time.delayedCall(delay, () => {
+
+            // calculate the necessary velocity
+            let velocity = this.spawner.calculateVelocity(this.spawnpoints[spawnpointIndex], this.endpoints[endpointIndex], velocity_duration);
+
+            // asteroid velocity
+            const asteroid = new Asteroid(this.scene, this, this.spawnpoints[spawnpointIndex], this.endpoints[endpointIndex], this.texture);
+            asteroid.body.velocity.x = velocity.x;
+            asteroid.body.velocity.y = velocity.y;
+
+            //console.log("spawned new object: " + JSON.stringify(asteroid));
+
+        }, [], this);
+    }
+
     spawnNewRandom ()
     {
         // << DELAY NEW SPAWN >>
@@ -72,7 +92,33 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         }, [], this);
     }
 
-    reset(asteroid){
+    reset(asteroid)
+    {
+        //<< RESET ASTEROID >>
+        asteroid.setActive(false);
+        asteroid.setVisible(false);
+        asteroid.body.velocity.x = 0;
+        asteroid.body.velocity.y = 0;
+
+        // move asteroid
+        asteroid.x = asteroid.spawnpoint.x;
+        asteroid.y = asteroid.spawnpoint.y;
+
+        // << DELAY NEW SPAWN >>
+        // Delayed call to set spawn velocity
+        const delay = Phaser.Math.Between(100, this.maxDelay);
+        this.scene.time.delayedCall(delay, () => {
+        //<< SET SPAWN VELOCITY >>
+            let velocity = this.spawner.calculateVelocity(asteroid.spawnpoint, asteroid.endpoint, this.velocity_duration);
+            asteroid.body.velocity.x = velocity.x;
+            asteroid.body.velocity.y = velocity.y;
+            asteroid.setActive(true);
+            asteroid.setVisible(true);
+
+        }, [], this);
+    }
+
+    resetRandom(asteroid){
 
         //<< RESET ASTEROID >>
         asteroid.setActive(false);

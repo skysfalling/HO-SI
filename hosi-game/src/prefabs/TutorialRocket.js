@@ -1,7 +1,7 @@
 // Rocket prefab
 class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture) {
-        super(scene, x, y, texture);
+    constructor(scene, x, y) {
+        super(scene, x, y);
         this.soundManager = SoundManager.getInstance(this);
         this.scene = scene;
         scene.add.existing(this);   // add to existing, displayList, updateList
@@ -14,8 +14,8 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
         this.aimMoveSpeed = 2;         // pixels per frame
         this.rocketForce = 400;         // pixels per frame
         this.rocketRotationForce = 20;
-        this.explode_delay = 2000;
-        this.reset_delay = 1000;
+        this.explode_delay = 3000;
+        this.reset_delay = 500;
 
         this.sfxRocket = scene.sound.add('sfx_rocket'); // add rocket sfx
         
@@ -77,6 +77,7 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
                     this.currentState = this.states.IDLE;
                     this.anims.play('fire');
                     this.setPosition(this.startPos.x , this.startPos.y);
+                    this.setRotation(0);
                 },
                 update: () => {
                     if(keyF.isDown) {
@@ -90,7 +91,6 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
                     this.currentState = this.states.EXPLODE;
                     this.anims.play('explode');
                     this.body.stop();
-                    this.setRotation(0);
                     this.scene.time.addEvent({
                         delay: this.reset_delay,
                         callback: () => {
@@ -98,15 +98,13 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
                         },
                         loop: false
                     });
-
-                    console.log('rocket-explode');
                 },
                 update: () =>{}
             }
         };
         this.states.IDLE.enter();
         
-        this.stateText = this.gizmos.createText(this.x, this.y, this.currentState.name, color_pal.white);
+        this.stateText = this.gizmos.createText(this.x, this.y, this.currentState.name, color_pal.green);
 
     }
 
@@ -120,30 +118,28 @@ class TutorialRocket extends Phaser.Physics.Arcade.Sprite {
             this.currentState.update();
         }
 
-        this.gizmos.updateText(this.stateText, this.x, this.y + this.height, this.currentState.name, color_pal.white);
+        this.gizmos.updateText(this.stateText, this.x, this.y + this.height, this.currentState.name, color_pal.green);
     }
 
     timed_explosion(){
         this.scene.time.addEvent({
             delay: this.explode_delay,
             callback: () => {
-                this.states.EXPLODE.enter();
+                if (this.currentState == this.states.FIRE)
+                {
+                    this.states.EXPLODE.enter();
+                }
             },
             loop: false
         });
     }
 
     reset() {
-        this.setActive(false);
-        this.setVisible(false);
         this.scene.time.addEvent({
             delay: this.reset_delay,
             callback: () => {
-                this.scene.children.add(this);
                 this.setActive(true);
                 this.setVisible(true);
-                this.x = this.startPos.x;
-                this.y = this.startPos.y;
                 this.states.IDLE.enter();
             },
             loop: false

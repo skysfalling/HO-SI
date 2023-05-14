@@ -11,14 +11,8 @@ class LevelZero extends Phaser.Scene {
         this.gizmos = new Gizmos(this);
         this.showGizmos = true;
         this.loading=false;
-
         this.level = 1;
         this.defaultShipSpeed = 100;
-        
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
         
         //#region << SPRITES >>
         // load backgrounds/tile sprites
@@ -49,23 +43,24 @@ class LevelZero extends Phaser.Scene {
 
         //#endregion 
 
-            //#region << WORLD BOUNDS >>
-            //#region << FORMAT VALUES >>
-            this.grid = {
-                cellSize: 64, // 64 pixels
-            };
+        //#region << FORMAT VALUES >>
+        this.grid = {
+            cellSize: 64, // 64 pixels
+        };
 
-            this.uiFormat = {
-                camMargin : this.grid.cellSize * 2
-            }
+        this.uiFormat = {
+            camMargin : this.grid.cellSize * 2
+        }
+        //#endregion
 
+        //#region << WORLD BOUNDS >>
             const worldSize = 9 * this.grid.cellSize;
-            const offset = {x: 4 * this.grid.cellSize, y: 4 * this.grid.cellSize};
+            const offset = {x: 0 * this.grid.cellSize, y: 0 * this.grid.cellSize};
             const camMargin = this.uiFormat.camMargin;
             
             this.world = {
                 width: worldSize,
-                height: worldSize * 1.5,
+                height: worldSize,
                 x: offset.x,
                 y: offset.y,
                 center: {
@@ -87,24 +82,88 @@ class LevelZero extends Phaser.Scene {
                     height: worldSize - (2 * camMargin)
                 }
             };
-
-            this.spawner = new Spawner(this);
-            this.skychart = this.spawner.skychart;
-
-            // set the world bounds
-            this.physics.world.setBounds(this.world.x, this.world.y, this.world.width, this.world.height);
             //#endregion
+
+        // setup camera
+        this.mainCamera = this.cameras.main;
+
+        this.spawner = new LevelZeroSpawner(this);
+        this.skychart = this.spawner.skychart;
+
+        // set the world bounds
+        this.physics.world.setBounds(this.world.x, this.world.y, this.world.width, this.world.height);
+
+        // #region [[ LEVEL STATES ]] ===============================
+        this.levelState = {
+            START: {
+                name: 'start',
+                enter: () => {
+                    this.currLevelState = this.levelState.START;
+                },
+                update: () => {
+
+                },
+            },
+            PLAY: {
+                name: 'play',
+                enter: () => {
+                    this.currLevelState = this.levelState.PLAY;
+                },
+                update: () => {
+
+                    // [[ UPDATE GAME OBJECTS]]
+                    if(this.hitcount < 3){
+                        this.tutorialRocket.update();             // update tutorial rocket 
+                    }
+                }
+            },
+            EDITOR: {
+                name: 'editor',
+                enter: () => {
+                    this.currLevelState = this.levelState.EDITOR;
+                },
+                update: (time, delta) => {
+                    this.editorUpdate(delta);
+                }
+            }
+        }
+        // set level type
+        if (editorActive) { 
+            this.levelState.EDITOR.enter(); 
+        }
+        else { this.levelState.PLAY.enter();}
+
+        console.log("LEVEL ZERO ::  " + this.currLevelState.name);
+
+        //#endregion
 
         // refernece to HTML Webpage for debugger buttons and things
         const canvas = document.getElementById('game-container');   
     }
 
     create() {
-        console.log("create Level0");
 
-        this.spawner.create();
+        //#region << DEFINE KEYS >>
+        keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
-        //#region << ENEMY SNAKESHIPS >>
+        keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        
+        // Editor camera zoom in / out
+        keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+        keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
+        //#endregion
+
+        //#region << BACKGROUNDS >>
+        this.takeoffBackground = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width, 0, 'takeoff').setOrigin(0.5, 0.73).setDepth(depthLayers.skybox); 
+        this.bunker = this.add.sprite(game.config.width/2, screen.botMid.y - format.margin - 20, 'bunker');
+        //#endregion
+        
+        //#region << ENEMY SNAKESHIPS ANIMATIONS >>
         this.anims.create({
             key: 'greenSnake',
             frames: this.anims.generateFrameNames('hosi_atlas', { 
@@ -137,43 +196,9 @@ class LevelZero extends Phaser.Scene {
             frameRate: 10,
             repeat: -1
         });
-
-        //#endregion
-        
-        //#region << SPACE BACKGROUNDS >>
-        this.takeoffBackground = this.add.tileSprite(0,-1900,0,0, 'takeoff').setOrigin(0,0); // haha sorry it's a lil hard coded
-
-        this.bunker = this.add.sprite(game.config.width/2, screen.botMid.y - format.margin - 20, 'bunker');
-
-        //#endregion
-        
-        //#region << ROCKET AND SPACESHIPS >>
-        // add Rocket (p1)
-        this.startRocket = new TutorialRocket(this, game.config.width/2, game.config.height  - 200, 'rocket_fire');
-
-        //this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
-        //this.hamsterShip.rocket.setVisible(false);
         //#endregion
 
-        //#region << DEFINE KEYS >>
-        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-        //keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        keyESC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        //#endregion
-
-        //#region << SKY GIZMOS THINGS >>
-        // toggle squares
-        const enableGizmosButton = document.querySelector("#enable-gizmos");
-        enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
-        enableGizmosButton.addEventListener("click", () => { 
-            this.showGizmos =!this.showGizmos;
-            enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
-        });
-        //#endregion
-
-        //#region << ROCKET ANIMATION >>
+        //#region << ROCKET ANIMATIONS >>
         // explode animation config
         // rocket fly animation config
         
@@ -202,121 +227,150 @@ class LevelZero extends Phaser.Scene {
         //#endregion
 
         //#region << HAMSTER ANIMATIONS >>
-            //#region << Beige Hamster >>
-        this.anims.create({
-            key: 'beigeIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "beige_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
+            
+            //#region ( Beige Hamster )
+            this.anims.create({
+                key: 'beigeIdle',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "beige_hamster_idle",
+                    start: 1, 
+                    end: 7, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
 
-        this.anims.create({
-            key: 'beigeMarch',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "beige_hamster_marching",
-                start: 1, 
-                end: 4, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        //#endregion
-            //#region << Green Hamster >>
-        this.anims.create({
-            key: 'greenIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "green_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'greenMarch',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "green_hamster_marching",
-                start: 1, 
-                end: 4, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        //#endregion
-            //#region << Pink Hamster >>
-        this.anims.create({
-            key: 'pinkIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "pink_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        
-        this.anims.create({
-            key: 'pinkMarch',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "pink_hamster_marching",
-                start: 1, 
-                end: 4, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        //#endregion
-            //#region << Blue Hamster >>
-        this.anims.create({
-            key: 'blueIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "blue_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-
-        this.anims.create({
-            key: 'blueMarch',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "blue_hamster_marching",
-                start: 1, 
-                end: 4, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        //#endregion
-            //#region << Black Hamster >> 
-        this.anims.create({
-            key: 'blackIdle',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "black_hamster_idle",
-                start: 1, 
-                end: 7, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
-        
-        this.anims.create({
-            key: 'blackMarch',
-            frames: this.anims.generateFrameNames('hosi_atlas', { 
-                prefix: "black_hamster_marching",
-                start: 1, 
-                end: 4, 
-            }),
-            frameRate: 10,
-            repeat: -1
-        });
+            this.anims.create({
+                key: 'beigeMarch',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "beige_hamster_marching",
+                    start: 1, 
+                    end: 4, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
             //#endregion
+                
+            //#region ( Green Hamster )
+            this.anims.create({
+                key: 'greenIdle',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "green_hamster_idle",
+                    start: 1, 
+                    end: 7, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'greenMarch',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "green_hamster_marching",
+                    start: 1, 
+                    end: 4, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            //#endregion
+                
+            //#region ( Pink Hamster )
+            this.anims.create({
+                key: 'pinkIdle',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "pink_hamster_idle",
+                    start: 1, 
+                    end: 7, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            
+            this.anims.create({
+                key: 'pinkMarch',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "pink_hamster_marching",
+                    start: 1, 
+                    end: 4, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            //#endregion
+            
+            //#region ( Blue Hamster )
+            this.anims.create({
+                key: 'blueIdle',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "blue_hamster_idle",
+                    start: 1, 
+                    end: 7, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'blueMarch',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "blue_hamster_marching",
+                    start: 1, 
+                    end: 4, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            //#endregion
+                
+            //#region ( Black Hamster ) 
+            this.anims.create({
+                key: 'blackIdle',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "black_hamster_idle",
+                    start: 1, 
+                    end: 7, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+            
+            this.anims.create({
+                key: 'blackMarch',
+                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                    prefix: "black_hamster_marching",
+                    start: 1, 
+                    end: 4, 
+                }),
+                frameRate: 10,
+                repeat: -1
+            });
+                //#endregion
+            
+        //#endregion
+
+        //#region << CREATE PLAYER ROCKET AND SPACESHIP >>
+        this.tutorialRocket = new TutorialRocket(this, this.world.center.x, screen.height - 200);
+        this.tutorialRocket.setDepth(depthLayers.playArea);
+        this.tutorialRocket.setScale(1.5);
+        //this.hamsterShip = new HamsterShip(this, game.config.width/2, game.config.height - 100, 'spaceship_fly', 'spaceship_roll', 'primary_fire').setVisible(false);
+        //this.hamsterShip.rocket.setVisible(false);
+        //#endregion
+
+        //#region << CREATE ENEMY GROUP >>
+        this.spawner.tutorialEnemyGroup = this.spawner.createStaticPathGroup(this.spawner.right_spawnpoints, this.spawner.left_spawnpoints, 4);
+        this.spawner.tutorialEnemyGroup.spawnNew(1, 1);
+        this.spawner.tutorialEnemyGroup.spawnNew(3, 3);
+        this.spawner.tutorialEnemyGroup.spawnNew(5, 5);
+
+        // rocket vs. enemies
+        this.physics.add.overlap(this.tutorialRocket, this.spawner.tutorialEnemyGroup, (rocket, enemy) => {
+            console.log("rocket hit asteroid");
+            this.tutorialRocket.states.EXPLODE.enter();
+
+            this.spawner.resetSpawnObject(enemy);
+        });
         //#endregion
 
         //#region  << GAME UI >>        
@@ -329,7 +383,6 @@ class LevelZero extends Phaser.Scene {
 
         // level text
         this.levelText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin * 1.6, "LVL: 0");
-
         //#endregion
 
         //#region << GAME TIMER >> 
@@ -346,9 +399,20 @@ class LevelZero extends Phaser.Scene {
         }); 
         //#endregion   
         
+        //#region << HTML REFERENCES >>
+        // toggle squares
+        const enableGizmosButton = document.querySelector("#enable-gizmos");
+        enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
+        enableGizmosButton.addEventListener("click", () => { 
+            this.showGizmos =!this.showGizmos;
+            enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
+        });
+        //#endregion
+
         // initalize total hit count
         this.hitcount = 0;
     }
+    
     initKeys(){
         console.log('running init')
         //#region << DEFINE KEYS >>
@@ -368,17 +432,15 @@ class LevelZero extends Phaser.Scene {
         this.scene.resume(this.pauseScene);
         this.scene.stop();
     }
-      
-
-    update(time) {
+    
+    update(time, delta) {
 
         // >> {{ ALWAYS CLEAR GRAPHICS FIRST }} //
         this.gizmos.graphics.clear();
 
+        this.currLevelState.update(time, delta);
+
         //this.initKeys(); //STUPID KEY RE ASSIGNING
-
-        this.startRocket.update();
-
         if (Phaser.Input.Keyboard.JustDown(keyESC)) {
             this.scene.launch("pauseScene", { prevScene: "levelZeroScene", gameScene: this });
         
@@ -395,21 +457,8 @@ class LevelZero extends Phaser.Scene {
 
         //#endregion
 
-        // [[ UPDATE GAME OBJECTS]]
-        if(this.hitcount < 3){
-            this.startRocket.update();             // update tutorial rocket 
-        }
-
         this.bunker.update();
         
-
-        // << CHECK PLAYER OUT OF BOUNDS >>
-        if (this.checkWorldBounds(this.startRocket)) {
-            this.startRocket.reset();
-            this.startRocket.setPosition(20,20);
-        }
-
-
         if(this.hitcount >= 3 && !this.loading){
             // change scenes / move onto level 0.5
             // we want to add animation here about hamster getting in the ship and launching
@@ -417,11 +466,11 @@ class LevelZero extends Phaser.Scene {
 
             // update controls so the player can freely move
             // delete tutorial rocket bring out rocket attached to hamster
-            this.startRocket.update();
+            //this.tutorialRocket.update();
             //this.hamsterShip.update();
             //this.hamsterShip.visible = true;
-            this.takeoffBackground.tilePositionY --;
-            this.startRocket.setVisible(false);
+            //this.takeoffBackground.tilePositionY --;
+            //this.tutorialRocket.setVisible(false);
             /*
             this.scene.launch("loadingScene", {
                 prevScene: "levelZeroScene",
@@ -435,38 +484,45 @@ class LevelZero extends Phaser.Scene {
         }
     }
 
-    checkCollision(objectA, objectB) {
-        // simple AABB checking
-        if (objectA.x < objectB.x + objectB.width && 
-            objectA.x + objectA.width > objectB.x && 
-            objectA.y < objectB.y + objectB.height &&
-            objectA.height + objectA.y > objectB. y) {
-                return true;
-        } else {
-            return false;
-        }
+    editorUpdate(){
+        this.editorCamUpdate();
     }
 
-    shipExplode(ship) {
-        // temporarily hide ship
-        ship.alpha = 0;  
-        ship.dead = true;
+    editorCamUpdate(){
+        this.mainCamera.stopFollow();
 
-        // create explosion sprite at ship's position
-        let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
-        boom.anims.play('explode');             // play explode animation
-        boom.on('animationcomplete', () => {    // callback after anim completes
-            ship.reset();                         // reset ship position
-            ship.alpha = 1;                       // make ship visible again
-            boom.destroy();                       // remove explosion sprite
-        });
-
-        // score add and repaint
-        this.p1Score += ship.points;        
-        this.scoreValueText.setText(this.p1Score.toString())
-        this.addTime();
-
-        this.sound.play('sfx_explosion');
+        const cameraSpeed = 10;
+        const zoomSpeed = 0.01;
+      
+        // Move the camera with arrow keys
+        if (keyLEFT.isDown) {
+          this.mainCamera.scrollX -= cameraSpeed;
+        }
+        else if (keyRIGHT.isDown) {
+          this.mainCamera.scrollX += cameraSpeed;
+        }
+      
+        if (keyUP.isDown) {
+          this.mainCamera.scrollY -= cameraSpeed;
+        }
+        else if (keyDOWN.isDown) {
+          this.mainCamera.scrollY += cameraSpeed;
+        }
+      
+        // Zoom in/out with Z/X keys
+        if (keyZ.isDown) {
+          this.mainCamera.zoom += zoomSpeed;
+        }
+        else if (keyX.isDown) {
+          this.mainCamera.zoom -= zoomSpeed;
+        }
+      
+        // Clamp camera zoom to a minimum value of 0.1
+        this.mainCamera.zoom = Phaser.Math.Clamp(this.mainCamera.zoom, 0.1, 0.5);
+      
+        // Keep camera within the bounds of the game world
+        this.mainCamera.scrollX = Phaser.Math.Clamp(this.mainCamera.scrollX, 0, this.world.width);
+        this.mainCamera.scrollY = Phaser.Math.Clamp(this.mainCamera.scrollY, 0, this.world.height);
     }
 
     checkWorldBounds(sprite) {
@@ -476,9 +532,7 @@ class LevelZero extends Phaser.Scene {
         return false;
     }
     
-    // Add seconds to the game timer
     addTime(timeAddition = 2) {
         this.curTime += timeAddition;
     }
-
 }

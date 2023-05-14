@@ -47,7 +47,7 @@ class Play extends Phaser.Scene {
 
         //#endregion
 
-        //#region [[ SCENE SETUP]]
+        //#region [[ SCENE SETUP ]]
 
             //#region << FORMAT VALUES >>
             this.grid = {
@@ -176,7 +176,7 @@ class Play extends Phaser.Scene {
         keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
         keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
         //#endregion
-        
+
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.center.x;
         this.mainCamera.scrollY = this.world.center.y;
@@ -186,13 +186,15 @@ class Play extends Phaser.Scene {
         this.starfield.depth = -10;
         //#endregion
 
-        //#region << PLAYER SHIP >>
+        //#region << PLAYER SHIP INIT >>
         this.hamsterShip = new HamsterShip(this, this.world.center.x, this.world.center.y, 'spaceship_fly', 'spaceship_roll', 'primary_fire');
         //#endregion
         
-        //#region [[ TRIGGERS ]] >>
+        //#region [[ OVERLAP TRIGGERS ]] >>
         // set all enemy targets
         this.enemyTargets = [this.spawner.vertResetAsteroids, this.spawner.left_ResetAsteroids, this.spawner.right_ResetAsteroids, this.spawner.snakeshipGroup];
+
+        // set enemy groups
         this.asteroids = [this.spawner.vertResetAsteroids, this.spawner.left_ResetAsteroids, this.spawner.right_ResetAsteroids];
         this.enemyShips = [this.spawner.snakeshipGroup];
 
