@@ -36,14 +36,14 @@ class Spawner {
         //#endregion
 
         // << ENEMY SPAWN AREAS >>
-        this.fullSpawnArea = this.gizmos.createRectFill(
+        this.fullSpawnArea = this.gizmos.createRect(
             this.skychart.x, 
             this.skychart.y * 0.25, 
             this.world.width * 1.3, 
             this.skychart.height * 0.6,
             color_pal.toInt("white"),
             10,
-            0.5
+            0.1
         );
 
         this.closeSpawnArea = this.gizmos.createRectFill(
@@ -53,7 +53,7 @@ class Spawner {
             200,
             color_pal.toInt("green"),
             10, 
-            1
+            0.1
         );
 
         this.midSpawnArea = this.gizmos.createRectFill(
@@ -63,7 +63,7 @@ class Spawner {
             400,
             color_pal.toInt("blue"),
             10, 
-            1
+            0.1
         );
 
         this.backSpawnArea = this.gizmos.createRectFill(
@@ -73,7 +73,7 @@ class Spawner {
             400,
             color_pal.toInt("red"),
             10, 
-            1
+            0.1
         );
         
         // << ALL SPAWN OBJECTS >>
@@ -86,8 +86,7 @@ class Spawner {
     }
 
     create(){
-
-        // Create groups
+        // create groups
         this.vertResetAsteroids = this.createAsteroids(this.top_spawnpoints, this.bot_spawnpoints);
         this.left_ResetAsteroids = this.createAsteroids(this.left_spawnpoints, this.right_spawnpoints, 2);
         this.right_ResetAsteroids = this.createAsteroids(this.right_spawnpoints, this.left_spawnpoints, 4);
@@ -100,7 +99,6 @@ class Spawner {
         // draw horz range
         this.gizmos.drawLine(this.left_spawnpoints[0], this.right_spawnpoints[0], color_pal.toInt("green"), 5, 1);
         this.gizmos.drawLine(this.left_spawnpoints[this.left_spawnpoints.length-1], this.right_spawnpoints[this.right_spawnpoints.length-1], color_pal.toInt("green"), 5, 1);
-
     }
 
     update(time, delta) {
