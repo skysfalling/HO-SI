@@ -29,14 +29,17 @@ class Loading extends Phaser.Scene {
         this.cyanBeam = this.add.tileSprite(game.config.x, game.config.y, game.config.height, game.config.width, 'cyan_beam').setOrigin(0,0).setScale(2);
         this.slow = true;
 
+        // camera fades in
         this.cameras.main.fadeIn(500, 0, 0, 0);
 
+        // close previous scene
         this.time.delayedCall(2000, () => {
             this.slow = false;
             this.scene.setVisible(false, this.prevScene);
             this.scene.stop(this.prevScene)
         }, null, this);
         
+        // load in next scene
         this.time.delayedCall(4000, () => {
             this.slow = true;
             this.scene.launch(this.nextScene, {
@@ -47,10 +50,12 @@ class Loading extends Phaser.Scene {
             this.loadHamsterShip.rocket.setVisible(false);
         }, null, this);
 
+        // camera fades out
         this.time.delayedCall(7000, () => {
             this.cameras.main.fadeOut(2000, 0, 0, 0);
         }, null, this);
 
+        // close loading scene
         this.time.delayedCall(7000, () => {
             this.scene.setVisible(false, "loadingScene");
             this.scene.stop("loadingScene");
