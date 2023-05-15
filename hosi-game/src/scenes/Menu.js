@@ -8,10 +8,6 @@ class Menu extends Phaser.Scene {
         this.soundManager = SoundManager.getInstance(this);
         this.soundManager.loadAllSounds();
 
-        this.waves = Waves.getInstance(this, 1, 0);
-        //console.log(this.soundManager);
-
-
         game.config.centerX = game.config.width / 2;
         game.config.centerY = game.config.height / 2;
 
@@ -23,7 +19,7 @@ class Menu extends Phaser.Scene {
         this.add.text(game.config.width/2, game.config.height/2, 'SNAKE INVADERS', defaultTextStyle).setOrigin(0.5);
         
         defaultTextStyle.color = color_pal.green;
-        this.add.text(game.config.width/2, game.config.height/2 + borderUISize + borderPadding, 'Press ← for Play.js or → for Level0', defaultTextStyle).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2 + borderUISize + borderPadding, 'Press ← to Start', defaultTextStyle).setOrigin(0.5);
 
         // define keys
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -49,24 +45,14 @@ class Menu extends Phaser.Scene {
 
     update() {
         if (Phaser.Input.Keyboard.JustDown(keyLEFT)) {
-          // Novice mode
-          game.settings = {
-            spaceshipSpeed: 3,
-            gameTimer: 60000
-          }
-          this.soundManager.play('sfx_select', {volume: .10});
-          console.log(this.soundManager);
-          this.scene.start("playScene", {soundManager: this.soundManager});    
-        }
-        if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
-          // Expert mode
-          game.settings = {
-            spaceshipSpeed: 4,
-            gameTimer: 45000    
-          }
           this.soundManager.play('sfx_select', {volume: .10});
           console.log(this.soundManager);
           this.scene.start("levelZeroScene", {soundManager: this.soundManager});    
+        }
+        if (Phaser.Input.Keyboard.JustDown(keyRIGHT)) {
+          this.soundManager.play('sfx_select', {volume: .10});
+          console.log(this.soundManager);
+          this.scene.start("playScene", {soundManager: this.soundManager});    
         }
 
       }
