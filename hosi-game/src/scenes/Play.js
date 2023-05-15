@@ -15,6 +15,7 @@ class Play extends Phaser.Scene {
         
         this.gameOver = false;
         //this.level = 1;
+        this.soundManager = new SoundManager(this);
 
         this.hamsterShip;
         this.startPosition;
@@ -176,7 +177,9 @@ class Play extends Phaser.Scene {
         keyZ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
         keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
         //#endregion
-
+        
+        this.soundManager.level1Music('level1v1');
+        
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.x;
         this.mainCamera.scrollY = this.world.y;
@@ -202,12 +205,14 @@ class Play extends Phaser.Scene {
         this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.enemyTargets, this.onOverlap, () => {
             //console.log("asteroid overlap");
             this.hamsterShip.primary_fire();
+            //this.soundManager.play('sfx_primaryFire');
         });
 
         // primary fire vs. enemies
         this.physics.add.overlap(this.enemyTargets, this.hamsterShip.bullets, (enemy, bullet) => {
             this.hamsterShip.bullets.remove(bullet, true, true);
             this.spawner.resetSpawnObject(enemy);
+            this.soundManager.playExplosion();
         });
 
         // rocket vs. enemies
@@ -218,6 +223,7 @@ class Play extends Phaser.Scene {
                 rocket.states.EXPLODE.enter();
                 this.spawner.resetSpawnObject(enemy);
             }
+            this.soundManager.playExplosion();
         });
 
         //this is stupid -t
@@ -230,18 +236,7 @@ class Play extends Phaser.Scene {
                 this.time.delayedCall(1000, () => {
                     //this.slow = false;
                     this.scene.start('menuScene');
-                    this.scene.stop();
-                }, null, this);
-            });
-
-            this.physics.add.overlap(this.hamsterShip, this.spawner.snakeshipGroup.bulletGroup, () => {
-                this.gameOver = true;
-                this.teeext = this.add.text(this.hamsterShip.cameraTarget.x, this.hamsterShip.cameraTarget.y, 'lol get rekt', defaultTextStyle).setOrigin(0.5);
-                console.log(this.teeext.text);
-                
-                this.time.delayedCall(1000, () => {
-                    //this.slow = false;
-                    this.scene.start('menuScene');
+                    this.soundManager.stopCurrentMusic();
                     this.scene.stop();
                 }, null, this);
             });
@@ -317,7 +312,7 @@ class Play extends Phaser.Scene {
         
         if(Phaser.Input.Keyboard.JustDown(keyESC)){
             this.input.keyboard.resetKeys();
-            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene"});
+            this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene", soundManager: this.soundManager});
             //this.pauseScene.scene.main
             console.log("pause scene: " + this.pauseScene);
             this.scene.pause();

@@ -74,8 +74,5 @@ class Loading extends Phaser.Scene {
             this.cyanBeam.tilePositionY -=6;
         }
         //#endregion
-
-        
-
     }
 }

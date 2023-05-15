@@ -10,6 +10,8 @@ class Play extends Phaser.Scene {
         this.level = 1;
         this.defaultShipSpeed = 100;
 
+        this.soundManager = new SoundManager(this);
+
         // load images/tile sprites
         this.load.image('spaceship', './assets/spaceship.png');
         this.load.image('starfield', './assets/starfield.png');
@@ -216,7 +218,8 @@ class Play extends Phaser.Scene {
         this.scoreValueText.setText(this.p1Score.toString())
         this.addTime();
 
-        this.sound.play('sfx_explosion');
+        //this.sound.play('sfx_explosion');
+        this.soundManager.playExplosion();
     }
 
     checkWorldBounds(sprite) {
