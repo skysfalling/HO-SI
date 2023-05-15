@@ -1,9 +1,11 @@
 class Waves {
-    constructor(scene, level, score){
+    constructor(scene){
         this.scene=scene;
-        this.level=level;
 
-        let vertAsteroids = {
+        this.level = 0;
+        this.score = 0;
+
+        this.vertAsteroids = {
             group: null,
             count: 2,
             velocity: {x: 0, y: 100}, // "speed"
@@ -19,7 +21,7 @@ class Waves {
                 }
             }
         }
-        let horzAsteroids = {
+        this.horzAsteroids = {
             group: null,
             count: 2,
             velocity: {x: 100, y: 0}, // "speed"
@@ -33,32 +35,34 @@ class Waves {
                 }
             }
         }
-        let smallShips = {
+
+
+        this.greenShips = {
             group: null,
             count: 3,
             size: 2, // "scale"
             spawnDelay: 2,
             level_update: (level) => {
                 if (level % 5 === 0) {
-                    smallShips.count += 1;
+                    greenShips.count += 1;
                 }
             }
         }
-        let medShips = {
+        this.orangeShips = {
             group: null,
             count: 3,
             size: 2, // "scale"
             spawnDelay: 2,
             level_update: (level) => {
                 if (level % 5 === 0) {
-                    medShips.count += 1;
+                    orangeShips.count += 1;
                 }
                 if(level % 10 === 0){
-                    medShips.count+=1 + Math.round(Math.random());
+                    orangeShips.count+=1 + Math.round(Math.random());
                 }
             }
         }
-        let chunkyShips = {
+        this.purpleShips = {
             group: null,
             count: 1,
             size: 2, // "scale"

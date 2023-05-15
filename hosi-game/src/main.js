@@ -12,9 +12,6 @@ With each passing wave, the struggle intensifies, pushing you to the edge of sur
 
 In the grim darkness there's no respite — only the eternal struggle between hamster and snake, where war is hell, and every battle could be your last. **
 
-
-
-
 ================================================================
 
 */

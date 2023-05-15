@@ -9,18 +9,18 @@ class Play extends Phaser.Scene {
 
     preload() {
         this.physics.add.existing(this);
+
         this.gizmos = new Gizmos(this);
+        this.waves = new Waves(this);
+        this.ui = new UI(this, this.waves);
+        this.soundManager = new SoundManager(this);
 
         this.graphics = this.add.graphics().setDepth(depthLayers.playArea);
-        
         this.gameOver = false;
-        //this.level = 1;
-        this.soundManager = new SoundManager(this);
 
         this.hamsterShip;
         this.startPosition;
 
-        //this.waves=Waves.getInstance(this, level, score);
         //#region [[ SPRITES ]]
             // load images/tile sprites
             //this.load.image('spaceship', './assets/spaceship.png');
@@ -48,6 +48,40 @@ class Play extends Phaser.Scene {
             this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
         //#endregion
+
+        this.anims.create({
+            key: 'greenSnake',
+            frames: this.anims.generateFrameNames('hosi_atlas', { 
+                prefix: "greenSnakeShip",
+                start: 0, 
+                end: 1, 
+            }),
+            frameRate: 10,
+            repeat: -1
+          });
+      
+          this.anims.create({
+              key: 'purpleSnake',
+              frames: this.anims.generateFrameNames('hosi_atlas', { 
+                  prefix: "purpleSnakeShip",
+                  start: 0, 
+                  end: 1, 
+              }),
+              frameRate: 10,
+              repeat: -1
+          });
+      
+          this.anims.create({
+              key: 'orangeSnake',
+              frames: this.anims.generateFrameNames('hosi_atlas', { 
+                  prefix: "orangeSnakeShip",
+                  start: 0, 
+                  end: 1, 
+              }),
+              frameRate: 10,
+              repeat: -1
+          });
+    
 
         //#region [[ SCENE SETUP ]]
 
@@ -154,14 +188,6 @@ class Play extends Phaser.Scene {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
         this.spawner.create();
-
-
-        // title
-        this.titleText = this.add.text(0, 0, "Rocket Patrol", headerConfig).setOrigin(0.5,0.5);
-
-        // level text
-        this.levelText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin * 1.6, "LVL: 0");
-
         
         //#region << INPUTS >>
         // Define the arrow key movement controls
@@ -190,6 +216,16 @@ class Play extends Phaser.Scene {
         // set the mainCamera to world center
         this.mainCamera.scrollX = this.world.x;
         this.mainCamera.scrollY = this.world.y;
+
+        this.greenSnakeShipUI = this.add.sprite(format.margin, format.margin, 'textureAtlasKey', 'greenSnakeShip0');
+        this.greenSnakeShipUI.setScrollFactor(0);
+
+        this.orangeSnakeShipUI = this.add.sprite(format.margin * 2, format.margin, 'textureAtlasKey', 'orangeSnakeShip0');
+        this.orangeSnakeShipUI.setScrollFactor(0);
+
+        this.purpleSnakeShipUI = this.add.sprite(format.margin * 3, format.margin, 'textureAtlasKey', 'purpleSnakeShip0');
+        this.purpleSnakeShipUI.setScrollFactor(0);
+
 
         //#region << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width*4, this.world.height*4, 'starfield').setOrigin(0.5, 0.5);
@@ -317,9 +353,6 @@ class Play extends Phaser.Scene {
 
         this.init(); //STUPID KEY REASSIGNING THING
 
-        const container = new UIElement(this, this.mainCamera.centerX, 0);
-        container.add(this.titleText);
-
         if(Phaser.Input.Keyboard.JustDown(keyESC)){
             this.input.keyboard.resetKeys();
             this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene", soundManager: this.soundManager});
@@ -329,7 +362,6 @@ class Play extends Phaser.Scene {
         }
 
         this.gizmosUpdate();
-
         //console.log("PLAY SCENE STATE :: [" + this.currLevelState.name + "]");
         this.currLevelState.update(time, delta);
 

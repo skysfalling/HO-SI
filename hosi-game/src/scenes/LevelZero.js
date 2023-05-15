@@ -228,6 +228,8 @@ class LevelZero extends Phaser.Scene {
         keyX = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
         //#endregion
 
+        this.soundManager.level0Music();
+
         //#region << BACKGROUNDS >>
         this.takeoffBackground = this.add.tileSprite(this.world.center.x, this.world.center.y, screen.width, 0, 'takeoff').setOrigin(0.5, 0.8).setDepth(depthLayers.skybox); 
         this.bunker = this.add.sprite(game.config.width/2, screen.botMid.y - format.margin - 20, 'bunker');
@@ -267,7 +269,7 @@ class LevelZero extends Phaser.Scene {
             repeat: -1
         });
         //#endregion
-        this.soundManager.level0Music();
+
         //#region << ROCKET ANIMATIONS >>
         // explode animation config
         // rocket fly animation config
