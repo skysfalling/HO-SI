@@ -62,38 +62,37 @@ class Play extends Phaser.Scene {
             
             //#endregion
 
-            // << CAMERA >>
-            this.mainCamera = this.cameras.main;
-
             //#region << WORLD BOUNDS >>
             const worldSize = 9 * this.grid.cellSize;
-            const offset = {x: 0 * this.grid.cellSize, y: 4 * this.grid.cellSize};
+            const worldOffset = {x: 4 * this.grid.cellSize, y: 4 * this.grid.cellSize};
             const camMargin = this.uiFormat.camMargin;
-            
+
             this.world = {
                 width: worldSize,
                 height: worldSize * 1.5,
-                x: offset.x,
-                y: offset.y,
+                x: worldOffset.x,
+                y: worldOffset.y,
                 center: {
-                    x: (worldSize / 2) + offset.x,
-                    y: (worldSize / 2) + offset.y
+                    x: (worldSize / 2) + worldOffset.x,
+                    y: (worldSize / 2) + worldOffset.y
                 },
                 bounds: {
-                    left: offset.x,
-                    right: offset.x + worldSize,
-                    top: offset.y * 1.5,
-                    bottom: offset.y + worldSize
+                    left: worldOffset.x,
+                    right: worldOffset.x + worldSize,
+                    top: worldOffset.y * 1.5,
+                    bottom: worldOffset.y + worldSize
                 },
                 cam_bounds: {
-                    left: offset.x + camMargin,
-                    right: offset.x + worldSize - camMargin,
-                    top: offset.y + camMargin,
-                    bottom: offset.y + worldSize - camMargin,
+                    left: worldOffset.x + camMargin,
+                    right: worldOffset.x + worldSize - camMargin,
+                    top: worldOffset.y + camMargin,
+                    bottom: worldOffset.y + worldSize - camMargin,
                     width: worldSize - (2 * camMargin),
                     height: worldSize - (2 * camMargin)
                 }
             };
+
+            this.mainCamera = this.cameras.main;
 
             this.spawner = new Spawner(this);
             this.skychart = this.spawner.skychart;
@@ -155,6 +154,14 @@ class Play extends Phaser.Scene {
         // << CREATE GIZMOS >>
         this.gizmosCreate();
         this.spawner.create();
+
+
+        // title
+        this.titleText = this.add.text(0, 0, "Rocket Patrol", headerConfig).setOrigin(0.5,0.5);
+
+        // level text
+        this.levelText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin * 1.6, "LVL: 0");
+
         
         //#region << INPUTS >>
         // Define the arrow key movement controls
@@ -309,7 +316,10 @@ class Play extends Phaser.Scene {
     update(time, delta) {
 
         this.init(); //STUPID KEY REASSIGNING THING
-        
+
+        const container = new UIElement(this, this.mainCamera.centerX, 0);
+        container.add(this.titleText);
+
         if(Phaser.Input.Keyboard.JustDown(keyESC)){
             this.input.keyboard.resetKeys();
             this.pauseScene = this.scene.launch("pauseScene", {prevScene: "playScene", soundManager: this.soundManager});

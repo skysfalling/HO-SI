@@ -17,8 +17,6 @@ class Spawner {
         // << SKYCHART >>
         this.skychart = new SkyChart(this.scene, this.spawnArea.center.x, this.spawnArea.center.y, this.spawnArea.width, this.spawnArea.height);
 
-
-
         //#region << ENTITY RESET BOUNDS >>
         this.topResetBound = this.skychart.rect.top;
         this.bottomResetBound = this.skychart.rect.bottom;
@@ -28,14 +26,14 @@ class Spawner {
 
         //#region << CREATE POINT RANGES >>
         this.vertIndexRange = {min: 4, max: 12};
-        this.horzIndexRange = {min: 4, max: 16};
+        this.horzIndexRange = {min: 6, max: 20};
         this.top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
         this.bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
         this.left_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
         this.right_spawnpoints = this.getPointsInRange(this.skychart.points.right, this.horzIndexRange.min, this.horzIndexRange.max);
         //#endregion
 
-        // << ENEMY SPAWN AREAS >>
+        //#region << ENEMY SPAWN AREAS >>
         this.fullSpawnArea = this.gizmos.createRect(
             this.skychart.x, 
             this.skychart.y * 0.25, 
@@ -75,7 +73,8 @@ class Spawner {
             10, 
             0.1
         );
-        
+        //#endregion
+
         // << ALL SPAWN OBJECTS >>
         this.vertResetAsteroids;
         this.left_ResetAsteroids;
