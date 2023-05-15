@@ -47,6 +47,7 @@ class Pause extends Phaser.Scene {
                     this.resText.setBackgroundColor(color_pal.grey);
                     //make button less setBackgroundColor
                     console.log('resume enter');
+                    this.soundManager.play('sfx_select');
                 },
                 update: () => {
                     if(Phaser.Input.Keyboard.JustDown(keyENTER)){ //if enter is pressed, run resume
@@ -77,6 +78,7 @@ class Pause extends Phaser.Scene {
                     this.volSlider.setBackgroundColor(color_pal.grey);
                     //make knob more
                     console.log('volume enter');
+                    this.soundManager.play('sfx_select');
                 },
                 update: () => {
                     if(Phaser.Input.Keyboard.JustDown(keyLEFT)){
@@ -86,6 +88,7 @@ class Pause extends Phaser.Scene {
                             volPercent-=.25;
                             this.volSliderTextShit(volPercent);
                             this.soundManager.setVolume(volPercent);
+                            this.soundManager.play('sfx_select');
                         }
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyRIGHT)){
@@ -95,6 +98,7 @@ class Pause extends Phaser.Scene {
                             volPercent+=.25;
                             this.volSliderTextShit(volPercent);
                             this.soundManager.setVolume(volPercent);
+                            this.soundManager.play('sfx_select');
                         }
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){
@@ -122,6 +126,7 @@ class Pause extends Phaser.Scene {
                     this.currPauseState = this.pauseState.RESTARTBUT;
                     this.restartText.setBackgroundColor(color_pal.grey);
                     console.log('restart enter');
+                    this.soundManager.play('sfx_select');
                 },
                 update: () => {
                     if(Phaser.Input.Keyboard.JustDown(keyENTER)){
@@ -134,6 +139,7 @@ class Pause extends Phaser.Scene {
                         this.scene.start('menuScene');
                         this.scene.setVisible(true, 'menuScene');
                         this.scene.stop();
+                        this.soundManager.play('sfx_select');
                         //this.pauseState.RESTARTBUT.enter();
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){ //if down, change state to VOLSLIDER & enter
