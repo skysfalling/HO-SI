@@ -100,6 +100,19 @@ class AsteroidGroup extends Phaser.Physics.Arcade.Group
         //<< RESET ASTEROID >>
         asteroid.setActive(false);
         asteroid.setVisible(false);
+
+        const emitter = this.scene.add.particles(asteroid.x, asteroid.y, 'asteriodParticle', {
+            lifespan: 500,
+            //scaleX: 0.5,
+            //scaleY: 0.5,
+            speed: { min: 150, max: 250 },
+            scale: { start: 0.8, end: 0 },
+            gravityY: 150,
+            //blendMode: 'ADD',
+            emitting: false
+        });
+        emitter.explode(16);
+        
         asteroid.body.velocity.x = 0;
         asteroid.body.velocity.y = 0;
 
