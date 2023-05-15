@@ -140,6 +140,7 @@ class Pause extends Phaser.Scene {
                         this.scene.setVisible(true, 'menuScene');
                         this.scene.stop();
                         this.soundManager.play('sfx_select');
+                        
                         //this.pauseState.RESTARTBUT.enter();
                     }
                     if(Phaser.Input.Keyboard.JustDown(keyDOWN)){ //if down, change state to VOLSLIDER & enter

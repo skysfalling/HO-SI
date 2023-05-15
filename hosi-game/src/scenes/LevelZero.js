@@ -440,6 +440,25 @@ class LevelZero extends Phaser.Scene {
         this.spawner.tutorialEnemyGroup.spawnNew(3, 3);
         this.spawner.tutorialEnemyGroup.spawnNew(5, 5);
 
+
+        // auto primary fire trigger
+        this.physics.add.overlap(this.hamsterShip.primaryFireTrigger, this.spawner.tutorialEnemyGroup, this.onOverlap, () => {
+            //console.log("asteroid overlap");
+            
+            if (this.tutorialRocket.tutorialOver)
+            {
+                this.hamsterShip.primary_fire();
+            }
+            //this.soundManager.play('sfx_primaryFire');
+        });
+
+        // primary fire vs. enemies
+        this.physics.add.overlap(this.spawner.tutorialEnemyGroup, this.hamsterShip.bullets, (enemy, bullet) => {
+            this.hamsterShip.bullets.remove(bullet, true, true);
+            this.spawner.resetSpawnObject(enemy);
+            this.soundManager.playExplosion();
+        });
+
         // rocket vs. enemies
         this.physics.add.overlap(this.tutorialRocket, this.spawner.tutorialEnemyGroup, (rocket, enemy) => {
             this.hitcount++;
@@ -455,15 +474,17 @@ class LevelZero extends Phaser.Scene {
         //#endregion
 
         //#region  << GAME UI >>        
-        // time passed --> unsure if we want this shown
-        this.timePassedText = this.add.text(screen.topRight.x - (format.margin * 3), screen.topRight.y + format.margin, 'Time', headerConfig).setOrigin(0.5,0.5);
 
         // title
         headerConfig.fixedWidth = 0;
         this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + format.margin, "Rocket Patrol", headerConfig).setOrigin(0.5,0.5);
 
         // level text
-        this.levelText = this.gizmos.createText(screen.topMid.x, screen.topMid.y + format.margin * 1.6, "LVL: 0");
+        this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + (format.margin*4), "Press F to Fire Rocket", defaultTextStyle).setOrigin(0.5,0.5);
+        this.titleText.setColor("#ffffff");
+
+        this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + (format.margin*5), "Press <--> to Aim Rocket in Air", defaultTextStyle).setOrigin(0.5,0.5);
+        this.titleText.setColor("#ffffff");
         //#endregion
 
         //#region << GAME TIMER >> 
@@ -509,9 +530,6 @@ class LevelZero extends Phaser.Scene {
             this.input.keyboard.enabled = false;
         }
 
-        // update time
-        this.timePassedText.setText(`${this.curTime}`);
-        //this.levelText.setText(`LVL: ${this.level}`);
 
         //#endregion
         

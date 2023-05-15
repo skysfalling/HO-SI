@@ -192,6 +192,9 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
         this.texture = texture;
         scene.physics.add.existing(this);
 
+        this.combinedScore = 0;
+        this.livesUsed = 0;
+
         this.gizmos = new Gizmos(scene);
         this.debugColor = color_pal.toInt("green");
 
@@ -224,6 +227,9 @@ class SnakeshipGroup extends Phaser.Physics.Arcade.Group {
 
     reset(snakeship) {
         snakeship.states.RESET.enter();
+        this.livesUsed++; 
+        this.combinedScore += 10;
+        //console.log("livesUsed: " + this.livesUsed + " " + JSON.stringify(snakeship));
     }
 }
 
