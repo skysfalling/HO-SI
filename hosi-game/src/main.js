@@ -2,15 +2,18 @@
 
 ================================================================
 
-HAMSTER ORIGINS : SNAKE INVADERS 
+===// HAMSTER ORIGINS : SNAKE INVADERS //========
+----- Sky Casey, Tatiana Lucero, Athena Patronas -----------
+>> 60 hours
 
-> In the unforgiving void of space, a battle rages in Hamster Origins: Snake Invaders. As a war-weary hamster, you'll command your spacecraft through an endless onslaught of cold-blooded snake adversaries.
-> 
-> 
-> With each passing wave, the struggle intensifies, pushing you to the edge of survival. Collect hard-earned upgrades and fight for every inch of progress, as you etch your name into the annals of high scores. 
-> 
-> In the grim darkness there's no respite—only the eternal struggle between hamster and snake, where war is hell, and every battle could be your last.**
->
+In the unforgiving void of space, a battle rages in Hamster Origins: Snake Invaders. As a war-weary hamster, you'll command your spacecraft through an endless onslaught of cold-blooded snake adversaries.
+
+With each passing wave, the struggle intensifies, pushing you to the edge of survival. Collect hard-earned upgrades and fight for every inch of progress, as you etch your name into the annals of high scores. 
+
+In the grim darkness there's no respite — only the eternal struggle between hamster and snake, where war is hell, and every battle could be your last. **
+
+
+
 
 ================================================================
 
