@@ -19,19 +19,8 @@ class SoundManager {
   
     loadAllSounds() {
       console.log("Loading all Sounds");
-      //#region /////////////////// LOADING SFX ///////////////////
-      this.scene.load.audio('sfx_select', './assets/sounds/sfx/blipSelect.wav');
-      this.scene.load.audio('sfx_dodge', './assets/sounds/sfx/dodge.wav');
-      this.scene.load.audio('sfx_explosion', './assets/sounds/sfx/explosion.wav');
-      this.scene.load.audio('sfx_explosion1', './assets/sounds/sfx/explosion1.wav');
-      this.scene.load.audio('sfx_explosion2', './assets/sounds/sfx/explosion1.wav');
-      this.scene.load.audio('sfx_hyperdrive', './assets/sounds/sfx/hyperdrive.wav');
-      this.scene.load.audio('sfx_primaryFire', './assets/sounds/sfx/playerShoot.wav');
-      this.scene.load.audio('sfx_rocket', './assets/sounds/sfx/rocket_shot.wav');
-      this.scene.load.audio('sfx_takeoff', './assets/sounds/sfx/takeoff.wav');
-      //#endregion
-      
-      //#region /////////////////// LOADING MUSIC ///////////////////
+
+            //#region /////////////////// LOADING MUSIC ///////////////////
       
       //JUST CHORDS
       this.scene.load.audio('just_chords', './assets/sounds/music/just_chords.mp3');
@@ -56,6 +45,20 @@ class SoundManager {
       this.scene.load.audio('var_2', './assets/sounds/music/var_2.wav');
       */
       //#endregion MUSIC
+
+      //#region /////////////////// LOADING SFX ///////////////////
+      this.scene.load.audio('sfx_select', './assets/sounds/sfx/blipSelect.wav');
+      this.scene.load.audio('sfx_dodge', './assets/sounds/sfx/dodge.wav');
+      this.scene.load.audio('sfx_explosion', './assets/sounds/sfx/explosion.wav');
+      this.scene.load.audio('sfx_explosion1', './assets/sounds/sfx/explosion1.wav');
+      this.scene.load.audio('sfx_explosion2', './assets/sounds/sfx/explosion1.wav');
+      this.scene.load.audio('sfx_hyperdrive', './assets/sounds/sfx/hyperdrive.wav');
+      this.scene.load.audio('sfx_primaryFire', './assets/sounds/sfx/playerShoot.wav');
+      this.scene.load.audio('sfx_rocket', './assets/sounds/sfx/rocket_shot.wav');
+      this.scene.load.audio('sfx_takeoff', './assets/sounds/sfx/takeoff.wav');
+      //#endregion
+      
+
       
       // Register a callback for when all the sound files are loaded
       this.scene.load.on('complete', () => {
