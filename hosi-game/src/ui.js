@@ -80,14 +80,9 @@ class UI {
       this.waveText.setText("Wave: " + this.waves.level);
       this.waveText.setPosition(screen.width - format.margin*2, format.margin);
   
-
-      // THIS ERROR SUCKS IM OUT - sky
-      if (this.scene.greenShipsConfig && this.scene.orangeShipsConfig && this.scene.purpleShipsConfig)
-      {
-        this.greenShipCount.setText( `${this.scene.greenShipsConfig.currLifeCount}`);
-        this.orangeShipCount.setText(`${this.scene.orangeShipsConfig.currCount}`);
-        this.purpleShipCount.setText(`${this.scene.purpleShipsConfig.currCount}`);
-      }
+      this.updateText(this.greenShipCount, format.margin, format.margin * 2, `${this.scene.greenShipsConfig.currLifeCount}`);
+      this.updateText(this.orangeShipCount, format.margin*2, format.margin * 2, `${this.scene.orangeShipsConfig.currCount}`);
+      this.updateText(this.purpleShipCount, format.margin*3, format.margin * 2, `${this.scene.purpleShipsConfig.currCount}`);
     }
 
   }
@@ -121,9 +116,8 @@ class UI {
     return textObject;
   }
   
-  /*
   updateText(textObject, x, y, text = "gizmos") {            
-    if (!textObject || !text) {
+    if (!textObject) {
       console.error("No text object");
       return;
     }
@@ -148,7 +142,6 @@ class UI {
     textObject.text = text;
     textObject.setVisible(this.visible);
   }
-  */
   
 //#endregion
 
