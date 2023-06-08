@@ -1,10 +1,10 @@
 class Spawner {
-    constructor(scene, horzIndexRange = {min: 3, max: 9}, vertIndexRange = {min: 3, max: 9}) {
+    constructor(scene,  horzIndexRange = {min: 3, max: 9}, vertIndexRange = {min: 3, max: 9}) {
         this.scene = scene;
         this.graphics = scene.add.graphics();
         this.gizmos = new Gizmos(scene);
         this.world = this.scene.world;
-    
+        
         this.spawnArea = {
             center: {
                 x: this.world.center.x,
@@ -17,8 +17,6 @@ class Spawner {
         // << SKYCHART >>
         this.skychart = new SkyChart(this.scene, this.spawnArea.center.x, this.spawnArea.center.y, this.spawnArea.width, this.spawnArea.height);
 
-
-
         //#region << ENTITY RESET BOUNDS >>
         this.topResetBound = this.skychart.rect.top;
         this.bottomResetBound = this.skychart.rect.bottom;
@@ -28,14 +26,14 @@ class Spawner {
 
         //#region << CREATE POINT RANGES >>
         this.vertIndexRange = {min: 4, max: 12};
-        this.horzIndexRange = {min: 4, max: 16};
+        this.horzIndexRange = {min: 6, max: 20};
         this.top_spawnpoints = this.getPointsInRange(this.skychart.points.top, this.vertIndexRange.min, this.vertIndexRange.max);
         this.bot_spawnpoints = this.getPointsInRange(this.skychart.points.bottom, this.vertIndexRange.min, this.vertIndexRange.max);
         this.left_spawnpoints = this.getPointsInRange(this.skychart.points.left, this.horzIndexRange.min, this.horzIndexRange.max);
         this.right_spawnpoints = this.getPointsInRange(this.skychart.points.right, this.horzIndexRange.min, this.horzIndexRange.max);
         //#endregion
 
-        // << ENEMY SPAWN AREAS >>
+        //#region << ENEMY SPAWN AREAS >>
         this.fullSpawnArea = this.gizmos.createRect(
             this.skychart.x, 
             this.skychart.y * 0.25, 
@@ -75,12 +73,16 @@ class Spawner {
             10, 
             0.1
         );
-        
+        //#endregion
+
         // << ALL SPAWN OBJECTS >>
         this.vertResetAsteroids;
-        this.left_ResetAsteroids;
-        this.right_ResetAsteroids;
-        this.snakeshipGroup;
+        this.leftResetAsteroids;
+        this.rightResetAsteroids;
+        this.greenSnakeships;
+        this.orangeSnakeships;
+        this.purpleSnakeships;
+
 
         this.scene.events.on('update', this.update, this);
     }
@@ -88,9 +90,12 @@ class Spawner {
     create(){
         // create groups
         this.vertResetAsteroids = this.createAsteroids(this.top_spawnpoints, this.bot_spawnpoints);
-        this.left_ResetAsteroids = this.createAsteroids(this.left_spawnpoints, this.right_spawnpoints, 2);
-        this.right_ResetAsteroids = this.createAsteroids(this.right_spawnpoints, this.left_spawnpoints, 4);
-        this.snakeshipGroup = this.createSnakeshipGroup(this.top_spawnpoints, this.closeSpawnArea, 3);
+        this.leftResetAsteroids = this.createAsteroids(this.left_spawnpoints, this.right_spawnpoints);
+        this.rightResetAsteroids = this.createAsteroids(this.right_spawnpoints, this.left_spawnpoints);
+        
+        this.greenSnakeships = this.createSnakeshipGroup(this.top_spawnpoints, this.closeSpawnArea);
+        this.orangeSnakeships = this.createSnakeshipGroup(this.top_spawnpoints, this.closeSpawnArea);
+        this.purpleSnakeships = this.createSnakeshipGroup(this.top_spawnpoints, this.closeSpawnArea);
 
         // draw vert range            
         this.gizmos.drawLine(this.top_spawnpoints[0], this.bot_spawnpoints[0], color_pal.toInt("pink"), 5, 1);
@@ -112,27 +117,27 @@ class Spawner {
         }
 
         // HORZONTAL ASTEROIDS RESET
-        if (this.left_ResetAsteroids) {
-            this.left_ResetAsteroids.getChildren().forEach(asteroid => {
+        if (this.leftResetAsteroids) {
+            this.leftResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.x > this.rightResetBound){
-                    this.left_ResetAsteroids.resetRandom(asteroid);
+                    this.leftResetAsteroids.resetRandom(asteroid);
                 }
             });
         }
 
-        if (this.right_ResetAsteroids) {
-            this.right_ResetAsteroids.getChildren().forEach(asteroid => {
+        if (this.rightResetAsteroids) {
+            this.rightResetAsteroids.getChildren().forEach(asteroid => {
                 if (asteroid.x < this.leftResetBound){
-                    this.left_ResetAsteroids.resetRandom(asteroid);
+                    this.leftResetAsteroids.resetRandom(asteroid);
                 }
             });
         }
         
         // SnakeshipGroup reset
-        if (this.snakeshipGroup) {
-            this.snakeshipGroup.getChildren().forEach(snakeship => {
+        if (this.greenSnakeships) {
+            this.greenSnakeships.getChildren().forEach(snakeship => {
                 if (snakeship.y > this.bottomResetBound) {
-                    this.snakeshipGroup.reset(snakeship);
+                    this.greenSnakeships.reset(snakeship);
                 }
             });
         }
@@ -143,7 +148,7 @@ class Spawner {
     // ==============================
 
     // << ASTEROID GROUP >> ==============================================
-    createAsteroids(spawnpoints, endpoints, count = 1, velocity_duration = 5, maxDelay = 5000){
+    createAsteroids(spawnpoints, endpoints, count = 0, velocity_duration = 5, maxDelay = 5000){
 
         // create asteroid group with these points ^^^
         const asteroids = new AsteroidGroup(this.scene, this, spawnpoints, endpoints, velocity_duration, maxDelay, 'asteroid');
@@ -160,7 +165,6 @@ class Spawner {
     createSnakeshipGroup(spawnpoints, targetRect) {    
         // Create snakeship group with these points
         const defaultSnakeships = new SnakeshipGroup(this.scene, this, spawnpoints, targetRect);
-        defaultSnakeships.spawnNewRandom(); // Spawn 1 new random snakeship
     
         return defaultSnakeships;
     }
