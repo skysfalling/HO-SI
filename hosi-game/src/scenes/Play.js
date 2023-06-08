@@ -95,8 +95,14 @@ class Play extends Phaser.Scene {
             // << SNAKESHIPS >>
             this.load.atlas('textureAtlasKey', './assets/hosi_sprite_sheet.png', './assets/hosi_texture_atlas.json');
 
-        //#endregion
+            // << PLANETS >>
+            this.load.image('greenPlanet','./assets/planets/greenPlanet.png');
+            this.load.image('blackPlanet','./assets/planets/blackPlanet.png');
+            this.load.image('pinkPlanet','./assets/planets/pinkPlanet.png');
+            this.load.image('bluePlanet','./assets/planets/bluePlanet.png');
 
+        //#endregion
+        //#region << SNAKESHIPS >>    
         this.anims.create({
             key: 'greenSnake',
             frames: this.anims.generateFrameNames('hosi_atlas', { 
@@ -129,8 +135,7 @@ class Play extends Phaser.Scene {
             frameRate: 10,
             repeat: -1
         });
-    
-
+        //#endregion
         //#region [[ SCENE SETUP ]]
 
         //#endregion

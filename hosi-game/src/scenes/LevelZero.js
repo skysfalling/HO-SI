@@ -117,6 +117,7 @@ class LevelZero extends Phaser.Scene {
 
                     // [[ UPDATE GAME OBJECTS]]
                     if(this.hitcount >= 3){
+                        
                         this.levelState.TUTORIAL_CONTINUE.enter();
                         this.soundManager.play('sfx_takeoff');
                         this.tutorialRocket.tutorialOver = true;
@@ -148,11 +149,11 @@ class LevelZero extends Phaser.Scene {
                 update: () => {
                     this.hamsterShip.update();
                     this.takeoffBackground.tilePositionY -= 2;
-                    this.bunker.setVisible(false);
-                    this.beigeHam.setVisible(false);
-                    this.blueHam.setVisible(false);
-                    this.blackHam.setVisible(false);
-                    this.pinkHam.setVisible(false);
+                    this.bunker.y += 2;
+                    this.beigeHam.y +=2;
+                    this.blueHam.y +=2;
+                    this.blackHam.y+=2;
+                    this.pinkHam.y+=2;
                 }
             },
             LEVEL_EXIT: {
@@ -524,6 +525,7 @@ class LevelZero extends Phaser.Scene {
 
     movingHamsters(){
         this.beigeHam = this.add.sprite(screen.botMid.x+20, screen.botMid.y-45).play('beigeIdle').setDepth(100).setScale(2);
+        this.blackHamAbove = this.add.sprite(screen.botLeft.x-15, screen.botLeft.y-185).play('blackMarch').setDepth(100).setScale(2);
         this.blackHam = this.add.sprite(screen.botMid.x-185, screen.botMid.y-55).play('blackMarch').setDepth(100).setScale(2);
         this.blueHam = this.add.sprite(screen.botMid.x-40, screen.botMid.y-45).play('blueIdle').setDepth(100).setScale(2);
         this.pinkHam = this.add.sprite(screen.botMid.x+80, screen.botMid.y-45).play('pinkIdle').setDepth(100).setScale(2);
