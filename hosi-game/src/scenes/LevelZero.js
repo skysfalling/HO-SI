@@ -130,6 +130,7 @@ class LevelZero extends Phaser.Scene {
                     this.currLevelState = this.levelState.TUTORIAL_CONTINUE;
                     console.log("START LEVEL ZERO / 2 ::  " + this.currLevelState.name);
 
+                    this.bunker.tilePositionY -=2;
                     this.hamsterShip.setPosition(this.tutorialRocketStartPos.x, this.tutorialRocketStartPos.y);
                     this.hamsterShip.setActive(true);
                     this.hamsterShip.setVisible(true);
@@ -147,6 +148,11 @@ class LevelZero extends Phaser.Scene {
                 update: () => {
                     this.hamsterShip.update();
                     this.takeoffBackground.tilePositionY -= 2;
+                    this.bunker.setVisible(false);
+                    this.beigeHam.setVisible(false);
+                    this.blueHam.setVisible(false);
+                    this.blackHam.setVisible(false);
+                    this.pinkHam.setVisible(false);
                 }
             },
             LEVEL_EXIT: {
@@ -301,7 +307,7 @@ class LevelZero extends Phaser.Scene {
             //#region ( Beige Hamster )
             this.anims.create({
                 key: 'beigeIdle',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "beige_hamster_idle",
                     start: 1, 
                     end: 7, 
@@ -312,7 +318,7 @@ class LevelZero extends Phaser.Scene {
 
             this.anims.create({
                 key: 'beigeMarch',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "beige_hamster_marching",
                     start: 1, 
                     end: 4, 
@@ -325,7 +331,7 @@ class LevelZero extends Phaser.Scene {
             //#region ( Green Hamster )
             this.anims.create({
                 key: 'greenIdle',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "green_hamster_idle",
                     start: 1, 
                     end: 7, 
@@ -336,7 +342,7 @@ class LevelZero extends Phaser.Scene {
 
             this.anims.create({
                 key: 'greenMarch',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "green_hamster_marching",
                     start: 1, 
                     end: 4, 
@@ -349,7 +355,7 @@ class LevelZero extends Phaser.Scene {
             //#region ( Pink Hamster )
             this.anims.create({
                 key: 'pinkIdle',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "pink_hamster_idle",
                     start: 1, 
                     end: 7, 
@@ -360,7 +366,7 @@ class LevelZero extends Phaser.Scene {
             
             this.anims.create({
                 key: 'pinkMarch',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "pink_hamster_marching",
                     start: 1, 
                     end: 4, 
@@ -373,7 +379,7 @@ class LevelZero extends Phaser.Scene {
             //#region ( Blue Hamster )
             this.anims.create({
                 key: 'blueIdle',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "blue_hamster_idle",
                     start: 1, 
                     end: 7, 
@@ -384,7 +390,7 @@ class LevelZero extends Phaser.Scene {
 
             this.anims.create({
                 key: 'blueMarch',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "blue_hamster_marching",
                     start: 1, 
                     end: 4, 
@@ -397,7 +403,7 @@ class LevelZero extends Phaser.Scene {
             //#region ( Black Hamster ) 
             this.anims.create({
                 key: 'blackIdle',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "black_hamster_idle",
                     start: 1, 
                     end: 7, 
@@ -408,7 +414,7 @@ class LevelZero extends Phaser.Scene {
             
             this.anims.create({
                 key: 'blackMarch',
-                frames: this.anims.generateFrameNames('hosi_atlas', { 
+                frames: this.anims.generateFrameNames('textureAtlasKey', { 
                     prefix: "black_hamster_marching",
                     start: 1, 
                     end: 4, 
@@ -490,6 +496,14 @@ class LevelZero extends Phaser.Scene {
 
         // initalize total hit count
         this.hitcount = 0;
+        this.movingHamsters();
+    }
+
+    movingHamsters(){
+        this.beigeHam = this.add.sprite(screen.botMid.x+20, screen.botMid.y-45).play('beigeIdle').setDepth(100).setScale(2);
+        this.blackHam = this.add.sprite(screen.botMid.x-185, screen.botMid.y-55).play('blackMarch').setDepth(100).setScale(2);
+        this.blueHam = this.add.sprite(screen.botMid.x-40, screen.botMid.y-45).play('blueIdle').setDepth(100).setScale(2);
+        this.pinkHam = this.add.sprite(screen.botMid.x+80, screen.botMid.y-45).play('pinkIdle').setDepth(100).setScale(2);
     }
 
     update(time, delta) {
