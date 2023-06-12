@@ -1,0 +1,109 @@
+body {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.color-box {
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+    float: left;
+    cursor: pointer;
+    border: 1px solid hsl(0, 0%, 50%);
+    border-radius: 25px;
+    box-shadow: 1px 1px 10px rgba(255, 255, 255, 0.401);
+    transition: transform 0.2s ease-in-out;
+}
+
+.color-box:hover {
+    transform: scale(1.2);
+}
+
+#palette_menu {
+    position: relative;
+    justify-content: left;
+    align-items: center;
+    background-color: #ddd;
+    padding: 10px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+}
+
+.menu_square {
+    width: 50px;
+    height: 50px;
+    margin: 10px;
+    padding: 10px;
+    background-color: black;
+    border: 5px solid #ffffff;
+    display: inline-block;
+}
+
+.menu_square h1 {
+    margin: 10%;
+}
+
+.menu_square:hover{
+    transform: scale(1.1);
+}
+
+#menu_back {
+    position: relative;
+    margin: 20px;
+    font-size: 15px;
+
+    justify-self: center;
+    text-align: center;
+}
+
+#palette_holder {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 5px solid white;
+
+    width: 50%;
+    margin: 20px;
+}
+
+.swatch_holder {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    background-color: black;
+    border: 5px solid rgb(22, 22, 22);
+    border-radius: 25px;
+
+    margin: 10px;
+
+}
+
+.color-header {
+    position: relative;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    font-size: 10px;
+    margin: 10px;
+    padding: 5px;
+
+    border-radius: 25px;
+}

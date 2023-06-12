@@ -484,7 +484,7 @@ class LevelZero extends Phaser.Scene {
 
         // title
         headerConfig.fixedWidth = 0;
-        this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + format.margin, "Defend Hamster Society!", headerConfig).setOrigin(0.5,0.5);
+        this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + format.margin, "Rocket Patrol", headerConfig).setOrigin(0.5,0.5);
 
         // level text
         this.titleText = this.add.text(screen.topMid.x, screen.topMid.y + (format.margin*4), "Press F to Fire Rocket", defaultTextStyle).setOrigin(0.5,0.5);
@@ -508,7 +508,6 @@ class LevelZero extends Phaser.Scene {
         }); 
         //#endregion   
         
-        /*
         //#region << HTML REFERENCES >>
         // toggle squares
         const enableGizmosButton = document.querySelector("#enable-gizmos");
@@ -518,7 +517,6 @@ class LevelZero extends Phaser.Scene {
             enableGizmosButton.innerHTML = "Gizmos: " + this.showGizmos;
         });
         //#endregion
-        */
 
         // initalize total hit count
         this.hitcount = 0;

@@ -26,7 +26,6 @@ class Menu extends Phaser.Scene {
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         
-        /*
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
         enableGizmosButton.innerHTML = "Gizmos: " + gizmosActive;
@@ -42,7 +41,6 @@ class Menu extends Phaser.Scene {
             editorActive = !editorActive;
             enableEditButton.innerHTML = "Edit Mode: " + editorActive;
           }); 
-          */
     }
 
     update() {

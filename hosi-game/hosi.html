@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../styles.css">
+    <link rel="stylesheet" type="text/css" href="../phaser.css">
+
+    <script type="text/javascript" src="../dat.gui-master/build/dat.gui.min.js"></script>
+
+    <title>Hamster Origins : Snake Invaders</title>
+
+</head>
+<body>
+
+    <div id="game-window">
+        <div id="game-container">
+            <script src="../phaser/lib/phaser.js"></script>
+
+            <!-- CUSTOM CLASSES -->
+            <script src="./src/gizmos.js"></script>
+            <script src="./src/skychart.js"></script>
+            <script src="./src/soundmanager.js"></script>
+            <script src="./src/spawner.js"></script>
+            <script src="./src/waves.js" ></script>
+            <script src="./src/levelzero_spawner.js"></script>
+            <script src="./src/ui.js"></script>
+
+
+            <!--- PREFABS -->
+            <script src="./src/prefabs/Plane.js"></script>
+            <script src="./src/prefabs/Asteroid.js"></script>
+            <script src="./src/prefabs/Snakeship.js"></script>
+            <script src="./src/prefabs/Spaceship.js"></script>
+            <script src="./src/prefabs/Bullet.js"></script>
+            <script src="./src/prefabs/HamsterShip.js"></script>
+            <script src="./src/prefabs/Rocket.js"></script>
+
+            <!--- SCENES -->
+            <script src="./src/prefabs/TutorialRocket.js"></script>
+            <script src="./src/scenes/Loading.js"></script>
+            <script src="./src/scenes/Menu.js"></script>
+            <script src="./src/scenes/LevelZero.js"></script>
+            <script src="./src/scenes/Pause.js" ></script>
+            <script src="./src/scenes/Play.js"></script>
+
+            <script src="./src/main.js"></script>
+            
+            <h2 style="color:white">HamsterOrigins :</h2>
+            <h2 style="color:white">Snake Invaders</h2>
+            <h3 style="color:white">Sky Casey , Tatiana Lucero , Athena Patronas</h3>
+            <h3 style="color:white">120 - 2023</h3>
+        </div>
+    
+    
+        <div id="debug-wrapper">    
+            
+            <a href="https://skysfalling.notion.site/Hamster-Origins-Snake-Invaders-46e85a524d1b41ea9618ad5bfb68b1be" target="_blank" style="color: pink;">Design Documents</a>
+
+            <div id="debug-window">
+                <h3>Visual Debug</h3>
+                <button id ="enable-gizmos">Gizmos</button>
+                <button id ="enable-edit">Edit Mode</button>
+            </div>
+            <h3 onclick="window.location.href='../index.html'"><- Back To Home</h3>
+
+            ARROW KEYS to move. <br>
+            F to fire<br>
+            D to dodge<br>
+            ESC to pause
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+</body>
+
+
+</html>

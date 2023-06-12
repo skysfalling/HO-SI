@@ -9,11 +9,11 @@ body{
     justify-content: center;
     align-items: center;
     margin: 20px auto;
-    max-width: 500px;
+    max-width: 50%;
 }
 
 #game-container canvas {
-    /*border: 5px solid #ffffff;*/
+    border: 5px solid black;
     outline: none;
     display: block;
     margin: 20px;
