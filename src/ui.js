@@ -54,8 +54,8 @@ class UI {
 
     // Create text elements for each ship type count
     this.greenShipCount = this.createText(0, format.margin * 2, "0: ", this.defaultTextStyle);
-    this.orangeShipCount = this.createText(0, format.margin * 3, "0: ", this.defaultTextStyle);
-    this.purpleShipCount = this.createText(0, format.margin * 4, "0: ", this.defaultTextStyle);
+    //this.orangeShipCount = this.createText(0, format.margin * 3, "0: ", this.defaultTextStyle);
+    //this.purpleShipCount = this.createText(0, format.margin * 4, "0: ", this.defaultTextStyle);
 
 
     // 
@@ -80,9 +80,12 @@ class UI {
       this.waveText.setText("Wave: " + this.waves.level);
       this.waveText.setPosition(screen.width - format.margin*2, format.margin);
   
-      this.updateText(this.greenShipCount, format.margin, format.margin * 2, `${this.scene.greenShipsConfig.currLifeCount}`);
-      this.updateText(this.orangeShipCount, format.margin*2, format.margin * 2, `${this.scene.orangeShipsConfig.currCount}`);
-      this.updateText(this.purpleShipCount, format.margin*3, format.margin * 2, `${this.scene.purpleShipsConfig.currCount}`);
+      if (this.greenShipCount != null)
+      {
+        this.updateText(this.greenShipCount, format.margin, format.margin * 2, `${this.scene.greenShipsConfig.currLifeCount}`);
+      }
+      //this.updateText(this.orangeShipCount, format.margin*2, format.margin * 2, `${this.scene.orangeShipsConfig.currCount}`);
+      //this.updateText(this.purpleShipCount, format.margin*3, format.margin * 2, `${this.scene.purpleShipsConfig.currCount}`);
     }
 
   }
@@ -117,7 +120,7 @@ class UI {
   }
   
   updateText(textObject, x, y, text = "gizmos") {            
-    if (!textObject) {
+    if (!textObject || !text) {
       console.error("No text object");
       return;
     }

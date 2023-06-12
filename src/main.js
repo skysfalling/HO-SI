@@ -21,6 +21,18 @@ let game_config = {
     type: Phaser.CANVAS,
     width: 64 * 9,
     height: 64 * 16 ,
+    scale: {
+      //mode: Phaser.Scale.NONE,
+      //mode: Phaser.Scale.FIT,
+      //mode: Phaser.Scale.ENVELOP,
+      mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
+      //mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+      //mode: Phaser.Scale.RESIZE,
+      //autoCenter: Phaser.Scale.NO_CENTER,
+      autoCenter: Phaser.Scale.HORIZONTALLY,
+      //autoCenter: Phaser.Scale.VERTICALLY,
+      //autoCenter: Phaser.Scale.CENTER_BOTH
+  },
     parent: 'game-container',
     physics: {
       default: 'arcade',  
