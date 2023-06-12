@@ -245,10 +245,10 @@ class Play extends Phaser.Scene {
             size: 2, // "scale"
             spawnDelay: 2,
             level_update: (level) => {
-                if (level % 5 === 0) {
+                if (level % 3 === 0) {
                     this.greenShips.waveStartCount += 1;
                 }
-                if (level % 3 === 0) {
+                if (level % 5 === 0) {
                     this.greenShips.groupLives += 2;
                 }
             }
@@ -283,7 +283,7 @@ class Play extends Phaser.Scene {
 
 
         // html reference to canvas
-        const canvas = document.getElementById('game-container');
+        //const canvas = document.getElementById('game-container');
     }
 
     // ================================================================================= ///??^
@@ -327,11 +327,11 @@ class Play extends Phaser.Scene {
         this.greenSnakeShipUI = this.add.sprite(format.margin, format.margin, 'textureAtlasKey', 'greenSnakeShip0');
         this.greenSnakeShipUI.setScrollFactor(0);
 
-        this.orangeSnakeShipUI = this.add.sprite(format.margin * 2, format.margin, 'textureAtlasKey', 'orangeSnakeShip0');
-        this.orangeSnakeShipUI.setScrollFactor(0);
+        //this.orangeSnakeShipUI = this.add.sprite(format.margin * 2, format.margin, 'textureAtlasKey', 'orangeSnakeShip0');
+        //this.orangeSnakeShipUI.setScrollFactor(0);
 
-        this.purpleSnakeShipUI = this.add.sprite(format.margin * 3, format.margin, 'textureAtlasKey', 'purpleSnakeShip0');
-        this.purpleSnakeShipUI.setScrollFactor(0);
+        //this.purpleSnakeShipUI = this.add.sprite(format.margin * 3, format.margin, 'textureAtlasKey', 'purpleSnakeShip0');
+        //this.purpleSnakeShipUI.setScrollFactor(0);
 
         //#region << BACKGROUND PARALLAX >>
         this.starfield = this.add.tileSprite(this.world.center.x, this.world.center.y, this.world.width*4, this.world.height*4, 'starfield').setOrigin(0.5, 0.5);
@@ -393,6 +393,7 @@ class Play extends Phaser.Scene {
         }
         //#endregion
 
+        /*
         //#region << HTML REFERENCES >>
         // toggle gizmos
         const enableGizmosButton = document.querySelector("#enable-gizmos");
@@ -410,6 +411,7 @@ class Play extends Phaser.Scene {
             enableEditButton.innerHTML = "Edit Mode: " + editorActive;
             }); 
         //#endregion
+        */
 
 
         // Wave state machine
